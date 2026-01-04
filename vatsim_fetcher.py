@@ -48,8 +48,16 @@ class VatsimFetcher:
         Determine which stand an aircraft is parked at using geofencing
         Returns stand name or None
         """
-        # Only assign stands to stationary aircraft on the ground
-        if groundspeed > 5 or altitude > 100:
+        # FIX: The previous check (altitude > 100) failed because 
+        # VATSIM sends MSL altitude. LSZH is ~1400ft MSL.
+        # We now trust groundspeed < 5 (stationary) as the primary indicator.
+        
+        if groundspeed > 5:
+            return None
+            
+        # Optional Sanity Check: If a plane is hovering at 30,000ft with 0 speed,
+        # it's likely paused or a data glitch, not at a gate.
+        if altitude > 10000: 
             return None
         
         if pilot_lat is None or pilot_lon is None:
