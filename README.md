@@ -1,108 +1,116 @@
-# VATSIM Flight Board - Zurich Airport (LSZH)
+### `README.md`
 
-Real-time flight information display system for Zurich Airport, showing live VATSIM flight simulator traffic in a clean, professional web interface.
+```markdown
+# VATSIM Flight Board - Swiss Radar Edition
 
-## Features
+A professional, real-time Flight Information Display System (FIDS) for VATSIM, designed to mimic modern airport displays. Currently configured for major Swiss airports (Zurich, Geneva, Basel).
 
-- **Real-time Flight Tables**
-  - Departures: Aircraft boarding or taxiing at LSZH
-  - Arrivals: Aircraft landing, approaching, or landed at LSZH
-  - En Route: All other LSZH-related flights currently airborne
+## 🚀 Features
 
-- **Smart Status Detection**
-  - Automatic flight phase detection based on altitude and groundspeed
-  - Color-coded status badges for quick visual reference
+### Core Functionality
+- **Multi-Airport Support:** Live switching between **LSZH** (Zurich), **LSGG** (Geneva), and **LFSB** (Basel) via a dropdown menu.
+- **Real-Time Updates:** Auto-refreshes flight data every 60 seconds using WebSockets (Socket.IO).
+- **Live VATSIM Data:** Pulls pilots, flight plans, and online ATC controllers directly from the VATSIM Data API.
 
-- **Professional UI**
-  - Clean design inspired by real airport displays
-  - Airline logos via free CDN
-  - Nunito font for modern aesthetic
-  - Live METAR weather data
-  - Online ATC controllers with frequencies
-  - UTC timestamps
+### "Smart" Logic
+- **Intelligent Status Detection:** Automatically determines if a flight is *Boarding*, *Taxiing*, *Departing*, *En Route*, or *Landing* based on physics (Altitude/Speed) and geospatial location.
+- **Smart Delay Calculation:**
+  - Calculates delays based on filed departure time vs. current time.
+  - **Auto-Correction:** Detects "stale" flight plans (e.g., pilot reused a plan from yesterday) and hides unrealistic delays (>5 hours).
+  - **Fresh Flight Detection:** Ignores delays if the pilot logged on *after* their scheduled time.
+- **Geospatial Filtering:**
+  - **Departures:** Automatically removed from the board once they leave the terminal airspace (>80km).
+  - **Arrivals:** Only appear when they enter realistic radar range (<1000km).
+  - **Return Flight Fix:** Prevents aircraft at destination airports from appearing as "Boarding" at the origin.
 
-- **Live Updates**
-  - Auto-refresh every 60 seconds via SocketIO
-  - No page reload required
+### 🎨 UI/UX Design
+- **"Midnight Radar" Theme:** Dark mode aesthetic with high-contrast text for readability.
+- **Dynamic Airline Logos:** Fetches airline logos automatically using an open-source ICAO-to-IATA database (no API key required).
+- **Visual Alerts:**
+  - **Flashing Red Badges** for delayed flights.
+  - **Neon Status Badges** for different flight phases.
+- **ATC Presence:** Shows active controllers (Tower, Ground, Approach) with their frequencies.
+- **METAR Integration:** Displays live weather reports for the selected airport.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Backend:** Python, Flask, SocketIO
-- **Frontend:** HTML, CSS, JavaScript
-- **Data Sources:** VATSIM API, METAR API
-- **Deployment:** Gunicorn with eventlet workers, systemd
+- **Backend:** Python, Flask, Flask-SocketIO
+- **Task Scheduling:** APScheduler (Background fetches)
+- **Frontend:** HTML5, CSS3 (Grid/Flexbox), JavaScript (ES6+)
+- **Data:** VATSIM Public Data API (v3)
 
-## Installation
+## 📦 Installation
 
 ### Prerequisites
-- Python 3.x
-- Debian/Ubuntu Linux (or similar)
+- Python 3.8+
+- `pip`
 
 ### Setup
 
-1. Clone the repository:
-```bash
-git clone https://github.com/tazmattar/flight-board.git
-cd flight-board
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/yourusername/vatsim-flight-board.git](https://github.com/yourusername/vatsim-flight-board.git)
+   cd vatsim-flight-board
+
 ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 ```bash
-pip install flask flask-socketio eventlet requests
+pip install -r requirements.txt
+
 ```
 
-3. Run in development:
+
+*(If `requirements.txt` is missing, install manually: `pip install flask flask-socketio requests apscheduler eventlet`)*
+3. **Run the application:**
 ```bash
 python app.py
+
 ```
 
-Access at `http://localhost:5000`
 
-## Production Deployment
+4. **Access the board:**
+Open your browser to `http://localhost:5000`
 
-### Using Gunicorn + systemd
+## ⚙️ Configuration
 
-1. Install Gunicorn:
-```bash
-pip install gunicorn
+### Adding New Airports
+
+To add more airports, edit `vatsim_fetcher.py`. Add the airport ICAO, Name, and Coordinates to the `self.airports` dictionary:
+
+```python
+self.airports = {
+    'LSZH': {'name': 'Zurich Airport', 'lat': 47.4647, 'lon': 8.5492},
+    'EGLL': {'name': 'London Heathrow', 'lat': 51.4700, 'lon': -0.4543}, # Example
+    # ...
+}
+
 ```
 
-2. Create systemd service file at `/etc/systemd/system/flight-board.service`:
-```ini
-[Unit]
-Description=VATSIM Flight Board
-After=network.target
+Don't forget to update the dropdown menu in `templates/index.html` to match!
 
-[Service]
-User=root
-WorkingDirectory=/opt/flight-board
-ExecStart=/usr/local/bin/gunicorn -k eventlet -w 1 -b 0.0.0.0:5000 app:app
-Restart=always
+## 📂 Project Structure
 
-[Install]
-WantedBy=multi-user.target
+```
+├── app.py                 # Main Flask application & Socket.IO server
+├── vatsim_fetcher.py      # Logic for fetching, parsing, and filtering VATSIM data
+├── config.py              # Configuration settings
+├── templates/
+│   └── index.html         # Main dashboard (HTML structure)
+└── static/
+    ├── css/
+    │   └── style.css      # Dark theme & animations
+    └── js/
+        └── app.js         # Frontend logic (WebSockets, dynamic logos)
+
 ```
 
-3. Enable and start:
-```bash
-systemctl daemon-reload
-systemctl enable flight-board
-systemctl start flight-board
-```
+## 📝 License
 
-## Configuration
+This project is open-source and available under the MIT License.
 
-The system is currently configured for Zurich Airport (LSZH). To change airports, modify the `AIRPORT_ICAO` variable in `app.py`.
+## 🤝 Acknowledgements
 
-## API Information
-
-- **VATSIM API:** Free, unlimited, updates every 60 seconds
-- **METAR Data:** CheckWX API (free tier)
-
-## License
-
-MIT
-
-## Author
-
-Taz - [GitHub](https://github.com/tazmattar)
+* **Data Source:** [VATSIM](https://vatsim.net/)
+* **Airline Logos:** [Kiwi.com](https://kiwi.com) & [Airline Codes Dataset](https://github.com/npow/airline-codes)
+* **Fonts:** Inter & JetBrains Mono (Google Fonts)
