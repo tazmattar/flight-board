@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Traffic - Flight Board</title>
+    <title>LSZH Flight Board</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
-    <div class="page-container">
-        <header class="main-header">
-            <div class="header-content">
+    <div class="monitor-frame">
+        <div class="page-container">
+            <header class="fids-header">
                 <div class="airport-selector">
                     <select id="airportSelect">
                         <option value="LSZH">LSZH - Zurich</option>
@@ -23,61 +24,70 @@
                         <option value="LFSB">LFSB - Basel</option>
                     </select>
                 </div>
-                <h1 id="airportName">Zurich Airport</h1>
+                <div class="clock-container">
+                    <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
+                </div>
+            </header>
+
+            <div class="fids-table-wrapper">
+                <table class="flight-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%">Flight</th>
+                            <th style="width: 25%">Destination</th>
+                            <th style="width: 15%">Aircraft</th>
+                            <th style="width: 15%">Altitude</th>
+                            <th style="width: 10%">Speed</th>
+                            <th style="width: 20%">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="departureList"></tbody>
+                </table>
+                
+                <div class="section-divider">Arrivals</div>
+                <table class="flight-table">
+                    <tbody id="arrivalList"></tbody>
+                </table>
+                
+                <div class="section-divider">En Route</div>
+                <table class="flight-table">
+                    <tbody id="enrouteList"></tbody>
+                </table>
             </div>
-            <div class="header-meta">
-    <button id="fullscreenBtn" class="fs-button" title="Toggle Fullscreen">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-        </svg>
-    </button>
-    
-    <span class="live-indicator">● LIVE</span>
-    <span class="update-time">Updated: <span id="lastUpdate">--:--:--</span></span>
-</div>
-        </header>
+        </div>
 
-        <div class="info-panel">
-            <div class="metar-display">
-                <span class="info-label">METAR:</span>
-                <span id="metar" class="metar-text">Loading...</span>
+        <footer class="fids-footer">
+            <div class="footer-group left">
+                </div>
+            
+            <div class="footer-group center-left">
+                <span class="material-icons huge-arrow">arrow_upward</span>
+                <div class="gate-icon-box">
+                    <span class="material-icons">flight_takeoff</span>
+                    <span>Gates</span>
+                </div>
             </div>
-            <div class="controllers-display">
-                <span class="info-label">ATC Online:</span>
-                <div id="controllers" class="controllers-list">Loading...</div>
+
+            <div class="footer-group center">
+                <div class="main-label">
+                    <span class="de">Abflug</span>
+                    <span class="en">Departure</span>
+                </div>
             </div>
-        </div>
 
-        <div class="section-title">Departures</div>
-        <div class="flight-table-container">
-            <table class="flight-table">
-                <thead>
-                    <tr><th>Flight</th><th>Destination</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
-                </thead>
-                <tbody id="departureList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
-            </table>
-        </div>
-
-        <div class="section-title">Arrivals</div>
-        <div class="flight-table-container">
-            <table class="flight-table">
-                <thead>
-                    <tr><th>Flight</th><th>Origin</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
-                </thead>
-                <tbody id="arrivalList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
-            </table>
-        </div>
-
-        <div class="section-title">En Route</div>
-        <div class="flight-table-container">
-            <table class="flight-table">
-                <thead>
-                    <tr><th>Flight</th><th>Destination</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
-                </thead>
-                <tbody id="enrouteList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
-            </table>
-        </div>
+            <div class="footer-group right">
+                <div class="security-time">
+                    <span class="label">Actual waiting time<br>at security control</span>
+                    <span class="time">9 <small>minutes</small></span>
+                </div>
+                <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+            </div>
+        </footer>
     </div>
+
+    <div id="metar" style="display:none;"></div>
+    <div id="controllers" style="display:none;"></div>
+    <h1 id="airportName" style="display:none;"></h1>
     
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>

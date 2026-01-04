@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
-    
-    // State
     let currentAirport = 'LSZH';
 
     const elements = {
@@ -12,10 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         enrouteList: document.getElementById('enrouteList'),
         lastUpdate: document.getElementById('lastUpdate'),
         metar: document.getElementById('metar'),
-        controllers: document.getElementById('controllers')
+        controllers: document.getElementById('controllers'),
+        fsBtn: document.getElementById('fullscreenBtn')
     };
 
-    // --- Dynamic Airline Data Loading ---
+    // --- Dynamic Airline Data ---
     const manualOverrides = { 'SWS': 'LX', 'EZY': 'U2', 'EZS': 'DS', 'BEL': 'SN', 'GWI': '4U', 'EDW': 'WK' };
     let airlineMapping = { ...manualOverrides };
     
@@ -34,138 +33,155 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadAirlineDatabase();
 
-    // --- Airport Switching Logic ---
-    
-    // 1. Join default airport on load
+    // --- Core Logic ---
     socket.emit('join_airport', { airport: currentAirport });
 
-    // 2. Handle dropdown change
     elements.airportSelect.addEventListener('change', (e) => {
-        const newAirport = e.target.value;
-        
-        // Leave old room, join new room
         socket.emit('leave_airport', { airport: currentAirport });
-        currentAirport = newAirport;
+        currentAirport = e.target.value;
         socket.emit('join_airport', { airport: currentAirport });
-        
-        // Clear tables to show loading state
-        clearTables();
+        // Clean wipe on airport change
+        elements.departureList.innerHTML = '';
+        elements.arrivalList.innerHTML = '';
+        elements.enrouteList.innerHTML = '';
     });
 
-    // --- Fullscreen Logic (ADDED HERE) ---
-    const fsBtn = document.getElementById('fullscreenBtn');
-    
-    if (fsBtn) { // Simple check to prevent errors if button is missing
-        fsBtn.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(e => {
-                    console.log(`Error attempting to enable fullscreen: ${e.message}`);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
+    if (elements.fsBtn) {
+        elements.fsBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(console.log);
+            else if (document.exitFullscreen) document.exitFullscreen();
         });
     }
 
-    // --- Socket Events ---
-
     socket.on('flight_update', (data) => {
-        // Update Header Name (e.g., "Geneva Airport")
-        if (data.airport_name) {
-            elements.airportName.textContent = data.airport_name;
-        }
-
-        renderTable(data.departures || [], elements.departureList, 'Departures');
-        renderTable(data.arrivals || [], elements.arrivalList, 'Arrivals');
-        renderTable(data.enroute || [], elements.enrouteList, 'En Route');
+        if (data.airport_name) elements.airportName.textContent = data.airport_name;
         
-        updateMetar(data.metar);
-        updateControllers(data.controllers);
-        updateTimestamp();
+        updateTableSmart(data.departures || [], elements.departureList, 'Departures');
+        updateTableSmart(data.arrivals || [], elements.arrivalList, 'Arrivals');
+        updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
+        
+        // Update Time
+        const now = new Date();
+        elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'});
     });
 
-    // --- Helpers ---
-    
-    function clearTables() {
-        const loadingRow = '<tr><td colspan="6" class="loading-cell">Loading...</td></tr>';
-        elements.departureList.innerHTML = loadingRow;
-        elements.arrivalList.innerHTML = loadingRow;
-        elements.enrouteList.innerHTML = loadingRow;
-        elements.metar.textContent = 'Loading...';
-        elements.controllers.innerHTML = 'Loading...';
-    }
+    // --- SPLIT FLAP ENGINE ---
 
-    function renderTable(flights, container, type) {
-        container.innerHTML = '';
-        if (flights.length === 0) {
-            container.innerHTML = `<tr><td colspan="6" class="loading-cell">No active ${type.toLowerCase()}</td></tr>`;
-            return;
-        }
+    function updateTableSmart(flights, container, type) {
+        // 1. Mark all existing rows as "stale"
+        const existingRows = Array.from(container.children);
+        const seenIds = new Set();
 
         flights.forEach(flight => {
-            const row = document.createElement('tr');
+            const rowId = `row-${flight.callsign}`;
+            seenIds.add(rowId);
+            
+            let row = document.getElementById(rowId);
+            
+            // Format Data
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`;
+            const dest = type === 'Arrivals' ? flight.origin : flight.destination;
+            const alt = `${flight.altitude.toLocaleString()} ft`;
+            const spd = `${flight.groundspeed} kts`;
             
-            // Base status class (e.g., status-boarding)
-            let statusClass = getStatusClass(flight.status);
-            
-            // Check if we need to add the Flashing Delay effect
-            let delayAttr = '';
-            if (flight.delay_text) {
-                statusClass += ' delayed-flash'; // Add magic class
-                delayAttr = `data-delay="${flight.delay_text}"`; // Store text
+            // Handle Status Text (Merge delay text if exists)
+            let statusText = flight.status;
+            if (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready')) {
+                // If delayed, we alternate or just show delay. 
+                // For Split Flap, let's just show the Delay text if it exists to be urgent
+                statusText = flight.delay_text.toUpperCase();
+            } else {
+                statusText = statusText.toUpperCase();
             }
+
+            if (!row) {
+                // Create New Row
+                row = document.createElement('tr');
+                row.id = rowId;
+                row.innerHTML = `
+                    <td><div class="flap-container" id="${rowId}-callsign"></div></td>
+                    <td><div class="flap-container" id="${rowId}-dest"></div></td>
+                    <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                    <td><div class="flap-container" id="${rowId}-alt"></div></td>
+                    <td><div class="flap-container" id="${rowId}-spd"></div></td>
+                    <td class="col-status" data-status="${flight.status}"><div class="flap-container" id="${rowId}-status"></div></td>
+                `;
+                container.appendChild(row);
+            }
+
+            // Update Cells with Split Flap Logic
+            updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
+            updateFlapText(document.getElementById(`${rowId}-dest`), dest);
+            updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
+            updateFlapText(document.getElementById(`${rowId}-alt`), alt);
+            updateFlapText(document.getElementById(`${rowId}-spd`), spd);
             
-            row.innerHTML = `
-                <td>
-                    <div class="flight-cell">
-                        <img src="${logoUrl}" class="airline-logo" onerror="this.style.display='none'"> 
-                        <span class="flight-number">${flight.callsign}</span>
-                    </div>
-                </td>
-                <td><span class="destination-code">${type === 'Arrivals' ? flight.origin : flight.destination}</span></td>
-                <td><span class="aircraft-type">${flight.aircraft}</span></td>
-                <td><span class="altitude-data">${flight.altitude.toLocaleString()} ft</span></td>
-                <td><span class="speed-data">${flight.groundspeed} kts</span></td>
-                <td>
-                    <span class="status-badge ${statusClass}" ${delayAttr}>
-                        ${flight.status}
-                    </span>
-                </td>
-            `;
-            container.appendChild(row);
+            const statusCell = document.getElementById(`${rowId}-status`);
+            // Update parent data-attribute for coloring (Green/Red)
+            statusCell.parentElement.setAttribute('data-status', flight.status); 
+            if(flight.delay_text) statusCell.parentElement.setAttribute('data-status', 'Delayed');
+            
+            updateFlapText(statusCell, statusText);
+        });
+
+        // Remove rows that are no longer in the data
+        existingRows.forEach(row => {
+            if (!seenIds.has(row.id)) row.remove();
         });
     }
 
-    function getStatusClass(status) {
-        if (!status) return '';
-        // Handle the dynamic delay status (starts with "Delayed")
-        if (status.startsWith('Delayed')) return 'status-delayed'; 
-        return `status-${status.toLowerCase().replace(/\s+/g, '-')}`;
-    }
+    /**
+     * Updates the text in a container character by character with animation.
+     */
+    function updateFlapText(container, newText) {
+        if (!container) return;
+        newText = String(newText || "");
+        
+        const currentChildren = container.children;
+        const maxLen = Math.max(currentChildren.length, newText.length);
 
-    function updateMetar(metar) { elements.metar.textContent = metar || 'Unavailable'; }
-    
-    function updateControllers(ctrls) {
-        elements.controllers.innerHTML = '';
-        if (!ctrls || ctrls.length === 0) {
-            elements.controllers.innerHTML = '<span class="no-controllers">No ATC Online</span>';
-            return;
+        for (let i = 0; i < maxLen; i++) {
+            const newChar = newText[i] || ""; // Empty string if shorter
+            let span = currentChildren[i];
+
+            if (!span) {
+                // Create new character tile
+                span = document.createElement('span');
+                span.className = 'flap-char';
+                span.textContent = newChar; // Set initial directly
+                container.appendChild(span);
+                // Trigger flip on enter
+                triggerFlip(span);
+            } else {
+                // Check if changed
+                if (span.textContent !== newChar) {
+                    // It changed! Trigger flip.
+                    triggerFlip(span, newChar);
+                }
+            }
         }
-        ctrls.forEach(c => {
-            const div = document.createElement('div');
-            div.className = 'controller-badge';
-            div.innerHTML = `<span>${c.callsign}</span><span class="controller-freq">${c.frequency}</span>`;
-            elements.controllers.appendChild(div);
-        });
+        
+        // Remove excess characters if string got shorter
+        while (container.children.length > newText.length) {
+            container.removeChild(container.lastChild);
+        }
     }
 
-    function updateTimestamp() {
-        const now = new Date();
-        elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'}) + ' Z';
+    function triggerFlip(element, newChar) {
+        // Remove class to reset animation if it's already playing
+        element.classList.remove('flipping');
+        void element.offsetWidth; // Force reflow (magic CSS reset)
+        
+        element.classList.add('flipping');
+        
+        // Change the text halfway through the animation (at 200ms)
+        // This makes it look like the tile physically flipped over
+        if (newChar !== undefined) {
+            setTimeout(() => {
+                element.textContent = newChar;
+            }, 200); 
+        }
     }
 });

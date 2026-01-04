@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Traffic - LSZH</title>
+    <title>Live Traffic - Flight Board</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,13 +16,25 @@
     <div class="page-container">
         <header class="main-header">
             <div class="header-content">
-                <h1>Zurich Airport</h1>
-                <div class="airport-code">LSZH</div>
+                <div class="airport-selector">
+                    <select id="airportSelect">
+                        <option value="LSZH">LSZH - Zurich</option>
+                        <option value="LSGG">LSGG - Geneva</option>
+                        <option value="LFSB">LFSB - Basel</option>
+                    </select>
+                </div>
+                <h1 id="airportName">Zurich Airport</h1>
             </div>
             <div class="header-meta">
-                <span class="live-indicator">● LIVE</span>
-                <span class="update-time">Updated: <span id="lastUpdate">--:--:--</span></span>
-            </div>
+    <button id="fullscreenBtn" class="fs-button" title="Toggle Fullscreen">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+    </button>
+    
+    <span class="live-indicator">● LIVE</span>
+    <span class="update-time">Updated: <span id="lastUpdate">--:--:--</span></span>
+</div>
         </header>
 
         <div class="info-panel">
@@ -40,18 +52,9 @@
         <div class="flight-table-container">
             <table class="flight-table">
                 <thead>
-                    <tr>
-                        <th>Flight</th>
-                        <th>Destination</th>
-                        <th>Aircraft</th>
-                        <th>Altitude</th>
-                        <th>Speed</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Flight</th><th>Destination</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
                 </thead>
-                <tbody id="departureList">
-                    <tr><td colspan="6" class="loading-cell">Loading departures...</td></tr>
-                </tbody>
+                <tbody id="departureList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
             </table>
         </div>
 
@@ -59,18 +62,9 @@
         <div class="flight-table-container">
             <table class="flight-table">
                 <thead>
-                    <tr>
-                        <th>Flight</th>
-                        <th>Origin</th>
-                        <th>Aircraft</th>
-                        <th>Altitude</th>
-                        <th>Speed</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Flight</th><th>Origin</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
                 </thead>
-                <tbody id="arrivalList">
-                    <tr><td colspan="6" class="loading-cell">Loading arrivals...</td></tr>
-                </tbody>
+                <tbody id="arrivalList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
             </table>
         </div>
 
@@ -78,18 +72,9 @@
         <div class="flight-table-container">
             <table class="flight-table">
                 <thead>
-                    <tr>
-                        <th>Flight</th>
-                        <th>Destination</th>
-                        <th>Aircraft</th>
-                        <th>Altitude</th>
-                        <th>Speed</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Flight</th><th>Destination</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
                 </thead>
-                <tbody id="enrouteList">
-                    <tr><td colspan="6" class="loading-cell">Loading en route flights...</td></tr>
-                </tbody>
+                <tbody id="enrouteList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
