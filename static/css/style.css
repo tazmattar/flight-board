@@ -159,3 +159,31 @@ body {
     .flight-table td { font-size: 16px; }
     .flap-char { min-width: 12px; height: 22px; line-height: 22px; }
 }
+
+/* 1. Force the table to respect strict widths */
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse; /* Optional: cleaner borders */
+}
+
+/* 2. Define exact widths for each of the 6 columns */
+/* Adjust these percentages to fit your preference, but they must total 100% */
+
+/* Column 1: Flight */
+th:nth-child(1), td:nth-child(1) { width: 15%; } 
+
+/* Column 2: Destination/Origin */
+th:nth-child(2), td:nth-child(2) { width: 15%; } 
+
+/* Column 3: Aircraft */
+th:nth-child(3), td:nth-child(3) { width: 10%; } 
+
+/* Column 4: Altitude */
+th:nth-child(4), td:nth-child(4) { width: 15%; } 
+
+/* Column 5: Speed */
+th:nth-child(5), td:nth-child(5) { width: 15%; } 
+
+/* Column 6: Status */
+th:nth-child(6), td:nth-child(6) { width: 30%; }
