@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     let currentAirport = 'LSZH';
+    
+    // Global flag to track the display cycle (Status vs Delay)
+    let showingDelayPhase = false;
 
     const elements = {
         airportSelect: document.getElementById('airportSelect'),
@@ -40,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
         socket.emit('join_airport', { airport: currentAirport });
-        // Clean wipe on airport change
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
         elements.enrouteList.innerHTML = '';
@@ -60,15 +62,39 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTableSmart(data.arrivals || [], elements.arrivalList, 'Arrivals');
         updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
         
-        // Update Time
         const now = new Date();
         elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'});
     });
 
+    // --- THE CYCLE ENGINE (Restores the flashing/flipping behavior) ---
+    setInterval(() => {
+        // Toggle the phase
+        showingDelayPhase = !showingDelayPhase;
+        
+        // Find all cells that have a delay recorded
+        const delayedCells = document.querySelectorAll('.col-status[data-has-delay="true"]');
+        
+        delayedCells.forEach(cell => {
+            const flapContainer = cell.querySelector('.flap-container');
+            const normalStatus = cell.getAttribute('data-status-normal');
+            const delayText = cell.getAttribute('data-status-delay');
+            
+            if (showingDelayPhase) {
+                // Phase A: Show Delay (RED)
+                cell.setAttribute('data-status', 'Delayed'); // Triggers Red CSS
+                updateFlapText(flapContainer, delayText.toUpperCase());
+            } else {
+                // Phase B: Show Normal Status (GREEN/AMBER)
+                cell.setAttribute('data-status', normalStatus); // Triggers original color
+                updateFlapText(flapContainer, normalStatus.toUpperCase());
+            }
+        });
+
+    }, 5000); // Flip every 5 seconds
+
     // --- SPLIT FLAP ENGINE ---
 
     function updateTableSmart(flights, container, type) {
-        // 1. Mark all existing rows as "stale"
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
 
@@ -81,23 +107,24 @@ document.addEventListener('DOMContentLoaded', () => {
             // Format Data
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
-            const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`;
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
             const alt = `${flight.altitude.toLocaleString()} ft`;
             const spd = `${flight.groundspeed} kts`;
             
-            // Handle Status Text (Merge delay text if exists)
-            let statusText = flight.status;
-            if (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready')) {
-                // If delayed, we alternate or just show delay. 
-                // For Split Flap, let's just show the Delay text if it exists to be urgent
-                statusText = flight.delay_text.toUpperCase();
-            } else {
-                statusText = statusText.toUpperCase();
+            // Determine logic for Status Column
+            const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
+            
+            // If we are currently in the "Delay Phase" of the cycle, show delay text.
+            // Otherwise show normal status.
+            let displayStatus = flight.status;
+            let displayColorClass = flight.status; // Used for CSS selector
+
+            if (hasDelay && showingDelayPhase) {
+                displayStatus = flight.delay_text;
+                displayColorClass = 'Delayed';
             }
 
             if (!row) {
-                // Create New Row
                 row = document.createElement('tr');
                 row.id = rowId;
                 row.innerHTML = `
@@ -106,27 +133,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><div class="flap-container" id="${rowId}-ac"></div></td>
                     <td><div class="flap-container" id="${rowId}-alt"></div></td>
                     <td><div class="flap-container" id="${rowId}-spd"></div></td>
-                    <td class="col-status" data-status="${flight.status}"><div class="flap-container" id="${rowId}-status"></div></td>
+                    <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                 `;
                 container.appendChild(row);
             }
 
-            // Update Cells with Split Flap Logic
+            // Update Cells
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-alt`), alt);
             updateFlapText(document.getElementById(`${rowId}-spd`), spd);
             
-            const statusCell = document.getElementById(`${rowId}-status`);
-            // Update parent data-attribute for coloring (Green/Red)
-            statusCell.parentElement.setAttribute('data-status', flight.status); 
-            if(flight.delay_text) statusCell.parentElement.setAttribute('data-status', 'Delayed');
+            // Update Status Cell Metadata (Critical for the cycle engine)
+            const statusCell = row.querySelector('.col-status');
+            const statusFlaps = document.getElementById(`${rowId}-status`);
             
-            updateFlapText(statusCell, statusText);
+            statusCell.setAttribute('data-has-delay', hasDelay ? "true" : "false");
+            statusCell.setAttribute('data-status-normal', flight.status);
+            statusCell.setAttribute('data-status-delay', flight.delay_text || "");
+            
+            // Set current visual state
+            statusCell.setAttribute('data-status', displayColorClass);
+            updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
 
-        // Remove rows that are no longer in the data
         existingRows.forEach(row => {
             if (!seenIds.has(row.id)) row.remove();
         });
@@ -143,45 +174,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxLen = Math.max(currentChildren.length, newText.length);
 
         for (let i = 0; i < maxLen; i++) {
-            const newChar = newText[i] || ""; // Empty string if shorter
+            const newChar = newText[i] || "";
             let span = currentChildren[i];
 
             if (!span) {
-                // Create new character tile
                 span = document.createElement('span');
                 span.className = 'flap-char';
-                span.textContent = newChar; // Set initial directly
+                span.textContent = newChar;
                 container.appendChild(span);
-                // Trigger flip on enter
                 triggerFlip(span);
             } else {
-                // Check if changed
                 if (span.textContent !== newChar) {
-                    // It changed! Trigger flip.
                     triggerFlip(span, newChar);
                 }
             }
         }
         
-        // Remove excess characters if string got shorter
         while (container.children.length > newText.length) {
             container.removeChild(container.lastChild);
         }
     }
 
     function triggerFlip(element, newChar) {
-        // Remove class to reset animation if it's already playing
         element.classList.remove('flipping');
-        void element.offsetWidth; // Force reflow (magic CSS reset)
-        
+        void element.offsetWidth; // Force reflow
         element.classList.add('flipping');
-        
-        // Change the text halfway through the animation (at 200ms)
-        // This makes it look like the tile physically flipped over
         if (newChar !== undefined) {
-            setTimeout(() => {
-                element.textContent = newChar;
-            }, 200); 
+            setTimeout(() => { element.textContent = newChar; }, 200); 
         }
     }
 });
