@@ -443,3 +443,70 @@ body {
         opacity: 1; /* Show "Delayed" (Red) */
     }
 }
+
+/* --- RESPONSIVE / TABLET OPTIMIZATIONS --- */
+
+/* Tablet & Smaller Desktop (Max Width: 1024px) */
+@media (max-width: 1024px) {
+    .page-container {
+        padding: 16px;
+        max-width: 100%;
+    }
+
+    /* 1. Stack the Info Panel (METAR on top of ATC) */
+    .info-panel {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    /* 2. Compact Table Layout */
+    .flight-table th, 
+    .flight-table td {
+        padding: 12px 12px; /* Reduce padding to fit more columns */
+    }
+    
+    .flight-cell {
+        gap: 8px; /* Tighter logo/callsign spacing */
+    }
+}
+
+/* Mobile & Portrait Tablet (Max Width: 768px) */
+@media (max-width: 768px) {
+    /* 3. Re-organize the Header */
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+    }
+    
+    .header-content {
+        width: 100%;
+        flex-direction: column; /* Stack Dropdown & Title */
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .header-meta {
+        width: 100%;
+        justify-content: space-between; /* Spread 'Live' and 'Time' across bottom */
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* 4. Hide "Speed" column on mobile to prevent scrolling */
+    .flight-table th:nth-child(5), /* Header: Speed */
+    .flight-table td:nth-child(5)  /* Data: Speed */
+    {
+        display: none;
+    }
+    
+    /* 5. Adjust Font Sizes */
+    .header-content h1 { font-size: 20px; }
+    .flight-number { font-size: 14px; }
+    .status-badge { 
+        min-width: auto; /* Allow badge to shrink */
+        padding: 4px 8px;
+        font-size: 10px; 
+    }
+}
