@@ -1,127 +1,183 @@
-const socket = io();
-
-const departureList = document.getElementById('departureList');
-const arrivalList = document.getElementById('arrivalList');
-const enrouteList = document.getElementById('enrouteList');
-const lastUpdate = document.getElementById('lastUpdate');
-const metarDisplay = document.getElementById('metar');
-const controllersDisplay = document.getElementById('controllers');
-
-// Callsign prefix to IATA code mapping
-const airlineMapping = {
-    'SWR': 'LX',  // Swiss
-    'SWS': 'LX',  // Swiss (incorrect callsign)
-    'DLH': 'LH',  // Lufthansa
-    'BAW': 'BA',  // British Airways
-    'AFR': 'AF',  // Air France
-    'KLM': 'KL',  // KLM
-    'UAE': 'EK',  // Emirates
-    'THY': 'TK',  // Turkish Airlines
-    'AUA': 'OS',  // Austrian
-    'SAS': 'SK',  // SAS
-    'IBE': 'IB',  // Iberia
-    'RYR': 'FR',  // Ryanair
-    'EZY': 'U2',  // easyJet
-    'AEE': 'A3',  // Aegean
-    'TAP': 'TP',  // TAP Portugal
-    'EDW': 'WK',  // Edelweiss
-    'DAL': 'DL',  // Delta Airlines
-    'DKH': 'HO',  // Juneyao Airlines
-};
-
-socket.on('connect', () => {
-    console.log('Connected to server');
-});
-
-socket.on('disconnect', () => {
-    console.log('Disconnected from server');
-});
-
-socket.on('flight_update', (data) => {
-    console.log('Received flight update:', data);
-    updateFlightDisplay(data);
-    updateMetar(data.metar);
-    updateControllers(data.controllers);
-    updateLastUpdateTime();
-});
-
-function updateFlightDisplay(data) {
-    displayFlights(data.departures || [], departureList, 'departures');
-    displayFlights(data.arrivals || [], arrivalList, 'arrivals');
-    displayFlights(data.enroute || [], enrouteList, 'en route flights');
-}
-
-function displayFlights(flights, container, type) {
-    container.innerHTML = '';
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Configuration & Elements ---
+    const socket = io();
     
-    if (flights.length === 0) {
-        container.innerHTML = `<tr><td colspan="6" class="loading-cell">No ${type}</td></tr>`;
-        return;
-    }
-    
-    flights.forEach(flight => {
-        const row = document.createElement('tr');
-        const statusClass = getStatusClass(flight.status);
-        
-        // Extract airline code from callsign (first 3 letters)
-        const callsignPrefix = flight.callsign.substring(0, 3).toUpperCase();
-        const airlineCode = airlineMapping[callsignPrefix] || callsignPrefix;
-        const logoUrl = `https://images.kiwi.com/airlines/64/${airlineCode}.png`;
-        
-        row.innerHTML = `
-            <td>
-                <div class="flight-cell">
-                    <img src="${logoUrl}" alt="${airlineCode}" class="airline-logo" onerror="this.style.display='none'">
-                    <span class="flight-number">${flight.callsign}</span>
-                </div>
-            </td>
-            <td><span class="destination-code">${flight.destination}</span></td>
-            <td><span class="aircraft-type">${flight.aircraft}</span></td>
-            <td><span class="altitude-data">${flight.altitude.toLocaleString()} ft</span></td>
-            <td><span class="speed-data">${flight.groundspeed} kts</span></td>
-            <td><span class="status-badge ${statusClass}">${flight.status}</span></td>
-        `;
-        
-        container.appendChild(row);
+    const elements = {
+        departureList: document.getElementById('departureList'),
+        arrivalList: document.getElementById('arrivalList'),
+        enrouteList: document.getElementById('enrouteList'),
+        lastUpdate: document.getElementById('lastUpdate'),
+        metar: document.getElementById('metar'),
+        controllers: document.getElementById('controllers')
+    };
+
+    // Mapping callsigns to IATA codes for logos
+    const airlineMapping = {
+        'SWR': 'LX', 'SWS': 'LX', // Swiss
+        'DLH': 'LH', // Lufthansa
+        'BAW': 'BA', 'SHT': 'BA', // British Airways
+        'AFR': 'AF', // Air France
+        'KLM': 'KL', // KLM
+        'UAE': 'EK', // Emirates
+        'THY': 'TK', // Turkish Airlines
+        'AUA': 'OS', // Austrian
+        'SAS': 'SK', // SAS
+        'IBE': 'IB', // Iberia
+        'RYR': 'FR', // Ryanair
+        'EZY': 'U2', // easyJet
+        'AEE': 'A3', // Aegean
+        'TAP': 'TP', // TAP Portugal
+        'EDW': 'WK', // Edelweiss
+        'DAL': 'DL', // Delta
+        'DKH': 'HO', // Juneyao
+        'UAL': 'UA', // United
+        'AAL': 'AA', // American
+        'QTR': 'QR', // Qatar
+        'ETD': 'EY', // Etihad
+    };
+
+    // --- Socket Event Listeners ---
+
+    socket.on('connect', () => {
+        console.log('Connected to VATSIM data stream');
+        showConnectionStatus(true);
     });
-}
 
-function getStatusClass(status) {
-    const statusLower = status.toLowerCase().replace(/\s+/g, '-');
-    return `status-${statusLower}`;
-}
-
-function updateMetar(metar) {
-    metarDisplay.textContent = metar || 'METAR not available';
-}
-
-function updateControllers(controllers) {
-    controllersDisplay.innerHTML = '';
-    
-    if (!controllers || controllers.length === 0) {
-        controllersDisplay.innerHTML = '<span class="no-controllers">No ATC online</span>';
-        return;
-    }
-    
-    controllers.forEach(controller => {
-        const badge = document.createElement('div');
-        badge.className = 'controller-badge';
-        
-        badge.innerHTML = `
-            <span>${controller.callsign}</span>
-            <span class="controller-freq">${controller.frequency}</span>
-        `;
-        
-        controllersDisplay.appendChild(badge);
+    socket.on('disconnect', () => {
+        console.log('Disconnected from server');
+        showConnectionStatus(false);
     });
-}
 
-function updateLastUpdateTime() {
-    const now = new Date();
-    const hours = String(now.getUTCHours()).padStart(2, '0');
-    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-    lastUpdate.textContent = `${hours}:${minutes}:${seconds} UTC`;
-}
+    socket.on('flight_update', (data) => {
+        if (!data) return;
+        
+        console.log('Data received:', data); // Debugging
+        
+        // Render all sections
+        renderTable(data.departures || [], elements.departureList, 'Departures');
+        renderTable(data.arrivals || [], elements.arrivalList, 'Arrivals');
+        renderTable(data.enroute || [], elements.enrouteList, 'En Route');
+        
+        updateMetar(data.metar);
+        updateControllers(data.controllers);
+        updateTimestamp();
+    });
 
-updateLastUpdateTime();
+    // --- Rendering Functions ---
+
+    /**
+     * Renders a specific flight table (Departures, Arrivals, or En Route)
+     */
+    function renderTable(flights, container, type) {
+        container.innerHTML = '';
+
+        if (flights.length === 0) {
+            container.innerHTML = `
+                <tr>
+                    <td colspan="6" class="loading-cell">
+                        No active ${type.toLowerCase()}
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        flights.forEach(flight => {
+            const row = document.createElement('tr');
+            
+            // Data processing
+            const callsignPrefix = flight.callsign.substring(0, 3).toUpperCase();
+            const airlineCode = airlineMapping[callsignPrefix] || callsignPrefix;
+            // Fallback to IATA logo, if not found the onerror event in HTML hides it
+            const logoUrl = `https://images.kiwi.com/airlines/64/${airlineCode}.png`;
+            
+            const statusClass = getStatusClass(flight.status);
+            const formattedStatus = capitalize(flight.status);
+            const formattedAltitude = flight.altitude.toLocaleString();
+            
+            row.innerHTML = `
+                <td>
+                    <div class="flight-cell">
+                        <img src="${logoUrl}" 
+                             alt="${airlineCode}" 
+                             class="airline-logo" 
+                             onerror="this.style.display='none'">
+                        <span class="flight-number">${flight.callsign}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="destination-code">
+                        ${type === 'Arrivals' ? flight.origin : flight.destination}
+                    </span>
+                </td>
+                <td><span class="aircraft-type">${flight.aircraft}</span></td>
+                <td><span class="altitude-data">${formattedAltitude} ft</span></td>
+                <td><span class="speed-data">${flight.groundspeed} kts</span></td>
+                <td>
+                    <span class="status-badge ${statusClass}">
+                        ${formattedStatus}
+                    </span>
+                </td>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function updateMetar(metarData) {
+        // If metarData is just a string, display it. 
+        // If it's missing, show placeholder.
+        elements.metar.textContent = metarData || 'METAR unavailable';
+    }
+
+    function updateControllers(controllers) {
+        elements.controllers.innerHTML = '';
+
+        if (!controllers || controllers.length === 0) {
+            elements.controllers.innerHTML = '<span class="no-controllers">No ATC Online</span>';
+            return;
+        }
+
+        controllers.forEach(ctrl => {
+            const badge = document.createElement('div');
+            badge.className = 'controller-badge';
+            badge.innerHTML = `
+                <span>${ctrl.callsign}</span>
+                <span class="controller-freq">${ctrl.frequency}</span>
+            `;
+            elements.controllers.appendChild(badge);
+        });
+    }
+
+    // --- Helpers ---
+
+    function getStatusClass(status) {
+        if (!status) return '';
+        // Convert "En Route" -> "en-route", "Landed" -> "landed"
+        return `status-${status.toLowerCase().replace(/\s+/g, '-')}`;
+    }
+
+    function capitalize(str) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function updateTimestamp() {
+        const now = new Date();
+        // Use Intl for cleaner UTC formatting
+        const timeString = new Intl.DateTimeFormat('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: 'UTC'
+        }).format(now);
+        
+        elements.lastUpdate.textContent = `${timeString} Z`;
+    }
+
+    function showConnectionStatus(isConnected) {
+        const indicator = document.querySelector('.live-indicator');
+        if (indicator) {
+            indicator.style.color = isConnected ? '#ef4444' : '#64748b'; // Red for live, grey for offline
+            indicator.textContent = isConnected ? '● LIVE' : '● OFFLINE';
+        }
+    }
+});
