@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         controllers: document.getElementById('controllers')
     };
 
-    // --- Dynamic Airline Data Loading (Same as before) ---
+    // --- Dynamic Airline Data Loading ---
     const manualOverrides = { 'SWS': 'LX', 'EZY': 'U2', 'EZS': 'DS', 'BEL': 'SN', 'GWI': '4U', 'EDW': 'WK' };
     let airlineMapping = { ...manualOverrides };
     
@@ -51,6 +51,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear tables to show loading state
         clearTables();
     });
+
+    // --- Fullscreen Logic (ADDED HERE) ---
+    const fsBtn = document.getElementById('fullscreenBtn');
+    
+    if (fsBtn) { // Simple check to prevent errors if button is missing
+        fsBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e => {
+                    console.log(`Error attempting to enable fullscreen: ${e.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+    }
 
     // --- Socket Events ---
 

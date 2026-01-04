@@ -30,10 +30,12 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Fullscreen-ready Container */
 .page-container {
-    max-width: 1600px; /* Wider for better table view */
+    max-width: 100%;
+    width: 98%;      /* Slight breathing room */
     margin: 0 auto;
-    padding: 24px;
+    padding: 20px 0;
 }
 
 /* --- Header --- */
@@ -47,7 +49,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    backdrop-filter: blur(8px); /* Subtle glass effect */
+    backdrop-filter: blur(8px);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
 }
 
 .header-content h1 {
@@ -57,18 +65,32 @@ body {
     color: var(--text-primary);
 }
 
-.airport-code {
+/* Airport Dropdown Selector */
+.airport-selector select {
     background: #2563eb;
     color: white;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
     font-size: 14px;
-    margin-left: 12px;
-    box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); /* Glow effect */
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px top 50%;
+    background-size: 10px auto;
+    padding-right: 32px;
 }
 
+.airport-selector select:hover {
+    background-color: #1d4ed8;
+}
+
+/* Header Meta & Buttons */
 .header-meta {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
@@ -78,8 +100,29 @@ body {
     gap: 16px;
 }
 
+.fs-button {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-right: 12px;
+}
+
+.fs-button:hover {
+    background: #334155;
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+
 .live-indicator {
-    color: #ef4444; /* Red recording dot style */
+    color: #ef4444;
     font-weight: 700;
     animation: pulse 2s infinite;
 }
@@ -93,7 +136,7 @@ body {
 /* --- Info Panel (METAR & ATC) --- */
 .info-panel {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Split layout */
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     margin-bottom: 40px;
 }
@@ -177,15 +220,15 @@ body {
     border-radius: 2px;
 }
 
-/* --- Tables (The "Floating Row" Look) --- */
+/* --- Tables --- */
 .flight-table-container {
     overflow-x: auto;
 }
 
 .flight-table {
     width: 100%;
-    border-collapse: separate; /* Crucial for spacing */
-    border-spacing: 0 8px;     /* Gap between rows */
+    border-collapse: separate;
+    border-spacing: 0 8px;
 }
 
 .flight-table thead th {
@@ -205,7 +248,7 @@ body {
 
 .flight-table tbody tr:hover {
     transform: translateX(4px);
-    background: #283548; /* Slightly lighter on hover */
+    background: #283548;
     box-shadow: -4px 0 0 var(--accent-blue);
 }
 
@@ -215,7 +258,6 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-/* Rounded corners for the row ends */
 .flight-table td:first-child {
     border-left: 1px solid var(--border-color);
     border-top-left-radius: 8px;
@@ -228,7 +270,6 @@ body {
     border-bottom-right-radius: 8px;
 }
 
-/* Columns Styling */
 .flight-cell {
     display: flex;
     align-items: center;
@@ -239,7 +280,7 @@ body {
     width: 28px;
     height: 28px;
     object-fit: contain;
-    background: white; /* Ensure transparency logos are visible */
+    background: white;
     padding: 2px;
     border-radius: 4px;
 }
@@ -270,7 +311,7 @@ body {
     border: 1px solid #334155;
 }
 
-/* --- Status Badges (Neon Style) --- */
+/* --- Status Badges --- */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -282,24 +323,23 @@ body {
     letter-spacing: 0.5px;
     min-width: 120px;
     justify-content: center;
+    position: relative; /* For flash overlay */
+    overflow: hidden;
+    z-index: 1;
 }
 
-/* Status variants */
-
-/* 1. Departing stays Green (Active) */
+/* 1. Departing (Active Green) */
 .status-departing {
     background: var(--status-green-bg);
     color: var(--status-green-text);
     border: 1px solid rgba(74, 222, 128, 0.2);
 }
 
-/* 2. Boarding becomes Pink (Gate) */
+/* 2. Boarding (Gate Pink) */
 .status-boarding {
-    background: rgba(236, 72, 153, 0.2); /* Pink background */
-    color: #f472b6;                      /* Pink text */
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
     border: 1px solid rgba(236, 72, 153, 0.3);
-    
-    /* Optional: A subtle pulse to show urgency */
     animation: pulse-pink 3s infinite;
 }
 
@@ -309,55 +349,53 @@ body {
     100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
 }
 
+/* 3. Ready / Pushback (Amber Transition) */
+.status-ready, .status-pushback {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-pushback {
+    animation: pulse-amber 3s infinite;
+}
+
+@keyframes pulse-amber {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    70% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+/* 4. General Amber (Taxiing, Approaching) */
 .status-taxiing, .status-approaching {
     background: var(--status-amber-bg);
     color: var(--status-amber-text);
     border: 1px solid rgba(251, 191, 36, 0.2);
 }
 
+/* 5. En Route (Blue) */
 .status-en-route {
     background: var(--status-blue-bg);
     color: var(--status-blue-text);
     border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
+/* 6. Landed (Dark) */
 .status-landed {
     background: #1e293b;
     color: #94a3b8;
     border: 1px solid #334155;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .info-panel { grid-template-columns: 1fr; }
-    .page-container { padding: 12px; }
-}
-
-[class*="status-dly"] {
-    background: #fef2f2;
-    color: #ef4444;
-    border: 1px solid #fee2e2;
-    font-weight: 700;
-    animation: pulse-red 2s infinite;
-}
-
-@keyframes pulse-red {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
 /* --- Delay Badges (Dynamic) --- */
-/* Targets any class starting with "status-delayed" (e.g., status-delayed-45-min) */
+/* Targets class="status-delayed-45-min" etc. */
 [class*="status-delayed"] {
-    background: rgba(239, 68, 68, 0.2); /* Red with 20% opacity */
-    color: #fca5a5;                      /* Light red text */
+    background: rgba(239, 68, 68, 0.2); 
+    color: #fca5a5;                      
     border: 1px solid rgba(239, 68, 68, 0.3);
-    text-transform: none;                /* Keep "Delayed 2h" case nicely */
+    text-transform: none;                
     font-weight: 700;
     letter-spacing: 0.5px;
-    
-    /* The Slow Flash */
     animation: urgent-pulse 3s infinite ease-in-out;
 }
 
@@ -379,69 +417,29 @@ body {
     }
 }
 
-.airport-selector select {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    outline: none;
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
-    appearance: none; /* Removes default arrow */
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px top 50%;
-    background-size: 10px auto;
-    padding-right: 32px;
-}
-
-.airport-selector select:hover {
-    background-color: #1d4ed8;
-}
-
-/* --- Flashing Delay Animation --- */
-
-/* The base badge needs relative positioning so the overlay sits correctly */
-.status-badge {
-    position: relative; 
-    overflow: hidden; /* Ensures the overlay doesn't spill out */
-    z-index: 1;
-}
-
-/* The Overlay Badge (Red "Delayed" state) */
+/* --- Flashing Delay Overlay --- */
+/* Creates a flashing Red Delay badge ON TOP of the Pink/Green/Amber badge */
 .delayed-flash::after {
-    content: attr(data-delay); /* Grab the text from HTML */
-    
-    /* Position it exactly over the original badge */
+    content: attr(data-delay);
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     
-    /* Styling for the Delayed state (Red) */
-    background: rgba(239, 68, 68, 0.95); /* High opacity to cover the pink text */
+    background: rgba(239, 68, 68, 0.95);
     color: #fecaca;
     font-weight: 700;
-    font-size: 11px; /* Slightly smaller to fit long times */
+    font-size: 11px;
     text-transform: none;
     
-    /* The Animation loop */
     animation: flash-overlay 5s infinite ease-in-out;
-    opacity: 0; /* Start hidden */
+    opacity: 0;
 }
 
 @keyframes flash-overlay {
-    0%, 45% { 
-        opacity: 0; /* Show "Boarding" (Pink) */
-    }
-    50%, 95% { 
-        opacity: 1; /* Show "Delayed" (Red) */
-    }
+    0%, 45% { opacity: 0; }
+    50%, 95% { opacity: 1; }
 }
 
 /* --- RESPONSIVE / TABLET OPTIMIZATIONS --- */
@@ -450,29 +448,29 @@ body {
 @media (max-width: 1024px) {
     .page-container {
         padding: 16px;
-        max-width: 100%;
+        width: 100%;
     }
 
-    /* 1. Stack the Info Panel (METAR on top of ATC) */
+    /* Stack the Info Panel */
     .info-panel {
         grid-template-columns: 1fr;
         gap: 16px;
     }
     
-    /* 2. Compact Table Layout */
+    /* Compact Table */
     .flight-table th, 
     .flight-table td {
-        padding: 12px 12px; /* Reduce padding to fit more columns */
+        padding: 12px 12px;
     }
     
     .flight-cell {
-        gap: 8px; /* Tighter logo/callsign spacing */
+        gap: 8px;
     }
 }
 
 /* Mobile & Portrait Tablet (Max Width: 768px) */
 @media (max-width: 768px) {
-    /* 3. Re-organize the Header */
+    /* Re-organize the Header */
     .main-header {
         flex-direction: column;
         align-items: flex-start;
@@ -482,30 +480,28 @@ body {
     
     .header-content {
         width: 100%;
-        flex-direction: column; /* Stack Dropdown & Title */
+        flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
     
     .header-meta {
         width: 100%;
-        justify-content: space-between; /* Spread 'Live' and 'Time' across bottom */
+        justify-content: space-between;
         padding-top: 16px;
         border-top: 1px solid var(--border-color);
     }
 
-    /* 4. Hide "Speed" column on mobile to prevent scrolling */
-    .flight-table th:nth-child(5), /* Header: Speed */
-    .flight-table td:nth-child(5)  /* Data: Speed */
-    {
+    /* Hide "Speed" column on mobile */
+    .flight-table th:nth-child(5),
+    .flight-table td:nth-child(5) {
         display: none;
     }
     
-    /* 5. Adjust Font Sizes */
     .header-content h1 { font-size: 20px; }
     .flight-number { font-size: 14px; }
     .status-badge { 
-        min-width: auto; /* Allow badge to shrink */
+        min-width: auto;
         padding: 4px 8px;
         font-size: 10px; 
     }
