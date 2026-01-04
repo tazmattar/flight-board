@@ -1,5 +1,6 @@
 import requests
 import math
+import traceback
 from datetime import datetime
 
 class VatsimFetcher:
@@ -7,22 +8,22 @@ class VatsimFetcher:
         self.vatsim_url = 'https://data.vatsim.net/v3/vatsim-data.json'
         
         # Configuration for supported airports
-        # Added 'ceiling': The altitude (ft) below which a plane is considered "Departing" vs "En Route"
+        # 'ceiling': Altitude (ft) below which a plane is "Departing" vs "En Route"
         self.airports = {
             'LSZH': {
                 'name': 'Zurich Airport', 
                 'lat': 47.4647, 'lon': 8.5492, 
-                'ceiling': 6000  # Initial climb usually 5000ft
+                'ceiling': 6000 
             },
             'LSGG': {
                 'name': 'Geneva Airport', 
                 'lat': 46.2370, 'lon': 6.1091, 
-                'ceiling': 8000  # Higher terrain, initial climb 7000ft
+                'ceiling': 8000 
             },
             'LFSB': {
                 'name': 'EuroAirport Basel', 
                 'lat': 47.5900, 'lon': 7.5290, 
-                'ceiling': 5000  # Lower terrain
+                'ceiling': 5000 
             }
         }
         
@@ -32,6 +33,18 @@ class VatsimFetcher:
         self.ground_range = 15       # km
     
     def fetch_flights(self):
+        # 1. Initialize the structure FIRST so we can return it even if the API fails
+        results = {}
+        for code in self.airports:
+            results[code] = {
+                'departures': [],
+                'arrivals': [],
+                'enroute': [],
+                'metar': 'Unavailable',
+                'controllers': [],
+                'airport_name': self.airports[code]['name']
+            }
+
         try:
             response = requests.get(self.vatsim_url, timeout=10)
             response.raise_for_status()
@@ -40,18 +53,6 @@ class VatsimFetcher:
             pilots = data.get('pilots', [])
             controllers_data = data.get('controllers', [])
             
-            # Initialize empty results
-            results = {}
-            for code in self.airports:
-                results[code] = {
-                    'departures': [],
-                    'arrivals': [],
-                    'enroute': [],
-                    'metar': 'Loading...',
-                    'controllers': [],
-                    'airport_name': self.airports[code]['name']
-                }
-
             # --- Process Pilots ---
             for pilot in pilots:
                 flight_plan = pilot.get('flight_plan')
@@ -74,9 +75,11 @@ class VatsimFetcher:
             
             return results
             
-        except Exception as e:
-            print(f"Error: {e}")
-            return {}
+        except Exception:
+            # Print the FULL error to the console so we can debug
+            traceback.print_exc()
+            # Return the empty results so the frontend clears the "Loading..." text
+            return results
 
     def process_flight(self, pilot, airport_code, direction, airport_data):
         """Analyze a flight relative to a specific airport"""
@@ -110,12 +113,13 @@ class VatsimFetcher:
     def format_flight(self, pilot, direction, ceiling):
         flight_plan = pilot.get('flight_plan', {})
         
-        # 1. Determine the REAL physical status (e.g. "Boarding", "Ready")
+        # Determine status using the dynamic ceiling
         raw_status = self.determine_status(pilot, direction, ceiling)
         
         # 2. Calculate Delay (but don't overwrite the status yet)
         delay_text = None
         
+        # Delay Logic: Only checked if at gate (Boarding or Ready)
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
             delay_min = self.calculate_delay(
                 flight_plan.get('deptime', '0000'), 
@@ -137,8 +141,9 @@ class VatsimFetcher:
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
             'status': raw_status,       # ALWAYS send "Boarding" or "Ready"
-            'delay_text': delay_text,   # Send delay info separately (or None)
-            'direction': direction
+            'delay_text': delay_text,   # Send delay info separately
+            'direction': direction,
+            'status_raw': raw_status    # Keep raw status for logic
         }
 
     def determine_status(self, pilot, direction, ceiling):
@@ -149,7 +154,7 @@ class VatsimFetcher:
         default_squawks = {'2000', '2200', '1200', '7000', '0000'}
 
         if direction == 'DEP':
-            # Use the dynamic ceiling (e.g., 6000 for LSZH, 8000 for LSGG)
+            # Use the dynamic ceiling (e.g., 6000 for LSZH)
             if altitude < ceiling: 
                 if groundspeed < 1:
                     return 'Boarding' if squawk in default_squawks else 'Ready'
@@ -163,7 +168,6 @@ class VatsimFetcher:
                 return 'En Route'
                 
         else: # ARRIVALS
-            # You might want to make these dynamic too if adding high-elevation airports like Samedan (LSZS)
             if altitude < 2000 and groundspeed < 40: return 'Landed'
             elif altitude < 2500: return 'Landing'
             elif altitude < 10000: return 'Approaching'
@@ -176,11 +180,16 @@ class VatsimFetcher:
             cur_total = now.hour * 60 + now.minute
             
             if logon:
-                l_dt = datetime.strptime(logon.split('.')[0].replace('Z',''), "%Y-%m-%dT%H:%M:%S")
+                # Robust parsing of logon time (handles microseconds and Z)
+                clean_logon = logon.split('.')[0].replace('Z','')
+                l_dt = datetime.strptime(clean_logon, "%Y-%m-%dT%H:%M:%S")
                 log_total = l_dt.hour * 60 + l_dt.minute
+                
                 start_diff = log_total - sch_total
                 if start_diff < -1000: start_diff += 1440
                 elif start_diff > 1000: start_diff -= 1440
+                
+                # If they logged on > 15m AFTER scheduled time, it's a fresh flight (no delay)
                 if start_diff > 15: return 0 
 
             diff = cur_total - sch_total
