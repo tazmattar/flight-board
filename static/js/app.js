@@ -93,6 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTableSmart(flights, container, type) {
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
+        
+        // Flag to disable gate column for En Route table
+        const showGate = (type !== 'En Route');
 
         flights.forEach(flight => {
             const rowId = `row-${flight.callsign}`;
@@ -108,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
             const alt = `${flight.altitude.toLocaleString()} ft`;
             const spd = `${flight.groundspeed} kts`;
-            const gate = flight.gate || 'TBA';  // NEW: Gate data
+            const gate = flight.gate || 'TBA';
             
             // Determine logic for Status Column
             const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
@@ -125,6 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
+                // Conditionally build the HTML based on whether we show the gate
+                let gateHtml = '';
+                if (showGate) {
+                    gateHtml = `<td><div class="flap-container" id="${rowId}-gate"></div></td>`;
+                }
+
                 row.innerHTML = `
                     <td>
                         <div class="flight-cell">
@@ -134,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td><div class="flap-container" id="${rowId}-dest"></div></td>
                     <td><div class="flap-container" id="${rowId}-ac"></div></td>
-                    <td><div class="flap-container" id="${rowId}-gate"></div></td>
+                    ${gateHtml}
                     <td><div class="flap-container" id="${rowId}-alt"></div></td>
                     <td><div class="flap-container" id="${rowId}-spd"></div></td>
                     <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
@@ -146,7 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
-            updateFlapText(document.getElementById(`${rowId}-gate`), gate);  // NEW: Update gate
+            
+            // Only update gate if it exists
+            if (showGate) {
+                updateFlapText(document.getElementById(`${rowId}-gate`), gate);
+            }
+            
             updateFlapText(document.getElementById(`${rowId}-alt`), alt);
             updateFlapText(document.getElementById(`${rowId}-spd`), spd);
             

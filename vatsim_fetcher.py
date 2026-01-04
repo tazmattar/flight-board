@@ -73,7 +73,7 @@ class VatsimFetcher:
             dist = self.calculate_distance_m(pilot_lat, pilot_lon, stand['lat'], stand['lon'])
             
             # Check if within stand's detection radius (usually 30-40m)
-            if dist <= stand.get('radius', 35):
+            if dist <= stand.get('radius', 80):
                 if dist < min_distance:
                     min_distance = dist
                     closest_stand = stand['name']
