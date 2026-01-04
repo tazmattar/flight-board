@@ -135,11 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // Now logoUrl is defined, so this line won't crash
                 row.innerHTML = `
                     <td>
                         <div class="flight-cell">
-                            <img src="${logoUrl}" class="airline-logo" onerror="this.style.display='none'">
+                            <img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'">
                             <div class="flap-container" id="${rowId}-callsign"></div>
                         </div>
                     </td>
