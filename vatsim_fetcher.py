@@ -74,19 +74,15 @@ class VatsimFetcher:
         raw_status = self.determine_status(pilot, direction)
         
         # 2. Check for Delays (Only relevant for Departures on the ground)
-        delay_min = 0
-        display_status = raw_status
+        display_status = raw_status # Default to just showing "Taxiing" etc.
         
         if direction == 'DEP' and raw_status in ['Boarding', 'Taxiing']:
             delay_min = self.calculate_delay(flight_plan.get('deptime', '0000'))
             
-            # Logic: Show delay if > 15 mins
-            if delay_min > 15:
-                # Cap the display at 12 hours (720 mins) to avoid garbage data
-                # from pilots who forgot to change their filed time from yesterday
-                if delay_min > 720:
-                     display_status = "Delayed" # Just show generic text for massive delays
-                elif delay_min < 60:
+            # Logic: Show delay ONLY if reasonable (15 mins to 180 mins)
+            # If > 180 mins (3 hours), assumes pilot forgot to update time -> Show nothing.
+            if 15 < delay_min < 180:
+                if delay_min < 60:
                     display_status = f"Delayed {delay_min} min"
                 else:
                     hours = delay_min // 60
@@ -124,7 +120,7 @@ class VatsimFetcher:
             elif diff > 1000: # Sched was tomorrow? (Unlikely) or crazy data
                 diff -= 1440
                 
-            # Only return positive delays (we don't care if they are early)
+            # Only return positive delays
             return max(0, diff)
         except:
             return 0
@@ -140,7 +136,6 @@ class VatsimFetcher:
         return R*c
 
     def determine_status(self, pilot, direction):
-        # ... (Your existing status logic here, unchanged) ...
         altitude = pilot.get('altitude', 0)
         groundspeed = pilot.get('groundspeed', 0)
         
@@ -162,7 +157,6 @@ class VatsimFetcher:
         except: return 'Unavailable'
 
     def get_controllers(self, data):
-        # ... (Your existing controller logic) ...
         ctrls = []
         for c in data.get('controllers', []):
             if c.get('callsign', '').startswith(('LSZH', 'LSAS')):
