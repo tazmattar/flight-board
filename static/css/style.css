@@ -30,79 +30,126 @@ body {
 .page-container::-webkit-scrollbar { display: none; }
 
 /* Header */
-/* HEADER LAYOUT */
+/* --- HEADER CONTAINER --- */
 .fids-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    background-color: #000; /* Or your dark theme background */
-    border-bottom: 2px solid #444;
-    height: 60px; /* Fixed height for consistency */
+    padding: 0 20px;
+    background-color: #000;
+    border-bottom: 2px solid #333;
+    height: 60px;
+    font-family: 'JetBrains Mono', monospace; /* Force monospace everywhere in header */
 }
 
 .header-section {
     display: flex;
     align-items: center;
-    gap: 15px;
 }
 
-/* LEFT: Airport Select styling */
-.header-section.left {
-    flex: 0 0 200px; /* Fixed width */
+/* --- RETRO DROPDOWN (Green text, no box) --- */
+.terminal-select-wrapper {
+    position: relative;
+    display: inline-block;
 }
 
-/* CENTER: Info Modules (ATC/METAR) */
-.header-section.center {
-    flex: 1; /* Takes up all available space */
-    justify-content: center;
-    gap: 30px;
-    overflow: hidden; /* Prevents long text from breaking layout */
-}
-
-.info-module {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #bbb;
+.terminal-select {
+    appearance: none; /* Hides default OS arrow/box */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    background: transparent;
+    border: none;
+    color: #0f0; /* Terminal Green */
     font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding-right: 25px; /* Space for custom arrow */
+    text-transform: uppercase;
+    outline: none;
+}
+
+.terminal-select:hover {
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.6); /* Glowing effect on hover */
+}
+
+.terminal-select option {
+    background-color: #000;
+    color: #0f0;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0f0;
+    font-size: 0.8rem;
+    pointer-events: none; /* Lets clicks pass through to the select */
+}
+
+/* --- SYSTEM MESSAGES (ATC / METAR) --- */
+.header-section.center {
+    flex: 1;
+    justify-content: center;
+    gap: 40px;
+    overflow: hidden;
+}
+
+.system-msg {
+    display: flex;
+    gap: 10px;
     font-size: 0.9rem;
     white-space: nowrap;
 }
 
-.info-icon {
-    font-size: 1.1rem;
-    color: #ffb700; /* Amber color for icons */
+.msg-label {
+    color: #666; /* Dim gray for labels */
+    font-weight: bold;
 }
 
-.metar-text, .scrolling-text {
+.msg-value {
+    color: #ffb700; /* Amber for the actual data (stands out from green) */
     max-width: 400px;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #00ffcc; /* Cyan for data text */
+    text-transform: uppercase;
 }
 
-/* RIGHT: Clock & Button */
+/* --- CLOCK & BUTTON --- */
 .header-section.right {
-    flex: 0 0 200px;
-    justify-content: flex-end;
+    gap: 20px;
 }
 
-.header-btn {
-    background: none;
-    border: 1px solid #444;
+.clock-container {
     color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.utc-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 5px;
+}
+
+/* Retro text-based button instead of icon */
+.terminal-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #333;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
     cursor: pointer;
     padding: 5px 10px;
-    border-radius: 4px;
-    margin-left: 15px;
     transition: all 0.2s;
 }
 
-.header-btn:hover {
-    background: #333;
-    border-color: #ffb700;
-    color: #ffb700;
+.terminal-btn:hover {
+    border-color: #0f0;
+    color: #0f0;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 /* Tables */
