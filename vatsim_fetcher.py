@@ -75,13 +75,23 @@ class VatsimFetcher:
         
         # 2. Check for Delays (Only relevant for Departures on the ground)
         delay_min = 0
+        display_status = raw_status
+        
         if direction == 'DEP' and raw_status in ['Boarding', 'Taxiing']:
             delay_min = self.calculate_delay(flight_plan.get('deptime', '0000'))
-        
-        # 3. Format the final status string
-        display_status = raw_status
-        if delay_min > 15: # Only show if more than 15 mins late
-            display_status = f"DLY {delay_min}m"
+            
+            # Logic: Show delay if > 15 mins
+            if delay_min > 15:
+                # Cap the display at 12 hours (720 mins) to avoid garbage data
+                # from pilots who forgot to change their filed time from yesterday
+                if delay_min > 720:
+                     display_status = "Delayed" # Just show generic text for massive delays
+                elif delay_min < 60:
+                    display_status = f"Delayed {delay_min} min"
+                else:
+                    hours = delay_min // 60
+                    mins = delay_min % 60
+                    display_status = f"Delayed {hours}h {mins:02d}m"
 
         return {
             'callsign': pilot.get('callsign', 'N/A'),
@@ -90,8 +100,8 @@ class VatsimFetcher:
             'destination': flight_plan.get('arrival', 'N/A'),
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
-            'status': display_status,     # Shows "DLY 45m"
-            'status_raw': raw_status,     # Used for logic/sorting (hidden)
+            'status': display_status,
+            'status_raw': raw_status,
             'direction': direction
         }
 
