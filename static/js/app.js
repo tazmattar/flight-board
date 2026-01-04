@@ -92,7 +92,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`;
-            const statusClass = getStatusClass(flight.status);
+            
+            // Base status class (e.g., status-boarding)
+            let statusClass = getStatusClass(flight.status);
+            
+            // Check if we need to add the Flashing Delay effect
+            let delayAttr = '';
+            if (flight.delay_text) {
+                statusClass += ' delayed-flash'; // Add magic class
+                delayAttr = `data-delay="${flight.delay_text}"`; // Store text
+            }
             
             row.innerHTML = `
                 <td>
@@ -105,7 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><span class="aircraft-type">${flight.aircraft}</span></td>
                 <td><span class="altitude-data">${flight.altitude.toLocaleString()} ft</span></td>
                 <td><span class="speed-data">${flight.groundspeed} kts</span></td>
-                <td><span class="status-badge ${statusClass}">${flight.status}</span></td>
+                <td>
+                    <span class="status-badge ${statusClass}" ${delayAttr}>
+                        ${flight.status}
+                    </span>
+                </td>
             `;
             container.appendChild(row);
         });

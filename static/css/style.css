@@ -402,3 +402,44 @@ body {
 .airport-selector select:hover {
     background-color: #1d4ed8;
 }
+
+/* --- Flashing Delay Animation --- */
+
+/* The base badge needs relative positioning so the overlay sits correctly */
+.status-badge {
+    position: relative; 
+    overflow: hidden; /* Ensures the overlay doesn't spill out */
+    z-index: 1;
+}
+
+/* The Overlay Badge (Red "Delayed" state) */
+.delayed-flash::after {
+    content: attr(data-delay); /* Grab the text from HTML */
+    
+    /* Position it exactly over the original badge */
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Styling for the Delayed state (Red) */
+    background: rgba(239, 68, 68, 0.95); /* High opacity to cover the pink text */
+    color: #fecaca;
+    font-weight: 700;
+    font-size: 11px; /* Slightly smaller to fit long times */
+    text-transform: none;
+    
+    /* The Animation loop */
+    animation: flash-overlay 5s infinite ease-in-out;
+    opacity: 0; /* Start hidden */
+}
+
+@keyframes flash-overlay {
+    0%, 45% { 
+        opacity: 0; /* Show "Boarding" (Pink) */
+    }
+    50%, 95% { 
+        opacity: 1; /* Show "Delayed" (Red) */
+    }
+}

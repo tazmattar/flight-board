@@ -110,22 +110,24 @@ class VatsimFetcher:
     def format_flight(self, pilot, direction, ceiling):
         flight_plan = pilot.get('flight_plan', {})
         
-        # Determine status using the dynamic ceiling
+        # 1. Determine the REAL physical status (e.g. "Boarding", "Ready")
         raw_status = self.determine_status(pilot, direction, ceiling)
-        display_status = raw_status
         
-        # Delay Logic
-        if direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback', 'Taxiing']:
+        # 2. Calculate Delay (but don't overwrite the status yet)
+        delay_text = None
+        
+        if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
             delay_min = self.calculate_delay(
                 flight_plan.get('deptime', '0000'), 
                 pilot.get('logon_time')
             )
-            if 15 < delay_min < 300: 
+            
+            if 15 < delay_min < 300: # 15m to 5h window
                 if delay_min < 60:
-                    display_status = f"Delayed {delay_min} min"
+                    delay_text = f"Delayed {delay_min} min"
                 else:
                     h, m = divmod(delay_min, 60)
-                    display_status = f"Delayed {h}h {m:02d}m"
+                    delay_text = f"Delayed {h}h {m:02d}m"
 
         return {
             'callsign': pilot.get('callsign', 'N/A'),
@@ -134,8 +136,8 @@ class VatsimFetcher:
             'destination': flight_plan.get('arrival', 'N/A'),
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
-            'status': display_status,
-            'status_raw': raw_status,
+            'status': raw_status,       # ALWAYS send "Boarding" or "Ready"
+            'delay_text': delay_text,   # Send delay info separately (or None)
             'direction': direction
         }
 
