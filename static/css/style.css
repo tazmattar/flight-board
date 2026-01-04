@@ -314,3 +314,17 @@ body {
     .info-panel { grid-template-columns: 1fr; }
     .page-container { padding: 12px; }
 }
+
+[class*="status-dly"] {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fee2e2;
+    font-weight: 700;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}

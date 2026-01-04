@@ -1,21 +1,19 @@
 import requests
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class VatsimFetcher:
     def __init__(self):
         self.vatsim_url = 'https://data.vatsim.net/v3/vatsim-data.json'
         self.airport_code = 'LSZH'
-        # LSZH Coordinates for distance calculation
         self.airport_lat = 47.4647
         self.airport_lon = 8.5492
         
-        # Configuration for filters
-        self.cleanup_dist_dep = 80   # km: Hide outbound flights after they fly this far away (~43nm)
-        self.radar_range_arr = 1000  # km: Only show inbound flights within this range (~540nm)
+        # Filters
+        self.cleanup_dist_dep = 80
+        self.radar_range_arr = 1000
     
     def fetch_flights(self):
-        """Fetch flight data from VATSIM"""
         try:
             response = requests.get(self.vatsim_url, timeout=10)
             response.raise_for_status()
@@ -35,7 +33,7 @@ class VatsimFetcher:
                 dep_airport = flight_plan.get('departure')
                 arr_airport = flight_plan.get('arrival')
                 
-                # Calculate distance from LSZH
+                # Calculate distance
                 pilot_lat = pilot.get('latitude')
                 pilot_lon = pilot.get('longitude')
                 distance_km = self.calculate_distance(
@@ -43,133 +41,120 @@ class VatsimFetcher:
                     self.airport_lat, self.airport_lon
                 )
 
-                # --- 1. DEPARTURES (Outbound) ---
                 if dep_airport == self.airport_code:
-                    flight_info = self.format_flight(pilot)
-                    
-                    if flight_info['status'] in ['Boarding', 'Taxiing', 'Departing']:
-                        # Always show active departures
+                    flight_info = self.format_flight(pilot, 'DEP')
+                    if flight_info['status_raw'] in ['Boarding', 'Taxiing', 'Departing']:
                         departures.append(flight_info)
-                    else:
-                        # Status is "En Route" (flying away)
-                        # ONLY show if they are still within the cleanup distance
-                        if distance_km < self.cleanup_dist_dep:
-                            enroute.append(flight_info)
-                        # Else: Flight has left airspace -> Ignore it (Slim down list)
+                    elif distance_km < self.cleanup_dist_dep:
+                        enroute.append(flight_info)
                         
-                # --- 2. ARRIVALS (Inbound) ---       
                 elif arr_airport == self.airport_code:
-                    flight_info = self.format_flight(pilot)
-                    
-                    if flight_info['status'] in ['Landed', 'Landing', 'Approaching']:
-                        # Always show active arrivals
+                    flight_info = self.format_flight(pilot, 'ARR')
+                    if flight_info['status_raw'] in ['Landed', 'Landing', 'Approaching']:
                         arrivals.append(flight_info)
-                    else:
-                        # Status is "En Route" (flying towards us)
-                        # ONLY show if they are within radar range
-                        if distance_km < self.radar_range_arr:
-                            enroute.append(flight_info)
-                        # Else: Flight is too far away (e.g. still in JFK) -> Ignore it
-            
-            metar = self.get_metar()
-            controllers = self.get_controllers(data)
-            
-            print(f"Updated: {len(departures)} deps, {len(arrivals)} arrs, {len(enroute)} enroute")
+                    elif distance_km < self.radar_range_arr:
+                        enroute.append(flight_info)
             
             return {
                 'departures': departures,
                 'arrivals': arrivals,
                 'enroute': enroute,
-                'metar': metar,
-                'controllers': controllers
+                'metar': self.get_metar(),
+                'controllers': self.get_controllers(data)
             }
             
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching VATSIM data: {e}")
+        except Exception as e:
+            print(f"Error: {e}")
             return {'departures': [], 'arrivals': [], 'enroute': [], 'metar': 'Unavailable', 'controllers': []}
-    
-    def calculate_distance(self, lat1, lon1, lat2, lon2):
-        """Haversine formula to calculate distance in km"""
-        if lat1 is None or lon1 is None:
-            return 99999 # Treat missing data as far away
+
+    def format_flight(self, pilot, direction):
+        flight_plan = pilot.get('flight_plan', {})
+        
+        # 1. Determine raw physical status (Taxiing, Airborne, etc.)
+        raw_status = self.determine_status(pilot, direction)
+        
+        # 2. Check for Delays (Only relevant for Departures on the ground)
+        delay_min = 0
+        if direction == 'DEP' and raw_status in ['Boarding', 'Taxiing']:
+            delay_min = self.calculate_delay(flight_plan.get('deptime', '0000'))
+        
+        # 3. Format the final status string
+        display_status = raw_status
+        if delay_min > 15: # Only show if more than 15 mins late
+            display_status = f"DLY {delay_min}m"
+
+        return {
+            'callsign': pilot.get('callsign', 'N/A'),
+            'aircraft': flight_plan.get('aircraft_short', 'N/A'),
+            'origin': flight_plan.get('departure', 'N/A'),
+            'destination': flight_plan.get('arrival', 'N/A'),
+            'altitude': pilot.get('altitude', 0),
+            'groundspeed': pilot.get('groundspeed', 0),
+            'status': display_status,     # Shows "DLY 45m"
+            'status_raw': raw_status,     # Used for logic/sorting (hidden)
+            'direction': direction
+        }
+
+    def calculate_delay(self, scheduled_time_str):
+        """Calculates delay in minutes based on current UTC time"""
+        try:
+            # Parse 'HHMM' string
+            sch_h = int(scheduled_time_str[:2])
+            sch_m = int(scheduled_time_str[2:])
             
-        R = 6371 # Earth radius in km
+            now = datetime.utcnow()
+            current_total_min = now.hour * 60 + now.minute
+            sched_total_min = sch_h * 60 + sch_m
+            
+            diff = current_total_min - sched_total_min
+            
+            # Handle Midnight Crossover (e.g. Sched 23:50, Now 00:10)
+            if diff < -1000: # It's next day
+                diff += 1440 # Add 24 hours
+            elif diff > 1000: # Sched was tomorrow? (Unlikely) or crazy data
+                diff -= 1440
+                
+            # Only return positive delays (we don't care if they are early)
+            return max(0, diff)
+        except:
+            return 0
+
+    def calculate_distance(self, lat1, lon1, lat2, lon2):
+        if lat1 is None or lon1 is None: return 99999
+        R = 6371
         phi1, phi2 = math.radians(lat1), math.radians(lat2)
         dphi = math.radians(lat2 - lat1)
         dlambda = math.radians(lon2 - lon1)
-        
         a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
         c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
-        
         return R*c
 
-    def format_flight(self, pilot):
-        """Format individual flight data"""
-        flight_plan = pilot.get('flight_plan', {})
-        dep = flight_plan.get('departure', 'N/A')
-        arr = flight_plan.get('arrival', 'N/A')
-        
-        # Determine direction relative to LSZH
-        direction = 'DEP' if dep == self.airport_code else 'ARR'
-
-        flight_info = {
-            'callsign': pilot.get('callsign', 'N/A'),
-            'aircraft': flight_plan.get('aircraft_short', 'N/A'),
-            'origin': dep,
-            'destination': arr,
-            'altitude': pilot.get('altitude', 0),
-            'groundspeed': pilot.get('groundspeed', 0),
-            'status': self.determine_status(pilot, direction),
-            'direction': direction
-        }
-        
-        return flight_info
-    
     def determine_status(self, pilot, direction):
-        """Determine flight status based on altitude and speed"""
+        # ... (Your existing status logic here, unchanged) ...
         altitude = pilot.get('altitude', 0)
         groundspeed = pilot.get('groundspeed', 0)
         
         if direction == 'DEP':
-            if groundspeed < 5:
-                return 'Boarding'
-            elif altitude < 500 and groundspeed < 40:
-                return 'Taxiing'
-            elif altitude < 2000:
-                return 'Departing'
-            else:
-                return 'En Route'
-        else: # ARR
-            if altitude < 100 and groundspeed < 40:
-                return 'Landed'
-            elif altitude < 1000:
-                return 'Landing'
-            elif altitude < 10000:
-                return 'Approaching'
-            else:
-                return 'En Route'
-    
+            if groundspeed < 5: return 'Boarding'
+            elif altitude < 500 and groundspeed < 40: return 'Taxiing'
+            elif altitude < 2000: return 'Departing'
+            else: return 'En Route'
+        else:
+            if altitude < 100 and groundspeed < 40: return 'Landed'
+            elif altitude < 1000: return 'Landing'
+            elif altitude < 10000: return 'Approaching'
+            else: return 'En Route'
+
     def get_metar(self):
-        """Extract METAR for the airport"""
         try:
-            metar_response = requests.get(f'https://metar.vatsim.net/{self.airport_code}', timeout=5)
-            if metar_response.status_code == 200:
-                return metar_response.text.strip()
-        except:
-            pass
-        return 'METAR not available'
-    
+            resp = requests.get(f'https://metar.vatsim.net/{self.airport_code}', timeout=5)
+            return resp.text.strip() if resp.status_code == 200 else 'Unavailable'
+        except: return 'Unavailable'
+
     def get_controllers(self, data):
-        """Get ATC controllers for this airport"""
-        controllers = []
-        
-        for controller in data.get('controllers', []):
-            callsign = controller.get('callsign', '')
-            
-            if callsign.startswith('LSZH') or callsign.startswith('LSAS'): 
-                controllers.append({
-                    'callsign': callsign,
-                    'frequency': controller.get('frequency', 'N/A'),
-                })
-        
-        return controllers
+        # ... (Your existing controller logic) ...
+        ctrls = []
+        for c in data.get('controllers', []):
+            if c.get('callsign', '').startswith(('LSZH', 'LSAS')):
+                ctrls.append({'callsign': c['callsign'], 'frequency': c['frequency']})
+        return ctrls
