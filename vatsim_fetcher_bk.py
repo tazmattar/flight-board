@@ -1,8 +1,6 @@
 import requests
 import math
 import traceback
-import json
-import os
 from datetime import datetime
 
 class VatsimFetcher:
@@ -16,69 +14,9 @@ class VatsimFetcher:
             'LFSB': { 'name': 'EuroAirport Basel', 'lat': 47.5900, 'lon': 7.5290, 'ceiling': 5000 }
         }
         
-        # Load stand database
-        self.stands = self.load_stands()
-        
         self.cleanup_dist_dep = 80   # km
         self.radar_range_arr = 1000  # km
         self.ground_range = 15       # km
-    
-    def load_stands(self):
-        """Load stand coordinates from JSON file"""
-        try:
-            # Try loading from static directory first
-            stands_path = os.path.join('static', 'stands.json')
-            if not os.path.exists(stands_path):
-                # Fallback to root directory
-                stands_path = 'stands.json'
-            
-            with open(stands_path, 'r') as f:
-                stands_data = json.load(f)
-            print(f"✓ Loaded stand database from {stands_path}:")
-            for airport, stands in stands_data.items():
-                print(f"  {airport}: {len(stands)} stands")
-            return stands_data
-        except Exception as e:
-            print(f"⚠️  Could not load stands.json: {e}")
-            print("  Gate assignments will show as 'TBA'")
-            return {'LSZH': [], 'LSGG': [], 'LFSB': []}
-    
-    def find_stand(self, pilot_lat, pilot_lon, airport_code, groundspeed, altitude):
-        """
-        Determine which stand an aircraft is parked at using geofencing
-        Returns stand name or None
-        """
-        # Only assign stands to stationary aircraft on the ground
-        if groundspeed > 5 or altitude > 100:
-            return None
-        
-        if pilot_lat is None or pilot_lon is None:
-            return None
-        
-        # Get stands for this airport
-        airport_stands = self.stands.get(airport_code, [])
-        if not airport_stands:
-            return None
-        
-        # Find closest stand within detection radius
-        closest_stand = None
-        min_distance = float('inf')
-        
-        for stand in airport_stands:
-            # Calculate distance in meters
-            distance_km = self.calculate_distance(
-                pilot_lat, pilot_lon,
-                stand['lat'], stand['lon']
-            )
-            distance_m = distance_km * 1000
-            
-            # Check if within stand's detection radius
-            if distance_m <= stand['radius']:
-                if distance_m < min_distance:
-                    min_distance = distance_m
-                    closest_stand = stand['name']
-        
-        return closest_stand
     
     def fetch_flights(self):
         # Initialize results structure
@@ -143,7 +81,7 @@ class VatsimFetcher:
             airport_config['lat'], airport_config['lon']
         )
         
-        flight_info = self.format_flight(pilot, direction, airport_config['ceiling'], airport_code)
+        flight_info = self.format_flight(pilot, direction, airport_config['ceiling'])
         status = flight_info['status_raw']
         
         # Apply Logic
@@ -165,20 +103,9 @@ class VatsimFetcher:
             elif distance_km < self.radar_range_arr:
                 airport_data['enroute'].append(flight_info)
 
-    def format_flight(self, pilot, direction, ceiling, airport_code):
+    def format_flight(self, pilot, direction, ceiling):
         flight_plan = pilot.get('flight_plan', {})
         raw_status = self.determine_status(pilot, direction, ceiling)
-        
-        # Determine gate/stand assignment
-        gate = None
-        if direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']:
-            gate = self.find_stand(
-                pilot.get('latitude'),
-                pilot.get('longitude'),
-                airport_code,
-                pilot.get('groundspeed', 0),
-                pilot.get('altitude', 0)
-            )
         
         delay_text = None
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
@@ -198,7 +125,6 @@ class VatsimFetcher:
             'groundspeed': pilot.get('groundspeed', 0),
             'status': raw_status,
             'delay_text': delay_text,
-            'gate': gate or 'TBA',  # NEW: Gate assignment
             'direction': direction,
             'status_raw': raw_status
         }
