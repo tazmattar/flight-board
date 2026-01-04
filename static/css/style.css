@@ -120,6 +120,20 @@ body {
 .security-time .time { font-size: 32px; font-weight: 700; }
 .fs-footer-btn { background: transparent; border: 1px solid #333; color: #666; cursor: pointer; }
 
+/* Vertical Divider in Footer */
+.footer-divider {
+    width: 2px;
+    height: 60px;       /* Tall enough to separate the text */
+    background: #333;   /* Dark grey line */
+    margin: 0 40px;     /* Breathing room between Arrival and Departure */
+}
+
+/* Optional: Make sure the center group centers everything */
+.footer-group.center {
+    justify-content: center;
+    gap: 0; /* Let the divider handle the spacing via margin */
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .fids-footer { padding: 10px 15px; height: auto; }
