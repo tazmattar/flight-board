@@ -68,10 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- THE CYCLE ENGINE (Restores the flashing/flipping behavior) ---
     setInterval(() => {
-        // Toggle the phase
         showingDelayPhase = !showingDelayPhase;
         
-        // Find all cells that have a delay recorded
         const delayedCells = document.querySelectorAll('.col-status[data-has-delay="true"]');
         
         delayedCells.forEach(cell => {
@@ -80,17 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const delayText = cell.getAttribute('data-status-delay');
             
             if (showingDelayPhase) {
-                // Phase A: Show Delay (RED)
-                cell.setAttribute('data-status', 'Delayed'); // Triggers Red CSS
+                cell.setAttribute('data-status', 'Delayed');
                 updateFlapText(flapContainer, delayText.toUpperCase());
             } else {
-                // Phase B: Show Normal Status (GREEN/AMBER)
-                cell.setAttribute('data-status', normalStatus); // Triggers original color
+                cell.setAttribute('data-status', normalStatus);
                 updateFlapText(flapContainer, normalStatus.toUpperCase());
             }
         });
 
-    }, 5000); // Flip every 5 seconds
+    }, 5000);
 
     // --- SPLIT FLAP ENGINE ---
 
@@ -107,24 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // Format Data
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
-            
-            // --- FIX: Define logoUrl here ---
-            // This uses the 'code' (IATA) to fetch a logo. 
-            // You can change the URL to your local path if you prefer.
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
-            // --------------------------------
 
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
             const alt = `${flight.altitude.toLocaleString()} ft`;
             const spd = `${flight.groundspeed} kts`;
+            const gate = flight.gate || 'TBA';  // NEW: Gate data
             
             // Determine logic for Status Column
             const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
             
-            // If we are currently in the "Delay Phase" of the cycle, show delay text.
-            // Otherwise show normal status.
             let displayStatus = flight.status;
-            let displayColorClass = flight.status; // Used for CSS selector
+            let displayColorClass = flight.status;
 
             if (hasDelay && showingDelayPhase) {
                 displayStatus = flight.delay_text;
@@ -144,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td><div class="flap-container" id="${rowId}-dest"></div></td>
                     <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                    <td><div class="flap-container" id="${rowId}-gate"></div></td>
                     <td><div class="flap-container" id="${rowId}-alt"></div></td>
                     <td><div class="flap-container" id="${rowId}-spd"></div></td>
                     <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
@@ -155,10 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
+            updateFlapText(document.getElementById(`${rowId}-gate`), gate);  // NEW: Update gate
             updateFlapText(document.getElementById(`${rowId}-alt`), alt);
             updateFlapText(document.getElementById(`${rowId}-spd`), spd);
             
-            // Update Status Cell Metadata (Critical for the cycle engine)
+            // Update Status Cell Metadata
             const statusCell = row.querySelector('.col-status');
             const statusFlaps = document.getElementById(`${rowId}-status`);
             
@@ -166,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
             statusCell.setAttribute('data-status-normal', flight.status);
             statusCell.setAttribute('data-status-delay', flight.delay_text || "");
             
-            // Set current visual state
             statusCell.setAttribute('data-status', displayColorClass);
             updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
@@ -176,9 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Updates the text in a container character by character with animation.
-     */
     function updateFlapText(container, newText) {
         if (!container) return;
         newText = String(newText || "");
@@ -210,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function triggerFlip(element, newChar) {
         element.classList.remove('flipping');
-        void element.offsetWidth; // Force reflow
+        void element.offsetWidth;
         element.classList.add('flipping');
         if (newChar !== undefined) {
             setTimeout(() => { element.textContent = newChar; }, 200); 
