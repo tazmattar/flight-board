@@ -17,35 +17,17 @@
     <div class="monitor-frame">
         <div class="page-container">
             <header class="fids-header">
-    <div class="header-section left">
-        <div class="terminal-select-wrapper">
-            <select id="airportSelect" class="terminal-select">
-                <option value="LSZH">LSZH - ZURICH</option>
-                <option value="LSGG">LSGG - GENEVA</option>
-                <option value="LFSB">LFSB - BASEL</option>
-            </select>
-            <span class="select-arrow">▼</span>
-        </div>
-    </div>
-
-    <div class="header-section center">
-        <div class="system-msg">
-            <span class="msg-label">ATC:</span>
-            <span id="controllers" class="msg-value">SEARCHING...</span>
-        </div>
-        <div class="system-msg">
-            <span class="msg-label">METAR:</span>
-            <span id="metar" class="msg-value">WAITING...</span>
-        </div>
-    </div>
-
-    <div class="header-section right">
-        <div class="clock-container">
-            <span id="lastUpdate">--:--:--</span><span class="utc-label">Z</span>
-        </div>
-        <button id="fullscreenBtn" class="terminal-btn" title="KIOSK MODE">[FS]</button>
-    </div>
-</header>
+                <div class="airport-selector">
+                    <select id="airportSelect">
+                        <option value="LSZH">LSZH - Zurich</option>
+                        <option value="LSGG">LSGG - Geneva</option>
+                        <option value="LFSB">LFSB - Basel</option>
+                    </select>
+                </div>
+                <div class="clock-container">
+                    <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
+                </div>
+            </header>
 
             <div class="fids-table-wrapper">
     
