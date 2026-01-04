@@ -107,6 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Format Data
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
+            
+            // --- FIX: Define logoUrl here ---
+            // This uses the 'code' (IATA) to fetch a logo. 
+            // You can change the URL to your local path if you prefer.
+            const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
+            // --------------------------------
+
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
             const alt = `${flight.altitude.toLocaleString()} ft`;
             const spd = `${flight.groundspeed} kts`;
@@ -128,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // FIXED: Added the flight-cell wrapper and airline logo img back in
+                // Now logoUrl is defined, so this line won't crash
                 row.innerHTML = `
                     <td>
                         <div class="flight-cell">
