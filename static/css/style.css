@@ -328,3 +328,35 @@ body {
     50% { opacity: 0.7; }
     100% { opacity: 1; }
 }
+
+/* --- Delay Badges (Dynamic) --- */
+/* Targets any class starting with "status-delayed" (e.g., status-delayed-45-min) */
+[class*="status-delayed"] {
+    background: rgba(239, 68, 68, 0.2); /* Red with 20% opacity */
+    color: #fca5a5;                      /* Light red text */
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    text-transform: none;                /* Keep "Delayed 2h" case nicely */
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    
+    /* The Slow Flash */
+    animation: urgent-pulse 3s infinite ease-in-out;
+}
+
+@keyframes urgent-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        border-color: rgba(239, 68, 68, 0.3);
+        opacity: 1;
+    }
+    50% {
+        box-shadow: 0 0 10px 0 rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.6);
+        opacity: 0.7;
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        border-color: rgba(239, 68, 68, 0.3);
+        opacity: 1;
+    }
+}

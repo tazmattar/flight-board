@@ -47,16 +47,11 @@ class VatsimFetcher:
                     flight_info = self.format_flight(pilot, 'DEP')
                     status = flight_info['status_raw']
                     
-                    # LOGIC FIX:
-                    # Only show "Boarding/Taxiing" if actually AT the airport (< 15km)
-                    # Only show "Departing" if within airspace (< 80km)
                     if status in ['Boarding', 'Taxiing'] and distance_km < self.ground_range:
                         departures.append(flight_info)
                     elif status == 'Departing' and distance_km < self.cleanup_dist_dep:
                         departures.append(flight_info)
                     elif status == 'En Route' and distance_km < self.cleanup_dist_dep:
-                        # Technically rare to hit this as "En Route" usually means > 2000ft
-                        # but we keep it for consistency
                         enroute.append(flight_info)
                         
                 # --- 2. ARRIVALS ---
@@ -87,10 +82,16 @@ class VatsimFetcher:
         
         display_status = raw_status
         
-        # Delay Logic (Sanity Checked)
+        # Delay Logic
         if direction == 'DEP' and raw_status in ['Boarding', 'Taxiing']:
-            delay_min = self.calculate_delay(flight_plan.get('deptime', '0000'))
-            if 15 < delay_min < 180: # Only show delay if between 15 mins and 3 hours
+            # We pass both the Filed Time AND the Logon Time
+            delay_min = self.calculate_delay(
+                flight_plan.get('deptime', '0000'), 
+                pilot.get('logon_time')
+            )
+            
+            # Logic: Show delay ONLY if reasonable (15 mins to 5 hours)
+            if 15 < delay_min < 300: 
                 if delay_min < 60:
                     display_status = f"Delayed {delay_min} min"
                 else:
@@ -110,18 +111,50 @@ class VatsimFetcher:
             'direction': direction
         }
 
-    def calculate_delay(self, scheduled_time_str):
+    def calculate_delay(self, scheduled_time_str, logon_time_str):
+        """Calculates delay, but returns 0 if pilot logged on AFTER scheduled time"""
         try:
+            # 1. Parse Filed Time (HHMM) -> Minutes from midnight
             sch_h = int(scheduled_time_str[:2])
             sch_m = int(scheduled_time_str[2:])
+            sched_total = sch_h * 60 + sch_m
+            
+            # 2. Parse Current Time -> Minutes from midnight
             now = datetime.utcnow()
             current_total = now.hour * 60 + now.minute
-            sched_total = sch_h * 60 + sch_m
+            
+            # 3. Parse Logon Time -> Minutes from midnight
+            # VATSIM Format: "2023-11-20T17:23:45.1234567Z" or similar
+            if logon_time_str:
+                # Truncate fractional seconds for safer parsing if needed
+                logon_clean = logon_time_str.split('.')[0].replace('Z', '') 
+                logon_dt = datetime.strptime(logon_clean, "%Y-%m-%dT%H:%M:%S")
+                logon_total = logon_dt.hour * 60 + logon_dt.minute
+            else:
+                logon_total = current_total # Fallback
+            
+            # --- THE CHECK ---
+            # Calculate difference between Logon Time and Sched Time
+            start_diff = logon_total - sched_total
+            
+            # Handle Midnight Crossover for start_diff
+            if start_diff < -1000: start_diff += 1440
+            elif start_diff > 1000: start_diff -= 1440
+            
+            # If pilot logged on > 15 mins AFTER filed time, assume fresh flight (No Delay)
+            if start_diff > 15:
+                return 0
+
+            # --- CALCULATE ACTUAL DELAY ---
             diff = current_total - sched_total
+            # Handle Midnight Crossover for current diff
             if diff < -1000: diff += 1440
             elif diff > 1000: diff -= 1440
+                
             return max(0, diff)
-        except: return 0
+        except Exception as e:
+            # print(f"Delay calc error: {e}") # Debug only
+            return 0
 
     def calculate_distance(self, lat1, lon1, lat2, lon2):
         if lat1 is None or lon1 is None: return 99999
