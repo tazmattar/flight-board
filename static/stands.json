@@ -1,158 +1,2605 @@
 {
   "LSZH": [
-    { "name": "A02", "lat": 47.4533333, "lon": 8.5583333, "radius": 30, "type": "contact" },
-    { "name": "A03", "lat": 47.4533333, "lon": 8.5616667, "radius": 30, "type": "contact" },
-    { "name": "A04", "lat": 47.4534, "lon": 8.5584, "radius": 30, "type": "contact" },
-    { "name": "A05", "lat": 47.4533333, "lon": 8.56, "radius": 30, "type": "contact" },
-    { "name": "A07", "lat": 47.4535, "lon": 8.5602, "radius": 30, "type": "contact" },
-    { "name": "A08", "lat": 47.4533333, "lon": 8.5566667, "radius": 30, "type": "contact" },
-    { "name": "A09", "lat": 47.4536, "lon": 8.5604, "radius": 30, "type": "contact" },
-    { "name": "A13", "lat": 47.455, "lon": 8.5566667, "radius": 30, "type": "contact" },
-    { "name": "A15S", "lat": 47.4552, "lon": 8.5568, "radius": 30, "type": "contact" },
-    { "name": "A17", "lat": 47.4554, "lon": 8.5570, "radius": 30, "type": "contact" },
-    { "name": "B31", "lat": 47.4516667, "lon": 8.56, "radius": 30, "type": "contact" },
-    { "name": "B33", "lat": 47.4518, "lon": 8.5602, "radius": 30, "type": "contact" },
-    { "name": "B35", "lat": 47.4516667, "lon": 8.5583333, "radius": 30, "type": "contact" },
-    { "name": "B37", "lat": 47.4518, "lon": 8.5585, "radius": 30, "type": "contact" },
-    { "name": "B39", "lat": 47.4520, "lon": 8.5587, "radius": 30, "type": "contact" },
-    { "name": "B43", "lat": 47.4516667, "lon": 8.5566667, "radius": 30, "type": "contact" },
-    { "name": "C50", "lat": 47.4483333, "lon": 8.5616667, "radius": 30, "type": "contact" },
-    { "name": "C52", "lat": 47.4485, "lon": 8.5618, "radius": 30, "type": "contact" },
-    { "name": "C54", "lat": 47.4466667, "lon": 8.5616667, "radius": 30, "type": "contact" },
-    { "name": "C56", "lat": 47.4468, "lon": 8.5635, "radius": 30, "type": "contact" },
-    { "name": "D04", "lat": 47.4483333, "lon": 8.5583333, "radius": 30, "type": "contact" },
-    { "name": "D06", "lat": 47.4466667, "lon": 8.56, "radius": 30, "type": "contact" },
-    { "name": "D07", "lat": 47.4466667, "lon": 8.5606, "radius": 30, "type": "contact" },
-    { "name": "D12", "lat": 47.445, "lon": 8.56, "radius": 30, "type": "contact" },
-    { "name": "D13", "lat": 47.445, "lon": 8.5606, "radius": 30, "type": "contact" },
-    { "name": "D14", "lat": 47.445, "lon": 8.5616667, "radius": 30, "type": "contact" },
-    { "name": "D15", "lat": 47.445, "lon": 8.5622, "radius": 30, "type": "contact" },
-    { "name": "D16", "lat": 47.445, "lon": 8.5628, "radius": 30, "type": "contact" },
-    { "name": "D17", "lat": 47.445, "lon": 8.5634, "radius": 30, "type": "contact" },
-    { "name": "E19", "lat": 47.4616667, "lon": 8.5583333, "radius": 40, "type": "remote" },
-    { "name": "E26", "lat": 47.46, "lon": 8.5566667, "radius": 40, "type": "remote" },
-    { "name": "E32", "lat": 47.46, "lon": 8.5570, "radius": 40, "type": "remote" },
-    { "name": "E42", "lat": 47.46, "lon": 8.555, "radius": 40, "type": "remote" },
-    { "name": "E45", "lat": 47.4616667, "lon": 8.555, "radius": 40, "type": "remote" },
-    { "name": "E52", "lat": 47.4616667, "lon": 8.5533333, "radius": 40, "type": "remote" },
-    { "name": "E54", "lat": 47.46, "lon": 8.5533333, "radius": 40, "type": "remote" },
-    { "name": "E58", "lat": 47.46, "lon": 8.5516667, "radius": 40, "type": "remote" },
-    { "name": "E67", "lat": 47.4618, "lon": 8.5518, "radius": 40, "type": "remote" },
-    { "name": "F70", "lat": 47.455, "lon": 8.5683333, "radius": 35, "type": "contact" },
-    { "name": "F72", "lat": 47.455, "lon": 8.565, "radius": 35, "type": "contact" },
-    { "name": "G01", "lat": 47.4433333, "lon": 8.56, "radius": 35, "type": "cargo" },
-    { "name": "G02", "lat": 47.4416667, "lon": 8.56, "radius": 35, "type": "cargo" },
-    { "name": "G03", "lat": 47.4416667, "lon": 8.5616667, "radius": 35, "type": "cargo" },
-    { "name": "G04", "lat": 47.4418, "lon": 8.5618, "radius": 35, "type": "cargo" },
-    { "name": "G05", "lat": 47.4420, "lon": 8.5620, "radius": 35, "type": "cargo" },
-    { "name": "G06", "lat": 47.4422, "lon": 8.5622, "radius": 35, "type": "cargo" },
-    { "name": "T60", "lat": 47.445, "lon": 8.5633333, "radius": 30, "type": "contact" },
-    { "name": "T61", "lat": 47.4452, "lon": 8.5635, "radius": 30, "type": "contact" },
-    { "name": "W002", "lat": 47.4483333, "lon": 8.55, "radius": 40, "type": "remote" },
-    { "name": "W21", "lat": 47.4483333, "lon": 8.5483333, "radius": 40, "type": "remote" }
+    {
+      "name": "A02",
+      "lat": 47.453333,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A03",
+      "lat": 47.453333,
+      "lon": 8.561667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A04",
+      "lat": 47.453333,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A05",
+      "lat": 47.453333,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A07",
+      "lat": 47.453333,
+      "lon": 8.5597,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A08",
+      "lat": 47.453333,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A09",
+      "lat": 47.453333,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A10",
+      "lat": 47.453333,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A11",
+      "lat": 47.455,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A13",
+      "lat": 47.455,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A15",
+      "lat": 47.455,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A17",
+      "lat": 47.455,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A44",
+      "lat": 47.453333,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A46",
+      "lat": 47.453333,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A48",
+      "lat": 47.453333,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A49",
+      "lat": 47.453333,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A57",
+      "lat": 47.455,
+      "lon": 8.555,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B31",
+      "lat": 47.451667,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B33",
+      "lat": 47.451667,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B35",
+      "lat": 47.451667,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B37",
+      "lat": 47.451667,
+      "lon": 8.558033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B38",
+      "lat": 47.45,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B39",
+      "lat": 47.451667,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B41",
+      "lat": 47.451667,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B43",
+      "lat": 47.451667,
+      "lon": 8.556367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "B45",
+      "lat": 47.451667,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C50",
+      "lat": 47.448333,
+      "lon": 8.561667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C51",
+      "lat": 47.448333,
+      "lon": 8.561367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C52",
+      "lat": 47.448333,
+      "lon": 8.561967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C53",
+      "lat": 47.448333,
+      "lon": 8.561067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C54",
+      "lat": 47.446667,
+      "lon": 8.561667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C55",
+      "lat": 47.446667,
+      "lon": 8.563333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C56",
+      "lat": 47.446667,
+      "lon": 8.563333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C57",
+      "lat": 47.446667,
+      "lon": 8.563033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C58",
+      "lat": 47.446667,
+      "lon": 8.563633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C59",
+      "lat": 47.446667,
+      "lon": 8.562733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "C60",
+      "lat": 47.446667,
+      "lon": 8.563933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D01",
+      "lat": 47.448333,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D02",
+      "lat": 47.448333,
+      "lon": 8.558033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D03",
+      "lat": 47.448333,
+      "lon": 8.558633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D04",
+      "lat": 47.448333,
+      "lon": 8.557733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D05",
+      "lat": 47.448333,
+      "lon": 8.558933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D06",
+      "lat": 47.446667,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D07",
+      "lat": 47.446667,
+      "lon": 8.5597,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D08",
+      "lat": 47.446667,
+      "lon": 8.5603,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D09",
+      "lat": 47.446667,
+      "lon": 8.5594,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D10",
+      "lat": 47.446667,
+      "lon": 8.5606,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D11",
+      "lat": 47.446667,
+      "lon": 8.5591,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D12",
+      "lat": 47.445,
+      "lon": 8.561667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D13",
+      "lat": 47.445,
+      "lon": 8.561367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D14",
+      "lat": 47.445,
+      "lon": 8.561967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D15",
+      "lat": 47.445,
+      "lon": 8.561067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D16",
+      "lat": 47.445,
+      "lon": 8.562267,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D17",
+      "lat": 47.445,
+      "lon": 8.560767,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "E4M",
+      "lat": 47.46,
+      "lon": 8.555,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E5M",
+      "lat": 47.461667,
+      "lon": 8.551667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E19",
+      "lat": 47.461667,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E20",
+      "lat": 47.46,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E23",
+      "lat": 47.461667,
+      "lon": 8.558333,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E26",
+      "lat": 47.46,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E27",
+      "lat": 47.461667,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E32",
+      "lat": 47.46,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E33",
+      "lat": 47.461667,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E34",
+      "lat": 47.46,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E35",
+      "lat": 47.46,
+      "lon": 8.556367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E36",
+      "lat": 47.46,
+      "lon": 8.556967,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E37",
+      "lat": 47.461667,
+      "lon": 8.555,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E42",
+      "lat": 47.46,
+      "lon": 8.555,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E43",
+      "lat": 47.461667,
+      "lon": 8.555,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E44",
+      "lat": 47.461667,
+      "lon": 8.5547,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E45",
+      "lat": 47.461667,
+      "lon": 8.5553,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E46",
+      "lat": 47.461667,
+      "lon": 8.5544,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E47",
+      "lat": 47.461667,
+      "lon": 8.5556,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E48",
+      "lat": 47.46,
+      "lon": 8.553333,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E49",
+      "lat": 47.46,
+      "lon": 8.553033,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E50",
+      "lat": 47.46,
+      "lon": 8.553633,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E51",
+      "lat": 47.46,
+      "lon": 8.552733,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E52",
+      "lat": 47.46,
+      "lon": 8.553933,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E53",
+      "lat": 47.46,
+      "lon": 8.552433,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E54",
+      "lat": 47.46,
+      "lon": 8.554233,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E55",
+      "lat": 47.461667,
+      "lon": 8.551667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E56",
+      "lat": 47.461667,
+      "lon": 8.551367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E57",
+      "lat": 47.461667,
+      "lon": 8.551967,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E58",
+      "lat": 47.461667,
+      "lon": 8.551067,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E62",
+      "lat": 47.461667,
+      "lon": 8.551667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E63",
+      "lat": 47.461667,
+      "lon": 8.551367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E64",
+      "lat": 47.461667,
+      "lon": 8.551967,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E65",
+      "lat": 47.461667,
+      "lon": 8.551067,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E66",
+      "lat": 47.461667,
+      "lon": 8.552267,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E67",
+      "lat": 47.461667,
+      "lon": 8.550767,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F70",
+      "lat": 47.455,
+      "lon": 8.566667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "F71",
+      "lat": 47.455,
+      "lon": 8.566367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "F72",
+      "lat": 47.455,
+      "lon": 8.566967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "G01",
+      "lat": 47.441667,
+      "lon": 8.561667,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G02",
+      "lat": 47.441667,
+      "lon": 8.561367,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G03",
+      "lat": 47.441667,
+      "lon": 8.561967,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G04",
+      "lat": 47.441667,
+      "lon": 8.561067,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G05",
+      "lat": 47.441667,
+      "lon": 8.562267,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G06",
+      "lat": 47.441667,
+      "lon": 8.560767,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G11",
+      "lat": 47.441667,
+      "lon": 8.563333,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G12",
+      "lat": 47.441667,
+      "lon": 8.563033,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G13",
+      "lat": 47.441667,
+      "lon": 8.563633,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "G14",
+      "lat": 47.441667,
+      "lon": 8.562733,
+      "radius": 30,
+      "type": "cargo"
+    },
+    {
+      "name": "H11",
+      "lat": 47.455,
+      "lon": 8.56,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "H12",
+      "lat": 47.455,
+      "lon": 8.5597,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "H13",
+      "lat": 47.455,
+      "lon": 8.5603,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "H14",
+      "lat": 47.455,
+      "lon": 8.5594,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "I01",
+      "lat": 47.456667,
+      "lon": 8.556667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "I02",
+      "lat": 47.456667,
+      "lon": 8.556367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "I03",
+      "lat": 47.456667,
+      "lon": 8.556967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "I04",
+      "lat": 47.456667,
+      "lon": 8.556067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "I05",
+      "lat": 47.456667,
+      "lon": 8.557267,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P31",
+      "lat": 47.463333,
+      "lon": 8.551667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P32",
+      "lat": 47.463333,
+      "lon": 8.551367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P33",
+      "lat": 47.463333,
+      "lon": 8.551967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P34",
+      "lat": 47.463333,
+      "lon": 8.551067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P35",
+      "lat": 47.463333,
+      "lon": 8.552267,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P36",
+      "lat": 47.463333,
+      "lon": 8.550767,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "P37",
+      "lat": 47.463333,
+      "lon": 8.552567,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T41",
+      "lat": 47.443333,
+      "lon": 8.566667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T42",
+      "lat": 47.443333,
+      "lon": 8.566367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T43",
+      "lat": 47.443333,
+      "lon": 8.566967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T44",
+      "lat": 47.443333,
+      "lon": 8.566067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T45",
+      "lat": 47.446667,
+      "lon": 8.565,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T46",
+      "lat": 47.446667,
+      "lon": 8.5647,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T47",
+      "lat": 47.446667,
+      "lon": 8.5653,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T48",
+      "lat": 47.446667,
+      "lon": 8.5644,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T49",
+      "lat": 47.446667,
+      "lon": 8.5656,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T50",
+      "lat": 47.446667,
+      "lon": 8.5641,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T51",
+      "lat": 47.446667,
+      "lon": 8.5659,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T52",
+      "lat": 47.446667,
+      "lon": 8.5638,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T53",
+      "lat": 47.446667,
+      "lon": 8.5662,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T54",
+      "lat": 47.446667,
+      "lon": 8.5635,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T55",
+      "lat": 47.446667,
+      "lon": 8.5665,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T56",
+      "lat": 47.446667,
+      "lon": 8.5632,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T60",
+      "lat": 47.445,
+      "lon": 8.563333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T61",
+      "lat": 47.445,
+      "lon": 8.563033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T62",
+      "lat": 47.445,
+      "lon": 8.563633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "T63",
+      "lat": 47.445,
+      "lon": 8.562733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "W01",
+      "lat": 47.448333,
+      "lon": 8.55,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W02",
+      "lat": 47.448333,
+      "lon": 8.5497,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W03",
+      "lat": 47.448333,
+      "lon": 8.5503,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W04",
+      "lat": 47.448333,
+      "lon": 8.5494,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W05",
+      "lat": 47.448333,
+      "lon": 8.5506,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W21",
+      "lat": 47.448333,
+      "lon": 8.55,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W22",
+      "lat": 47.448333,
+      "lon": 8.5497,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W23",
+      "lat": 47.448333,
+      "lon": 8.5503,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W24",
+      "lat": 47.448333,
+      "lon": 8.5494,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W25",
+      "lat": 47.448333,
+      "lon": 8.5506,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W26",
+      "lat": 47.448333,
+      "lon": 8.5491,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W27",
+      "lat": 47.448333,
+      "lon": 8.5509,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W28",
+      "lat": 47.448333,
+      "lon": 8.5488,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W29",
+      "lat": 47.448333,
+      "lon": 8.5512,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W30",
+      "lat": 47.448333,
+      "lon": 8.5485,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W40",
+      "lat": 47.453333,
+      "lon": 8.545,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W41",
+      "lat": 47.453333,
+      "lon": 8.5447,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W42",
+      "lat": 47.453333,
+      "lon": 8.5453,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W43",
+      "lat": 47.453333,
+      "lon": 8.5444,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W44",
+      "lat": 47.453333,
+      "lon": 8.5456,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W45",
+      "lat": 47.453333,
+      "lon": 8.5441,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W46",
+      "lat": 47.453333,
+      "lon": 8.5459,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W47",
+      "lat": 47.453333,
+      "lon": 8.5438,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W50",
+      "lat": 47.451667,
+      "lon": 8.546667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W51",
+      "lat": 47.451667,
+      "lon": 8.546367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W52",
+      "lat": 47.451667,
+      "lon": 8.546967,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W53",
+      "lat": 47.451667,
+      "lon": 8.546067,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W54",
+      "lat": 47.451667,
+      "lon": 8.547267,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W55",
+      "lat": 47.451667,
+      "lon": 8.545767,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W56",
+      "lat": 47.451667,
+      "lon": 8.547567,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W57",
+      "lat": 47.451667,
+      "lon": 8.545467,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W58",
+      "lat": 47.451667,
+      "lon": 8.547867,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W59",
+      "lat": 47.451667,
+      "lon": 8.545167,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "W60",
+      "lat": 47.451667,
+      "lon": 8.548167,
+      "radius": 30,
+      "type": "remote"
+    }
   ],
   "LSGG": [
-    { "name": "1", "lat": 46.2283333, "lon": 6.1033333, "radius": 30, "type": "contact" },
-    { "name": "2", "lat": 46.23, "lon": 6.105, "radius": 30, "type": "contact" },
-    { "name": "3", "lat": 46.2302, "lon": 6.1052, "radius": 30, "type": "contact" },
-    { "name": "4", "lat": 46.2304, "lon": 6.1054, "radius": 30, "type": "contact" },
-    { "name": "10", "lat": 46.2316667, "lon": 6.1066667, "radius": 30, "type": "contact" },
-    { "name": "11", "lat": 46.2316667, "lon": 6.1083333, "radius": 30, "type": "contact" },
-    { "name": "12", "lat": 46.2318, "lon": 6.1085, "radius": 30, "type": "contact" },
-    { "name": "14", "lat": 46.2333333, "lon": 6.1083333, "radius": 30, "type": "contact" },
-    { "name": "15", "lat": 46.2333333, "lon": 6.11, "radius": 30, "type": "contact" },
-    { "name": "16", "lat": 46.2335, "lon": 6.1102, "radius": 30, "type": "contact" },
-    { "name": "17", "lat": 46.235, "lon": 6.1116667, "radius": 30, "type": "contact" },
-    { "name": "18", "lat": 46.2352, "lon": 6.1118, "radius": 30, "type": "contact" },
-    { "name": "19", "lat": 46.235, "lon": 6.1133333, "radius": 30, "type": "contact" },
-    { "name": "21", "lat": 46.23, "lon": 6.1033333, "radius": 30, "type": "contact" },
-    { "name": "22", "lat": 46.2302, "lon": 6.1033, "radius": 30, "type": "contact" },
-    { "name": "23", "lat": 46.2304, "lon": 6.1033, "radius": 30, "type": "contact" },
-    { "name": "24", "lat": 46.2306, "lon": 6.1033, "radius": 30, "type": "contact" },
-    { "name": "25", "lat": 46.2308, "lon": 6.1033, "radius": 30, "type": "contact" },
-    { "name": "26", "lat": 46.2310, "lon": 6.1033, "radius": 30, "type": "contact" },
-    { "name": "27", "lat": 46.2316667, "lon": 6.1033333, "radius": 30, "type": "contact" },
-    { "name": "28", "lat": 46.2318, "lon": 6.1033333, "radius": 30, "type": "contact" },
-    { "name": "31", "lat": 46.2316667, "lon": 6.105, "radius": 30, "type": "contact" },
-    { "name": "32", "lat": 46.2318, "lon": 6.1052, "radius": 30, "type": "contact" },
-    { "name": "33", "lat": 46.2320, "lon": 6.1054, "radius": 30, "type": "contact" },
-    { "name": "34", "lat": 46.2322, "lon": 6.1056, "radius": 30, "type": "contact" },
-    { "name": "42", "lat": 46.2316667, "lon": 6.1066667, "radius": 30, "type": "contact" },
-    { "name": "43", "lat": 46.2333333, "lon": 6.1066667, "radius": 30, "type": "contact" },
-    { "name": "44", "lat": 46.2335, "lon": 6.1068, "radius": 30, "type": "contact" },
-    { "name": "54", "lat": 46.2416667, "lon": 6.12, "radius": 35, "type": "remote" },
-    { "name": "56", "lat": 46.2433333, "lon": 6.12, "radius": 35, "type": "remote" },
-    { "name": "61", "lat": 46.235, "lon": 6.1083333, "radius": 30, "type": "contact" },
-    { "name": "62", "lat": 46.2352, "lon": 6.1085, "radius": 30, "type": "contact" },
-    { "name": "63", "lat": 46.235, "lon": 6.11, "radius": 30, "type": "contact" },
-    { "name": "64", "lat": 46.2352, "lon": 6.1102, "radius": 30, "type": "contact" },
-    { "name": "65", "lat": 46.2354, "lon": 6.1104, "radius": 30, "type": "contact" },
-    { "name": "66", "lat": 46.2356, "lon": 6.1106, "radius": 30, "type": "contact" },
-    { "name": "67", "lat": 46.2366667, "lon": 6.1116667, "radius": 30, "type": "contact" },
-    { "name": "68", "lat": 46.2368, "lon": 6.1118, "radius": 30, "type": "contact" },
-    { "name": "69", "lat": 46.2366667, "lon": 6.1133333, "radius": 30, "type": "contact" },
-    { "name": "70", "lat": 46.2383333, "lon": 6.1133333, "radius": 30, "type": "contact" },
-    { "name": "71", "lat": 46.2383333, "lon": 6.115, "radius": 30, "type": "contact" },
-    { "name": "72", "lat": 46.2385, "lon": 6.1135, "radius": 30, "type": "contact" },
-    { "name": "73", "lat": 46.2385, "lon": 6.1152, "radius": 30, "type": "contact" },
-    { "name": "74", "lat": 46.2387, "lon": 6.1154, "radius": 30, "type": "contact" },
-    { "name": "75", "lat": 46.2389, "lon": 6.1156, "radius": 30, "type": "contact" },
-    { "name": "76", "lat": 46.24, "lon": 6.1166667, "radius": 30, "type": "contact" },
-    { "name": "83", "lat": 46.2283333, "lon": 6.1016667, "radius": 30, "type": "contact" },
-    { "name": "84", "lat": 46.2285, "lon": 6.1018, "radius": 30, "type": "contact" },
-    { "name": "85", "lat": 46.2283333, "lon": 6.1, "radius": 30, "type": "contact" },
-    { "name": "86", "lat": 46.2285, "lon": 6.1002, "radius": 30, "type": "contact" },
-    { "name": "87", "lat": 46.2283333, "lon": 6.0983333, "radius": 30, "type": "contact" },
-    { "name": "88", "lat": 46.2285, "lon": 6.0985, "radius": 30, "type": "contact" },
-    { "name": "89", "lat": 46.2266667, "lon": 6.0983333, "radius": 30, "type": "contact" }
+    {
+      "name": "1",
+      "lat": 46.228333,
+      "lon": 6.103333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "2",
+      "lat": 46.23,
+      "lon": 6.105,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "3",
+      "lat": 46.23,
+      "lon": 6.1047,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "4",
+      "lat": 46.23,
+      "lon": 6.1053,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "5",
+      "lat": 46.23,
+      "lon": 6.1044,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "8",
+      "lat": 46.23,
+      "lon": 6.106667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "9",
+      "lat": 46.231667,
+      "lon": 6.106667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "10",
+      "lat": 46.231667,
+      "lon": 6.106367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "11",
+      "lat": 46.231667,
+      "lon": 6.108333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "12",
+      "lat": 46.231667,
+      "lon": 6.108033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "14",
+      "lat": 46.233333,
+      "lon": 6.108333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "15",
+      "lat": 46.233333,
+      "lon": 6.11,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "16",
+      "lat": 46.233333,
+      "lon": 6.1097,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "17",
+      "lat": 46.235,
+      "lon": 6.111667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "18",
+      "lat": 46.235,
+      "lon": 6.111367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "19",
+      "lat": 46.235,
+      "lon": 6.113333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "21",
+      "lat": 46.23,
+      "lon": 6.103333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "22",
+      "lat": 46.23,
+      "lon": 6.103033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "23",
+      "lat": 46.23,
+      "lon": 6.103633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "24",
+      "lat": 46.23,
+      "lon": 6.102733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "25",
+      "lat": 46.23,
+      "lon": 6.103933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "26",
+      "lat": 46.23,
+      "lon": 6.102433,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "27",
+      "lat": 46.231667,
+      "lon": 6.103333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "28",
+      "lat": 46.231667,
+      "lon": 6.103033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "31",
+      "lat": 46.231667,
+      "lon": 6.105,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "32",
+      "lat": 46.231667,
+      "lon": 6.1047,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "33",
+      "lat": 46.231667,
+      "lon": 6.1053,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "34",
+      "lat": 46.231667,
+      "lon": 6.1044,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "42",
+      "lat": 46.231667,
+      "lon": 6.106667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "43",
+      "lat": 46.233333,
+      "lon": 6.106667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "44",
+      "lat": 46.233333,
+      "lon": 6.106367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "48",
+      "lat": 46.245,
+      "lon": 6.125,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "54",
+      "lat": 46.241667,
+      "lon": 6.12,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "55",
+      "lat": 46.241667,
+      "lon": 6.1197,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "56",
+      "lat": 46.241667,
+      "lon": 6.1203,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "57",
+      "lat": 46.241667,
+      "lon": 6.1194,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "58",
+      "lat": 46.241667,
+      "lon": 6.1206,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "61",
+      "lat": 46.235,
+      "lon": 6.108333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "62",
+      "lat": 46.235,
+      "lon": 6.108033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "63",
+      "lat": 46.235,
+      "lon": 6.108633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "64",
+      "lat": 46.235,
+      "lon": 6.107733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "65",
+      "lat": 46.235,
+      "lon": 6.108933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "66",
+      "lat": 46.235,
+      "lon": 6.107433,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "67",
+      "lat": 46.236667,
+      "lon": 6.111667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "68",
+      "lat": 46.236667,
+      "lon": 6.111367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "69",
+      "lat": 46.236667,
+      "lon": 6.111967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "70",
+      "lat": 46.236667,
+      "lon": 6.111067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "71",
+      "lat": 46.236667,
+      "lon": 6.112267,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "72",
+      "lat": 46.236667,
+      "lon": 6.110767,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "73",
+      "lat": 46.238333,
+      "lon": 6.115,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "74",
+      "lat": 46.238333,
+      "lon": 6.1147,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "75",
+      "lat": 46.238333,
+      "lon": 6.1153,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "76",
+      "lat": 46.238333,
+      "lon": 6.1144,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "83",
+      "lat": 46.228333,
+      "lon": 6.1,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "84",
+      "lat": 46.228333,
+      "lon": 6.0997,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "85",
+      "lat": 46.228333,
+      "lon": 6.1003,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "86",
+      "lat": 46.228333,
+      "lon": 6.0994,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "87",
+      "lat": 46.228333,
+      "lon": 6.1006,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "88",
+      "lat": 46.228333,
+      "lon": 6.0991,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "121",
+      "lat": 46.23,
+      "lon": 6.103333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "122",
+      "lat": 46.23,
+      "lon": 6.103033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "123",
+      "lat": 46.23,
+      "lon": 6.103633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "124",
+      "lat": 46.23,
+      "lon": 6.102733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "125",
+      "lat": 46.23,
+      "lon": 6.103933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "126",
+      "lat": 46.23,
+      "lon": 6.102433,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "127",
+      "lat": 46.23,
+      "lon": 6.104233,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "141",
+      "lat": 46.231667,
+      "lon": 6.108333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "142",
+      "lat": 46.231667,
+      "lon": 6.108033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "151",
+      "lat": 46.233333,
+      "lon": 6.11,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "152",
+      "lat": 46.233333,
+      "lon": 6.1097,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "181",
+      "lat": 46.235,
+      "lon": 6.111667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "182",
+      "lat": 46.235,
+      "lon": 6.111367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "191",
+      "lat": 46.235,
+      "lon": 6.113333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "192",
+      "lat": 46.235,
+      "lon": 6.113033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A1",
+      "lat": 46.226667,
+      "lon": 6.096667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A2",
+      "lat": 46.226667,
+      "lon": 6.096367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A3",
+      "lat": 46.226667,
+      "lon": 6.096967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A4",
+      "lat": 46.226667,
+      "lon": 6.096067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A5",
+      "lat": 46.226667,
+      "lon": 6.097267,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A6",
+      "lat": 46.226667,
+      "lon": 6.095767,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A7",
+      "lat": 46.226667,
+      "lon": 6.097567,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A8",
+      "lat": 46.226667,
+      "lon": 6.095467,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "A9",
+      "lat": 46.226667,
+      "lon": 6.097867,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D1",
+      "lat": 46.225,
+      "lon": 6.096667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D2",
+      "lat": 46.225,
+      "lon": 6.096367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D3",
+      "lat": 46.225,
+      "lon": 6.096967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D4",
+      "lat": 46.225,
+      "lon": 6.096067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "D5",
+      "lat": 46.225,
+      "lon": 6.097267,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "E1",
+      "lat": 46.236667,
+      "lon": 6.1,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E2",
+      "lat": 46.236667,
+      "lon": 6.0997,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E3",
+      "lat": 46.236667,
+      "lon": 6.1003,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E4",
+      "lat": 46.236667,
+      "lon": 6.0994,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "E5",
+      "lat": 46.236667,
+      "lon": 6.1006,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "I1",
+      "lat": 46.235,
+      "lon": 6.098333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "I2",
+      "lat": 46.235,
+      "lon": 6.098033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L00",
+      "lat": 46.235,
+      "lon": 6.1,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L01",
+      "lat": 46.235,
+      "lon": 6.0997,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L02",
+      "lat": 46.235,
+      "lon": 6.1003,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L03",
+      "lat": 46.235,
+      "lon": 6.0994,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L04",
+      "lat": 46.235,
+      "lon": 6.1006,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L05",
+      "lat": 46.235,
+      "lon": 6.0991,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L06",
+      "lat": 46.235,
+      "lon": 6.1009,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L07",
+      "lat": 46.235,
+      "lon": 6.0988,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L08",
+      "lat": 46.235,
+      "lon": 6.1012,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L09",
+      "lat": 46.235,
+      "lon": 6.0985,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "L10",
+      "lat": 46.235,
+      "lon": 6.1015,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "PC1",
+      "lat": 46.245,
+      "lon": 6.125,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC2",
+      "lat": 46.245,
+      "lon": 6.1247,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC3",
+      "lat": 46.245,
+      "lon": 6.1253,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC4",
+      "lat": 46.245,
+      "lon": 6.1244,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC5",
+      "lat": 46.245,
+      "lon": 6.1256,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC6",
+      "lat": 46.245,
+      "lon": 6.1241,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC7",
+      "lat": 46.245,
+      "lon": 6.1259,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC8",
+      "lat": 46.245,
+      "lon": 6.1238,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC9",
+      "lat": 46.245,
+      "lon": 6.1262,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PC10",
+      "lat": 46.245,
+      "lon": 6.1235,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PE1",
+      "lat": 46.245,
+      "lon": 6.125,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PF1",
+      "lat": 46.245,
+      "lon": 6.1247,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "PF2",
+      "lat": 46.245,
+      "lon": 6.1253,
+      "radius": 30,
+      "type": "remote"
+    }
   ],
   "LFSB": [
-    { "name": "1", "lat": 47.596667, "lon": 7.531667, "radius": 30, "type": "contact" },
-    { "name": "2", "lat": 47.598333, "lon": 7.531667, "radius": 30, "type": "contact" },
-    { "name": "3", "lat": 47.5985, "lon": 7.5318, "radius": 30, "type": "contact" },
-    { "name": "4", "lat": 47.5987, "lon": 7.5320, "radius": 30, "type": "contact" },
-    { "name": "5", "lat": 47.5989, "lon": 7.5322, "radius": 30, "type": "contact" },
-    { "name": "6", "lat": 47.598333, "lon": 7.53, "radius": 30, "type": "contact" },
-    { "name": "7", "lat": 47.5985, "lon": 7.5302, "radius": 30, "type": "contact" },
-    { "name": "8", "lat": 47.5987, "lon": 7.5304, "radius": 30, "type": "contact" },
-    { "name": "9", "lat": 47.5989, "lon": 7.5306, "radius": 30, "type": "contact" },
-    { "name": "10", "lat": 47.5991, "lon": 7.5308, "radius": 30, "type": "contact" },
-    { "name": "11", "lat": 47.5993, "lon": 7.5310, "radius": 30, "type": "contact" },
-    { "name": "12A", "lat": 47.596667, "lon": 7.53, "radius": 30, "type": "contact" },
-    { "name": "14A", "lat": 47.596667, "lon": 7.528333, "radius": 30, "type": "contact" },
-    { "name": "16A", "lat": 47.5968, "lon": 7.5285, "radius": 30, "type": "contact" },
-    { "name": "17", "lat": 47.598333, "lon": 7.528333, "radius": 30, "type": "contact" },
-    { "name": "18", "lat": 47.5985, "lon": 7.5285, "radius": 30, "type": "contact" },
-    { "name": "19", "lat": 47.5987, "lon": 7.5287, "radius": 30, "type": "contact" },
-    { "name": "20", "lat": 47.5989, "lon": 7.5289, "radius": 30, "type": "contact" },
-    { "name": "21", "lat": 47.5991, "lon": 7.5291, "radius": 30, "type": "contact" },
-    { "name": "22", "lat": 47.5993, "lon": 7.5293, "radius": 30, "type": "contact" },
-    { "name": "23", "lat": 47.5995, "lon": 7.5295, "radius": 30, "type": "contact" },
-    { "name": "24", "lat": 47.5997, "lon": 7.5297, "radius": 30, "type": "contact" },
-    { "name": "26", "lat": 47.6, "lon": 7.526667, "radius": 30, "type": "contact" },
-    { "name": "27", "lat": 47.6002, "lon": 7.5268, "radius": 30, "type": "contact" },
-    { "name": "28", "lat": 47.6004, "lon": 7.5270, "radius": 30, "type": "contact" },
-    { "name": "29", "lat": 47.6006, "lon": 7.5272, "radius": 30, "type": "contact" },
-    { "name": "30", "lat": 47.6, "lon": 7.528333, "radius": 30, "type": "contact" },
-    { "name": "31", "lat": 47.6002, "lon": 7.5285, "radius": 30, "type": "contact" },
-    { "name": "32", "lat": 47.6004, "lon": 7.5287, "radius": 30, "type": "contact" },
-    { "name": "34", "lat": 47.6, "lon": 7.53, "radius": 30, "type": "contact" },
-    { "name": "35", "lat": 47.6002, "lon": 7.5302, "radius": 30, "type": "contact" },
-    { "name": "36", "lat": 47.6004, "lon": 7.5304, "radius": 30, "type": "contact" },
-    { "name": "37", "lat": 47.601667, "lon": 7.53, "radius": 30, "type": "contact" },
-    { "name": "38", "lat": 47.6018, "lon": 7.5302, "radius": 30, "type": "contact" },
-    { "name": "39", "lat": 47.601667, "lon": 7.528333, "radius": 30, "type": "contact" },
-    { "name": "40", "lat": 47.601667, "lon": 7.526667, "radius": 30, "type": "contact" },
-    { "name": "41", "lat": 47.6018, "lon": 7.5268, "radius": 30, "type": "contact" },
-    { "name": "42", "lat": 47.6020, "lon": 7.5270, "radius": 30, "type": "contact" },
-    { "name": "43", "lat": 47.6022, "lon": 7.5272, "radius": 30, "type": "contact" },
-    { "name": "44", "lat": 47.6024, "lon": 7.5274, "radius": 30, "type": "contact" },
-    { "name": "45", "lat": 47.601667, "lon": 7.525, "radius": 30, "type": "contact" },
-    { "name": "46", "lat": 47.6018, "lon": 7.5252, "radius": 30, "type": "contact" },
-    { "name": "47", "lat": 47.603333, "lon": 7.525, "radius": 30, "type": "contact" },
-    { "name": "48", "lat": 47.6035, "lon": 7.526667, "radius": 30, "type": "contact" },
-    { "name": "F3", "lat": 47.593333, "lon": 7.531667, "radius": 35, "type": "remote" },
-    { "name": "F4", "lat": 47.593333, "lon": 7.53, "radius": 35, "type": "remote" },
-    { "name": "G30", "lat": 47.601667, "lon": 7.525, "radius": 35, "type": "remote" }
+    {
+      "name": "1",
+      "lat": 47.596667,
+      "lon": 7.531667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "2",
+      "lat": 47.598333,
+      "lon": 7.531667,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "3",
+      "lat": 47.598333,
+      "lon": 7.531367,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "4",
+      "lat": 47.598333,
+      "lon": 7.531967,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "5",
+      "lat": 47.598333,
+      "lon": 7.531067,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "6A",
+      "lat": 47.598333,
+      "lon": 7.53,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "7A",
+      "lat": 47.598333,
+      "lon": 7.5297,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "8A",
+      "lat": 47.598333,
+      "lon": 7.5303,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "9A",
+      "lat": 47.598333,
+      "lon": 7.5294,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "10A",
+      "lat": 47.598333,
+      "lon": 7.5306,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "11A",
+      "lat": 47.598333,
+      "lon": 7.5291,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "12A",
+      "lat": 47.596667,
+      "lon": 7.53,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "14A",
+      "lat": 47.596667,
+      "lon": 7.528333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "16A",
+      "lat": 47.596667,
+      "lon": 7.528333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "17",
+      "lat": 47.598333,
+      "lon": 7.528333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "18",
+      "lat": 47.598333,
+      "lon": 7.528033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "19",
+      "lat": 47.598333,
+      "lon": 7.528633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "20",
+      "lat": 47.598333,
+      "lon": 7.527733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "21",
+      "lat": 47.598333,
+      "lon": 7.528933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "22",
+      "lat": 47.598333,
+      "lon": 7.527433,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "23",
+      "lat": 47.598333,
+      "lon": 7.529233,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "24",
+      "lat": 47.598333,
+      "lon": 7.527133,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "26",
+      "lat": 47.6,
+      "lon": 7.528333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "27",
+      "lat": 47.6,
+      "lon": 7.528033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "28",
+      "lat": 47.6,
+      "lon": 7.528633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "29",
+      "lat": 47.6,
+      "lon": 7.527733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "30",
+      "lat": 47.6,
+      "lon": 7.528933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "31",
+      "lat": 47.6,
+      "lon": 7.527433,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "32",
+      "lat": 47.6,
+      "lon": 7.529233,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "33",
+      "lat": 47.6,
+      "lon": 7.527133,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "34",
+      "lat": 47.6,
+      "lon": 7.529533,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "35",
+      "lat": 47.6,
+      "lon": 7.526833,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "36",
+      "lat": 47.6,
+      "lon": 7.529833,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "37",
+      "lat": 47.601667,
+      "lon": 7.528333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "38",
+      "lat": 47.601667,
+      "lon": 7.528033,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "39",
+      "lat": 47.601667,
+      "lon": 7.528633,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "40",
+      "lat": 47.601667,
+      "lon": 7.527733,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "41",
+      "lat": 47.601667,
+      "lon": 7.528933,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "42",
+      "lat": 47.601667,
+      "lon": 7.527433,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "43",
+      "lat": 47.601667,
+      "lon": 7.529233,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "44",
+      "lat": 47.601667,
+      "lon": 7.527133,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "45",
+      "lat": 47.603333,
+      "lon": 7.525,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "46",
+      "lat": 47.603333,
+      "lon": 7.5247,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "47",
+      "lat": 47.603333,
+      "lon": 7.5253,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "48",
+      "lat": 47.603333,
+      "lon": 7.5244,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "F1",
+      "lat": 47.593333,
+      "lon": 7.531667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F2",
+      "lat": 47.593333,
+      "lon": 7.531367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F3",
+      "lat": 47.593333,
+      "lon": 7.531967,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F4",
+      "lat": 47.595,
+      "lon": 7.531667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F5",
+      "lat": 47.595,
+      "lon": 7.531367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F6",
+      "lat": 47.595,
+      "lon": 7.531967,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F7",
+      "lat": 47.595,
+      "lon": 7.531067,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F8",
+      "lat": 47.595,
+      "lon": 7.532267,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F9",
+      "lat": 47.595,
+      "lon": 7.530767,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F10",
+      "lat": 47.595,
+      "lon": 7.532567,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F11",
+      "lat": 47.595,
+      "lon": 7.530467,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "A1",
+      "lat": 47.581667,
+      "lon": 7.528333,
+      "radius": 30,
+      "type": "contact"
+    },
+    {
+      "name": "F21",
+      "lat": 47.588333,
+      "lon": 7.536667,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "F22",
+      "lat": 47.588333,
+      "lon": 7.536367,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G7",
+      "lat": 47.603333,
+      "lon": 7.525,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G8",
+      "lat": 47.603333,
+      "lon": 7.5247,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G9",
+      "lat": 47.603333,
+      "lon": 7.5253,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G10",
+      "lat": 47.603333,
+      "lon": 7.5244,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G11",
+      "lat": 47.603333,
+      "lon": 7.5256,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G12",
+      "lat": 47.603333,
+      "lon": 7.5241,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G13",
+      "lat": 47.603333,
+      "lon": 7.5259,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G14",
+      "lat": 47.603333,
+      "lon": 7.5238,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G15",
+      "lat": 47.603333,
+      "lon": 7.5262,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G16",
+      "lat": 47.603333,
+      "lon": 7.5235,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G17",
+      "lat": 47.603333,
+      "lon": 7.5265,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G18",
+      "lat": 47.603333,
+      "lon": 7.5232,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G19",
+      "lat": 47.603333,
+      "lon": 7.5268,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G20",
+      "lat": 47.603333,
+      "lon": 7.5229,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G30",
+      "lat": 47.603333,
+      "lon": 7.523333,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "G31",
+      "lat": 47.603333,
+      "lon": 7.523033,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "J1",
+      "lat": 47.59,
+      "lon": 7.538333,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "J2",
+      "lat": 47.59,
+      "lon": 7.538033,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "J3",
+      "lat": 47.59,
+      "lon": 7.538633,
+      "radius": 30,
+      "type": "remote"
+    },
+    {
+      "name": "J4",
+      "lat": 47.59,
+      "lon": 7.537733,
+      "radius": 30,
+      "type": "remote"
+    }
   ]
 }
