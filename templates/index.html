@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Information - LSZH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="page-container">
+        <header class="main-header">
+            <div class="header-content">
+                <h1>Zurich Airport</h1>
+                <div class="airport-code">LSZH</div>
+            </div>
+            <div class="header-meta">
+                <span class="live-indicator">● LIVE</span>
+                <span class="update-time">Updated: <span id="lastUpdate">--:--:--</span></span>
+            </div>
+        </header>
+	 <!-- METAR and Controllers Info -->
+        <div class="info-panel">
+            <div class="metar-display">
+                <span class="info-label">METAR:</span>
+                <span id="metar" class="metar-text">Loading...</span>
+            </div>
+            <div class="controllers-display">
+                <span class="info-label">ATC Online:</span>
+                <div id="controllers" class="controllers-list">Loading...</div>
+            </div>
+        </div>
+        <!-- Departures Table -->
+        <div class="section-title">Departures</div>
+        <div class="flight-table-container">
+            <table class="flight-table">
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Destination</th>
+                        <th>Aircraft</th>
+                        <th>Altitude</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="departureList">
+                    <tr><td colspan="6" class="loading-cell">Loading departures...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Arrivals Table -->
+        <div class="section-title">Arrivals</div>
+        <div class="flight-table-container">
+            <table class="flight-table">
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Origin</th>
+                        <th>Aircraft</th>
+                        <th>Altitude</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="arrivalList">
+                    <tr><td colspan="6" class="loading-cell">Loading arrivals...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- En Route Table -->
+        <div class="section-title">En Route</div>
+        <div class="flight-table-container">
+            <table class="flight-table">
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Route</th>
+                        <th>Aircraft</th>
+                        <th>Altitude</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="enrouteList">
+                    <tr><td colspan="6" class="loading-cell">Loading en route flights...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

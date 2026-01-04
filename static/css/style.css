@@ -1,0 +1,295 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.main-header {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-content h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.airport-code {
+    background: #0066cc;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.header-meta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.live-indicator {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+/* Info Panel */
+.info-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.metar-display,
+.controllers-display {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #0066cc;
+    min-width: 100px;
+}
+
+.metar-text {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+.controllers-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.controller-badge {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.controller-freq {
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.no-controllers {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 30px 0 15px 0;
+    padding-left: 5px;
+}
+
+.section-title:first-of-type {
+    margin-top: 20px;
+}
+
+/* Flight Table */
+.flight-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.flight-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.flight-table thead {
+    background: #f8fafc;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.flight-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flight-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+
+.flight-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.flight-table td {
+    padding: 18px 20px;
+    font-size: 15px;
+    color: #1a1a1a;
+}
+
+.flight-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.airline-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.loading-cell {
+    text-align: center;
+    color: #9ca3af;
+    padding: 40px !important;
+    font-style: italic;
+}
+
+/* Flight Number Column */
+.flight-number {
+    font-weight: 600;
+    color: #0066cc;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 100px;
+}
+
+.status-boarding {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-taxiing {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-departing {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-en-route {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.status-approaching {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-landed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* Data formatting */
+.altitude-data,
+.speed-data {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.aircraft-type {
+    font-family: 'Courier New', monospace;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.destination-code {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .flight-table {
+        font-size: 14px;
+    }
+    
+    .flight-table th,
+    .flight-table td {
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .header-content {
+        flex-direction: column;
+    }
+}
