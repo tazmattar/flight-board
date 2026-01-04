@@ -10,8 +10,9 @@ class VatsimFetcher:
         self.airport_lon = 8.5492
         
         # Filters
-        self.cleanup_dist_dep = 80
-        self.radar_range_arr = 1000
+        self.cleanup_dist_dep = 80   # km (Dep flights disappear after this dist)
+        self.radar_range_arr = 1000  # km (Arr flights appear within this dist)
+        self.ground_range = 15       # km (Must be this close to show as Boarding/Taxiing)
     
     def fetch_flights(self):
         try:
@@ -41,16 +42,29 @@ class VatsimFetcher:
                     self.airport_lat, self.airport_lon
                 )
 
+                # --- 1. DEPARTURES ---
                 if dep_airport == self.airport_code:
                     flight_info = self.format_flight(pilot, 'DEP')
-                    if flight_info['status_raw'] in ['Boarding', 'Taxiing', 'Departing']:
+                    status = flight_info['status_raw']
+                    
+                    # LOGIC FIX:
+                    # Only show "Boarding/Taxiing" if actually AT the airport (< 15km)
+                    # Only show "Departing" if within airspace (< 80km)
+                    if status in ['Boarding', 'Taxiing'] and distance_km < self.ground_range:
                         departures.append(flight_info)
-                    elif distance_km < self.cleanup_dist_dep:
+                    elif status == 'Departing' and distance_km < self.cleanup_dist_dep:
+                        departures.append(flight_info)
+                    elif status == 'En Route' and distance_km < self.cleanup_dist_dep:
+                        # Technically rare to hit this as "En Route" usually means > 2000ft
+                        # but we keep it for consistency
                         enroute.append(flight_info)
                         
+                # --- 2. ARRIVALS ---
                 elif arr_airport == self.airport_code:
                     flight_info = self.format_flight(pilot, 'ARR')
-                    if flight_info['status_raw'] in ['Landed', 'Landing', 'Approaching']:
+                    status = flight_info['status_raw']
+                    
+                    if status in ['Landed', 'Landing', 'Approaching']:
                         arrivals.append(flight_info)
                     elif distance_km < self.radar_range_arr:
                         enroute.append(flight_info)
@@ -69,19 +83,14 @@ class VatsimFetcher:
 
     def format_flight(self, pilot, direction):
         flight_plan = pilot.get('flight_plan', {})
-        
-        # 1. Determine raw physical status (Taxiing, Airborne, etc.)
         raw_status = self.determine_status(pilot, direction)
         
-        # 2. Check for Delays (Only relevant for Departures on the ground)
-        display_status = raw_status # Default to just showing "Taxiing" etc.
+        display_status = raw_status
         
+        # Delay Logic (Sanity Checked)
         if direction == 'DEP' and raw_status in ['Boarding', 'Taxiing']:
             delay_min = self.calculate_delay(flight_plan.get('deptime', '0000'))
-            
-            # Logic: Show delay ONLY if reasonable (15 mins to 180 mins)
-            # If > 180 mins (3 hours), assumes pilot forgot to update time -> Show nothing.
-            if 15 < delay_min < 180:
+            if 15 < delay_min < 180: # Only show delay if between 15 mins and 3 hours
                 if delay_min < 60:
                     display_status = f"Delayed {delay_min} min"
                 else:
@@ -102,28 +111,17 @@ class VatsimFetcher:
         }
 
     def calculate_delay(self, scheduled_time_str):
-        """Calculates delay in minutes based on current UTC time"""
         try:
-            # Parse 'HHMM' string
             sch_h = int(scheduled_time_str[:2])
             sch_m = int(scheduled_time_str[2:])
-            
             now = datetime.utcnow()
-            current_total_min = now.hour * 60 + now.minute
-            sched_total_min = sch_h * 60 + sch_m
-            
-            diff = current_total_min - sched_total_min
-            
-            # Handle Midnight Crossover (e.g. Sched 23:50, Now 00:10)
-            if diff < -1000: # It's next day
-                diff += 1440 # Add 24 hours
-            elif diff > 1000: # Sched was tomorrow? (Unlikely) or crazy data
-                diff -= 1440
-                
-            # Only return positive delays
+            current_total = now.hour * 60 + now.minute
+            sched_total = sch_h * 60 + sch_m
+            diff = current_total - sched_total
+            if diff < -1000: diff += 1440
+            elif diff > 1000: diff -= 1440
             return max(0, diff)
-        except:
-            return 0
+        except: return 0
 
     def calculate_distance(self, lat1, lon1, lat2, lon2):
         if lat1 is None or lon1 is None: return 99999
