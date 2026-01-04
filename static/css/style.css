@@ -30,17 +30,79 @@ body {
 .page-container::-webkit-scrollbar { display: none; }
 
 /* Header */
+/* HEADER LAYOUT */
 .fids-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 0; border-bottom: 2px solid var(--text-white); margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #000; /* Or your dark theme background */
+    border-bottom: 2px solid #444;
+    height: 60px; /* Fixed height for consistency */
 }
-.airport-selector select {
-    background: black; color: var(--fids-green); border: none;
-    font-family: var(--font-ui); font-size: 24px; font-weight: 700;
-    text-transform: uppercase; cursor: pointer; outline: none;
+
+.header-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
-.clock-container {
-    font-size: 32px; font-weight: 700; color: var(--fids-yellow); letter-spacing: 2px;
+
+/* LEFT: Airport Select styling */
+.header-section.left {
+    flex: 0 0 200px; /* Fixed width */
+}
+
+/* CENTER: Info Modules (ATC/METAR) */
+.header-section.center {
+    flex: 1; /* Takes up all available space */
+    justify-content: center;
+    gap: 30px;
+    overflow: hidden; /* Prevents long text from breaking layout */
+}
+
+.info-module {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bbb;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.info-icon {
+    font-size: 1.1rem;
+    color: #ffb700; /* Amber color for icons */
+}
+
+.metar-text, .scrolling-text {
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #00ffcc; /* Cyan for data text */
+}
+
+/* RIGHT: Clock & Button */
+.header-section.right {
+    flex: 0 0 200px;
+    justify-content: flex-end;
+}
+
+.header-btn {
+    background: none;
+    border: 1px solid #444;
+    color: #fff;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 15px;
+    transition: all 0.2s;
+}
+
+.header-btn:hover {
+    background: #333;
+    border-color: #ffb700;
+    color: #ffb700;
 }
 
 /* Tables */

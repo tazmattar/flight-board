@@ -56,11 +56,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     socket.on('flight_update', (data) => {
-        if (data.airport_name) elements.airportName.textContent = data.airport_name;
-        
+        // ... existing airport name code ...
+
+        // 1. UPDATE TABLES (Your existing code)
         updateTableSmart(data.departures || [], elements.departureList, 'Departures');
         updateTableSmart(data.arrivals || [], elements.arrivalList, 'Arrivals');
         updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
+
+        // 2. UPDATE HEADER INFO (New Code)
+        if (elements.metar) {
+            // Truncate METAR if it's super long, or show standard text
+            elements.metar.textContent = data.metar || "NO METAR DATA";
+            elements.metar.title = data.metar; // Show full text on hover
+        }
+
+        if (elements.controllers) {
+            // Check if controllers is an array or string
+            let atcText = "No ATC Online";
+            if (Array.isArray(data.controllers) && data.controllers.length > 0) {
+                // If array: Create a simple list like "TWR: 118.100 | APP: 120.500"
+                atcText = data.controllers
+                    .map(c => `${c.position}: ${c.frequency}`) 
+                    .join("  |  ");
+            } else if (typeof data.controllers === 'string') {
+                atcText = data.controllers;
+            }
+            elements.controllers.textContent = atcText;
+        }
         
         const now = new Date();
         elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'});

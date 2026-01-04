@@ -17,17 +17,36 @@
     <div class="monitor-frame">
         <div class="page-container">
             <header class="fids-header">
-                <div class="airport-selector">
-                    <select id="airportSelect">
-                        <option value="LSZH">LSZH - Zurich</option>
-                        <option value="LSGG">LSGG - Geneva</option>
-                        <option value="LFSB">LFSB - Basel</option>
-                    </select>
-                </div>
-                <div class="clock-container">
-                    <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
-                </div>
-            </header>
+    <div class="header-section left">
+        <div class="airport-selector">
+            <select id="airportSelect">
+                <option value="LSZH">LSZH - Zurich</option>
+                <option value="LSGG">LSGG - Geneva</option>
+                <option value="LFSB">LFSB - Basel</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="header-section center">
+        <div class="info-module">
+            <span class="material-icons info-icon">dns</span>
+            <span id="controllers" class="scrolling-text">Searching for Controllers...</span>
+        </div>
+        <div class="info-module">
+            <span class="material-icons info-icon">cloud</span>
+            <span id="metar" class="metar-text">Waiting for METAR...</span>
+        </div>
+    </div>
+
+    <div class="header-section right">
+        <div class="clock-container">
+            <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
+        </div>
+        <button id="fullscreenBtn" class="header-btn" title="Enter Kiosk Mode">
+            <span class="material-icons">fullscreen</span>
+        </button>
+    </div>
+</header>
 
             <div class="fids-table-wrapper">
     
