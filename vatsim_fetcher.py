@@ -1,10 +1,18 @@
 import requests
+import math
 from datetime import datetime
 
 class VatsimFetcher:
     def __init__(self):
         self.vatsim_url = 'https://data.vatsim.net/v3/vatsim-data.json'
         self.airport_code = 'LSZH'
+        # LSZH Coordinates for distance calculation
+        self.airport_lat = 47.4647
+        self.airport_lon = 8.5492
+        
+        # Configuration for filters
+        self.cleanup_dist_dep = 80   # km: Hide outbound flights after they fly this far away (~43nm)
+        self.radar_range_arr = 1000  # km: Only show inbound flights within this range (~540nm)
     
     def fetch_flights(self):
         """Fetch flight data from VATSIM"""
@@ -27,23 +35,41 @@ class VatsimFetcher:
                 dep_airport = flight_plan.get('departure')
                 arr_airport = flight_plan.get('arrival')
                 
-                # Check if flight is related to LSZH
+                # Calculate distance from LSZH
+                pilot_lat = pilot.get('latitude')
+                pilot_lon = pilot.get('longitude')
+                distance_km = self.calculate_distance(
+                    pilot_lat, pilot_lon, 
+                    self.airport_lat, self.airport_lon
+                )
+
+                # --- 1. DEPARTURES (Outbound) ---
                 if dep_airport == self.airport_code:
                     flight_info = self.format_flight(pilot)
-                    # Logic: If it's on the ground or just took off, it's a "Departure"
-                    # Otherwise, if it's far away but matches, we list it as "En Route" (outbound)
+                    
                     if flight_info['status'] in ['Boarding', 'Taxiing', 'Departing']:
+                        # Always show active departures
                         departures.append(flight_info)
                     else:
-                        enroute.append(flight_info)
+                        # Status is "En Route" (flying away)
+                        # ONLY show if they are still within the cleanup distance
+                        if distance_km < self.cleanup_dist_dep:
+                            enroute.append(flight_info)
+                        # Else: Flight has left airspace -> Ignore it (Slim down list)
                         
+                # --- 2. ARRIVALS (Inbound) ---       
                 elif arr_airport == self.airport_code:
                     flight_info = self.format_flight(pilot)
-                    # Logic: If it's close/low, it's an "Arrival"
+                    
                     if flight_info['status'] in ['Landed', 'Landing', 'Approaching']:
+                        # Always show active arrivals
                         arrivals.append(flight_info)
                     else:
-                        enroute.append(flight_info)
+                        # Status is "En Route" (flying towards us)
+                        # ONLY show if they are within radar range
+                        if distance_km < self.radar_range_arr:
+                            enroute.append(flight_info)
+                        # Else: Flight is too far away (e.g. still in JFK) -> Ignore it
             
             metar = self.get_metar()
             controllers = self.get_controllers(data)
@@ -62,6 +88,21 @@ class VatsimFetcher:
             print(f"Error fetching VATSIM data: {e}")
             return {'departures': [], 'arrivals': [], 'enroute': [], 'metar': 'Unavailable', 'controllers': []}
     
+    def calculate_distance(self, lat1, lon1, lat2, lon2):
+        """Haversine formula to calculate distance in km"""
+        if lat1 is None or lon1 is None:
+            return 99999 # Treat missing data as far away
+            
+        R = 6371 # Earth radius in km
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        
+        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+        c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
+        
+        return R*c
+
     def format_flight(self, pilot):
         """Format individual flight data"""
         flight_plan = pilot.get('flight_plan', {})
@@ -74,8 +115,8 @@ class VatsimFetcher:
         flight_info = {
             'callsign': pilot.get('callsign', 'N/A'),
             'aircraft': flight_plan.get('aircraft_short', 'N/A'),
-            'origin': dep,          # NEW: Explicit origin
-            'destination': arr,      # NEW: Explicit destination
+            'origin': dep,
+            'destination': arr,
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
             'status': self.determine_status(pilot, direction),
@@ -125,7 +166,6 @@ class VatsimFetcher:
         for controller in data.get('controllers', []):
             callsign = controller.get('callsign', '')
             
-            # Filter for LSZH controllers (Delivery, Ground, Tower, Approach, Center)
             if callsign.startswith('LSZH') or callsign.startswith('LSAS'): 
                 controllers.append({
                     'callsign': callsign,
