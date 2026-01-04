@@ -127,8 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!row) {
                 row = document.createElement('tr');
                 row.id = rowId;
+                
+                // FIXED: Added the flight-cell wrapper and airline logo img back in
                 row.innerHTML = `
-                    <td><div class="flap-container" id="${rowId}-callsign"></div></td>
+                    <td>
+                        <div class="flight-cell">
+                            <img src="${logoUrl}" class="airline-logo" onerror="this.style.display='none'">
+                            <div class="flap-container" id="${rowId}-callsign"></div>
+                        </div>
+                    </td>
                     <td><div class="flap-container" id="${rowId}-dest"></div></td>
                     <td><div class="flap-container" id="${rowId}-ac"></div></td>
                     <td><div class="flap-container" id="${rowId}-alt"></div></td>

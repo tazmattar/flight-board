@@ -60,6 +60,23 @@ body {
     border-bottom: 1px solid #1a1a1a; vertical-align: middle;
 }
 
+/* --- Airline Logos & Alignment --- */
+.flight-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between logo and flight number */
+}
+
+.airline-logo {
+    height: 24px; /* Fixed height for consistency */
+    width: auto;
+    object-fit: contain;
+    
+    /* OPTIONAL: This makes logos white/monochrome to match the FIDS theme.
+       Remove this line if you want full-color logos. */
+    filter: grayscale(100%) brightness(200%); 
+}
+
 /* --- SPLIT FLAP ANIMATION --- */
 .flap-container {
     display: inline-flex;
