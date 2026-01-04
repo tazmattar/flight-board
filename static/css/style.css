@@ -285,10 +285,28 @@ body {
 }
 
 /* Status variants */
-.status-boarding, .status-departing {
+
+/* 1. Departing stays Green (Active) */
+.status-departing {
     background: var(--status-green-bg);
     color: var(--status-green-text);
     border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+/* 2. Boarding becomes Pink (Gate) */
+.status-boarding {
+    background: rgba(236, 72, 153, 0.2); /* Pink background */
+    color: #f472b6;                      /* Pink text */
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    
+    /* Optional: A subtle pulse to show urgency */
+    animation: pulse-pink 3s infinite;
+}
+
+@keyframes pulse-pink {
+    0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(236, 72, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
 }
 
 .status-taxiing, .status-approaching {
