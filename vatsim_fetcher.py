@@ -40,23 +40,19 @@ class VatsimFetcher:
             return stands_data
         except Exception as e:
             print(f"⚠️  Could not load stands.json: {e}")
-            print("  Gate assignments will show as 'TBA'")
             return {'LSZH': [], 'LSGG': [], 'LFSB': []}
     
     def find_stand(self, pilot_lat, pilot_lon, airport_code, groundspeed, altitude):
         """
-        Determine which stand an aircraft is parked at using geofencing
-        Returns stand name or None
+        Determine which stand an aircraft is parked at using geofencing.
         """
-        # FIX: The previous check (altitude > 100) failed because 
-        # VATSIM sends MSL altitude. LSZH is ~1400ft MSL.
-        # We now trust groundspeed < 5 (stationary) as the primary indicator.
-        
+        # 1. SPEED CHECK: If moving faster than 5kts, not at a stand.
         if groundspeed > 5:
             return None
             
-        # Optional Sanity Check: If a plane is hovering at 30,000ft with 0 speed,
-        # it's likely paused or a data glitch, not at a gate.
+        # 2. ALTITUDE SANITY CHECK:
+        # We removed the 'altitude > 100' check because VATSIM sends MSL (Sea Level) altitude.
+        # LSZH is ~1400ft. We only ignore planes clearly flying high (e.g. > 10,000ft).
         if altitude > 10000: 
             return None
         
@@ -68,26 +64,34 @@ class VatsimFetcher:
         if not airport_stands:
             return None
         
-        # Find closest stand within detection radius
+        # Find closest stand
         closest_stand = None
         min_distance = float('inf')
         
         for stand in airport_stands:
             # Calculate distance in meters
-            distance_km = self.calculate_distance(
-                pilot_lat, pilot_lon,
-                stand['lat'], stand['lon']
-            )
-            distance_m = distance_km * 1000
+            dist = self.calculate_distance_m(pilot_lat, pilot_lon, stand['lat'], stand['lon'])
             
-            # Check if within stand's detection radius
-            if distance_m <= stand['radius']:
-                if distance_m < min_distance:
-                    min_distance = distance_m
+            # Check if within stand's detection radius (usually 30-40m)
+            if dist <= stand.get('radius', 35):
+                if dist < min_distance:
+                    min_distance = dist
                     closest_stand = stand['name']
         
         return closest_stand
     
+    def calculate_distance_m(self, lat1, lon1, lat2, lon2):
+        """Accurate distance in meters using Haversine"""
+        R = 6371000 # Earth radius in meters
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        
+        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+        c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
+        return R*c
+
     def fetch_flights(self):
         # Initialize results structure
         results = {}
@@ -105,10 +109,6 @@ class VatsimFetcher:
             data = response.json()
             
             pilots = data.get('pilots', [])
-            print(f"DEBUG: VATSIM data received. Total connected pilots: {len(pilots)}")
-            
-            # Counters for debug
-            counts = {code: {'dep': 0, 'arr': 0} for code in self.airports}
             
             for pilot in pilots:
                 flight_plan = pilot.get('flight_plan')
@@ -120,57 +120,44 @@ class VatsimFetcher:
                 
                 if dep in self.airports:
                     self.process_flight(pilot, dep, 'DEP', results[dep])
-                    counts[dep]['dep'] += 1
                     
                 if arr in self.airports:
                     self.process_flight(pilot, arr, 'ARR', results[arr])
-                    counts[arr]['arr'] += 1
 
-            # Get Meta
+            # Get Meta & Controllers
             for code in self.airports:
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
-            # Print Summary
-            for code in self.airports:
-                d = len(results[code]['departures'])
-                a = len(results[code]['arrivals'])
-                print(f"DEBUG {code}: Found {d} Deps (of {counts[code]['dep']} total), {a} Arrs (of {counts[code]['arr']} total)")
-            
             return results
             
         except Exception as e:
-            print(f"CRITICAL ERROR in fetch_flights: {e}")
-            traceback.print_exc()
+            print(f"ERROR in fetch_flights: {e}")
             return results
 
     def process_flight(self, pilot, airport_code, direction, airport_data):
         airport_config = self.airports[airport_code]
-        distance_km = self.calculate_distance(
+        # Quick distance check (km)
+        dist_km = self.calculate_distance_m(
             pilot.get('latitude'), pilot.get('longitude'), 
             airport_config['lat'], airport_config['lon']
-        )
+        ) / 1000.0
         
         flight_info = self.format_flight(pilot, direction, airport_config['ceiling'], airport_code)
         status = flight_info['status_raw']
         
-        # Apply Logic
-        added = False
         if direction == 'DEP':
-            if status in ['Boarding', 'Ready', 'Pushback', 'Taxiing'] and distance_km < self.ground_range:
+            if status in ['Boarding', 'Ready', 'Pushback', 'Taxiing'] and dist_km < self.ground_range:
                 airport_data['departures'].append(flight_info)
-                added = True
-            elif status == 'Departing' and distance_km < self.cleanup_dist_dep:
+            elif status == 'Departing' and dist_km < self.cleanup_dist_dep:
                 airport_data['departures'].append(flight_info)
-                added = True
-            elif status == 'En Route' and distance_km < self.cleanup_dist_dep:
+            elif status == 'En Route' and dist_km < self.cleanup_dist_dep:
                 airport_data['enroute'].append(flight_info)
         
         elif direction == 'ARR':
             if status in ['Landed', 'Landing', 'Approaching']:
                 airport_data['arrivals'].append(flight_info)
-                added = True
-            elif distance_km < self.radar_range_arr:
+            elif dist_km < self.radar_range_arr:
                 airport_data['enroute'].append(flight_info)
 
     def format_flight(self, pilot, direction, ceiling, airport_code):
@@ -179,6 +166,7 @@ class VatsimFetcher:
         
         # Determine gate/stand assignment
         gate = None
+        # Only check gate if on the ground and departing/arrived
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']:
             gate = self.find_stand(
                 pilot.get('latitude'),
@@ -192,10 +180,8 @@ class VatsimFetcher:
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
             delay_min = self.calculate_delay(flight_plan.get('deptime', '0000'), pilot.get('logon_time'))
             if 15 < delay_min < 300: 
-                if delay_min < 60: delay_text = f"Delayed {delay_min} min"
-                else: 
-                    h, m = divmod(delay_min, 60)
-                    delay_text = f"Delayed {h}h {m:02d}m"
+                h, m = divmod(delay_min, 60)
+                delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
         return {
             'callsign': pilot.get('callsign', 'N/A'),
@@ -206,7 +192,7 @@ class VatsimFetcher:
             'groundspeed': pilot.get('groundspeed', 0),
             'status': raw_status,
             'delay_text': delay_text,
-            'gate': gate or 'TBA',  # NEW: Gate assignment
+            'gate': gate or 'TBA',
             'direction': direction,
             'status_raw': raw_status
         }
@@ -219,8 +205,8 @@ class VatsimFetcher:
 
         if direction == 'DEP':
             if alt < ceiling: 
-                if gs < 1: return 'Boarding' if squawk in default_squawks else 'Ready'
-                elif gs < 5: return 'Pushback'
+                if gs < 5: return 'Pushback' if squawk not in default_squawks else 'Boarding'
+                if gs < 1: return 'Ready' # Catch-all for stationary with squawk set
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'
@@ -237,27 +223,15 @@ class VatsimFetcher:
             cur_total = now.hour * 60 + now.minute
             
             if logon:
-                clean_logon = logon.split('.')[0].replace('Z','')
-                l_dt = datetime.strptime(clean_logon, "%Y-%m-%dT%H:%M:%S")
+                l_dt = datetime.strptime(logon.split('.')[0].replace('Z',''), "%Y-%m-%dT%H:%M:%S")
                 log_total = l_dt.hour * 60 + l_dt.minute
                 if (log_total - sch_total) > 15: return 0 
-                if (log_total - sch_total) < -1000: pass # simplified check
 
             diff = cur_total - sch_total
             if diff < -1000: diff += 1440
             elif diff > 1000: diff -= 1440
             return max(0, diff)
         except: return 0
-
-    def calculate_distance(self, lat1, lon1, lat2, lon2):
-        if None in [lat1, lon1, lat2, lon2]: return 99999
-        R = 6371
-        phi1, phi2 = math.radians(lat1), math.radians(lat2)
-        dphi = math.radians(lat2 - lat1)
-        dlambda = math.radians(lon2 - lon1)
-        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
-        c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
-        return R*c
 
     def get_metar(self, airport_code):
         try:
@@ -269,5 +243,5 @@ class VatsimFetcher:
         prefixes = (airport_code, 'LSAS', 'LSAZ') 
         for c in all_controllers:
             if c.get('callsign', '').startswith(prefixes):
-                ctrls.append({'callsign': c['callsign'], 'frequency': c['frequency']})
+                ctrls.append({'callsign': c['callsign'], 'frequency': c['frequency'], 'position': c['callsign'].split('_')[-1]})
         return ctrls
