@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Traffic - Flight Board</title>
+    <title>Live Traffic - LSZH</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,14 +16,8 @@
     <div class="page-container">
         <header class="main-header">
             <div class="header-content">
-                <div class="airport-selector">
-                    <select id="airportSelect">
-                        <option value="LSZH">LSZH - Zurich</option>
-                        <option value="LSGG">LSGG - Geneva</option>
-                        <option value="LFSB">LFSB - Basel</option>
-                    </select>
-                </div>
-                <h1 id="airportName">Zurich Airport</h1>
+                <h1>Zurich Airport</h1>
+                <div class="airport-code">LSZH</div>
             </div>
             <div class="header-meta">
                 <span class="live-indicator">● LIVE</span>
@@ -46,9 +40,18 @@
         <div class="flight-table-container">
             <table class="flight-table">
                 <thead>
-                    <tr><th>Flight</th><th>Destination</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Destination</th>
+                        <th>Aircraft</th>
+                        <th>Altitude</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                    </tr>
                 </thead>
-                <tbody id="departureList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
+                <tbody id="departureList">
+                    <tr><td colspan="6" class="loading-cell">Loading departures...</td></tr>
+                </tbody>
             </table>
         </div>
 
@@ -56,9 +59,18 @@
         <div class="flight-table-container">
             <table class="flight-table">
                 <thead>
-                    <tr><th>Flight</th><th>Origin</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Origin</th>
+                        <th>Aircraft</th>
+                        <th>Altitude</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                    </tr>
                 </thead>
-                <tbody id="arrivalList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
+                <tbody id="arrivalList">
+                    <tr><td colspan="6" class="loading-cell">Loading arrivals...</td></tr>
+                </tbody>
             </table>
         </div>
 
@@ -66,9 +78,18 @@
         <div class="flight-table-container">
             <table class="flight-table">
                 <thead>
-                    <tr><th>Flight</th><th>Destination</th><th>Aircraft</th><th>Altitude</th><th>Speed</th><th>Status</th></tr>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Destination</th>
+                        <th>Aircraft</th>
+                        <th>Altitude</th>
+                        <th>Speed</th>
+                        <th>Status</th>
+                    </tr>
                 </thead>
-                <tbody id="enrouteList"><tr><td colspan="6" class="loading-cell">Loading...</td></tr></tbody>
+                <tbody id="enrouteList">
+                    <tr><td colspan="6" class="loading-cell">Loading en route flights...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>

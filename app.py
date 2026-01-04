@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from apscheduler.schedulers.background import BackgroundScheduler
 from vatsim_fetcher import VatsimFetcher
 from config import Config
@@ -9,60 +9,51 @@ app = Flask(__name__)
 app.config.from_object(Config)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Initialize VATSIM fetcher
 flight_fetcher = VatsimFetcher()
-# Store current flights in memory (Global state)
-current_flights = {
-    'departures': [],
-    'arrivals': [],
-    'enroute': [],
-    'metar': 'Loading...',
-    'controllers': []
-}
+# Global store: {'LSZH': {...}, 'LSGG': {...}}
+current_data = {} 
 
 def update_flights():
-    """Fetch new flight data and broadcast to connected clients"""
-    global current_flights
+    """Fetch all airports and broadcast to their respective rooms"""
+    global current_data
     print("Fetching flight data...")
     new_data = flight_fetcher.fetch_flights()
     
     if new_data:
-        current_flights = new_data
-        # Broadcast to all connected clients
-        socketio.emit('flight_update', current_flights)
+        current_data = new_data
+        # Broadcast specifically to subscribers of each airport
+        for airport_code, airport_data in current_data.items():
+            socketio.emit('flight_update', airport_data, to=airport_code)
 
-# Set up scheduled updates
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=update_flights, trigger="interval", seconds=Config.UPDATE_INTERVAL)
 scheduler.start()
-
-# Fetch initial data on startup
-update_flights()
-
-# Shut down scheduler on exit
 atexit.register(lambda: scheduler.shutdown())
+
+# Fetch immediately on start
+update_flights()
 
 @app.route('/')
 def index():
-    """Main page"""
-    return render_template('index.html', airport_code=Config.AIRPORT_CODE)
+    return render_template('index.html')
 
-@socketio.on('connect')
-def handle_connect():
-    """Send current flights when client connects"""
-    print("Client connected")
-    # FIX: Emit 'current_flights' directly, matching the structure of 'update_flights'
-    emit('flight_update', current_flights)
+@socketio.on('join_airport')
+def handle_join(data):
+    """Client wants to view a specific airport"""
+    airport = data.get('airport', 'LSZH')
+    # Leave previous rooms if any (optional, but cleaner)
+    # Join the new room
+    join_room(airport)
+    print(f"Client {request.sid} joined {airport}")
+    
+    # Send immediate update for that airport so they don't wait for next tick
+    if airport in current_data:
+        emit('flight_update', current_data[airport])
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    print("Client disconnected")
-
-@socketio.on('manual_refresh')
-def handle_manual_refresh():
-    """Allow manual refresh from frontend"""
-    print("Manual refresh requested")
-    update_flights()
+@socketio.on('leave_airport')
+def handle_leave(data):
+    airport = data.get('airport')
+    leave_room(airport)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

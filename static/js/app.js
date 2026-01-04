@@ -1,7 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     
+    // State
+    let currentAirport = 'LSZH';
+
     const elements = {
+        airportSelect: document.getElementById('airportSelect'),
+        airportName: document.getElementById('airportName'),
         departureList: document.getElementById('departureList'),
         arrivalList: document.getElementById('arrivalList'),
         enrouteList: document.getElementById('enrouteList'),
@@ -10,65 +15,51 @@ document.addEventListener('DOMContentLoaded', () => {
         controllers: document.getElementById('controllers')
     };
 
-    // 1. Manual Overrides (VATSIM specific quirks or Virtual Airlines)
-    // These take priority over the dynamic list.
-    const manualOverrides = {
-        'SWS': 'LX',  // Common mistake for Swiss
-        'EZY': 'U2',  // easyJet (often missing in old DBs)
-        'EZS': 'DS',  // easyJet Switzerland
-        'BEL': 'SN',  // Brussels Airlines
-        'GWI': '4U',  // Germanwings
-        'EDW': 'WK'   // Edelweiss
-    };
-
-    // 2. Global Mapping (Will be populated via fetch)
+    // --- Dynamic Airline Data Loading (Same as before) ---
+    const manualOverrides = { 'SWS': 'LX', 'EZY': 'U2', 'EZS': 'DS', 'BEL': 'SN', 'GWI': '4U', 'EDW': 'WK' };
     let airlineMapping = { ...manualOverrides };
-
-    // --- Fetch Airline Database (Dynamic Mapping) ---
+    
     async function loadAirlineDatabase() {
         try {
-            // Using a free open-source dataset from GitHub (via jsDelivr CDN)
-            // Source: https://github.com/npow/airline-codes
             const response = await fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json');
-            if (!response.ok) throw new Error("Failed to load airline DB");
-            
-            const data = await response.json();
-            
-            // Populate our mapping object
-            data.forEach(airline => {
-                // Only map if we have both codes and it's active
-                if (airline.icao && airline.iata && airline.active === 'Y') {
-                    // Don't overwrite our manual overrides
-                    if (!airlineMapping[airline.icao]) {
-                        airlineMapping[airline.icao] = airline.iata;
+            if (response.ok) {
+                const data = await response.json();
+                data.forEach(a => {
+                    if (a.icao && a.iata && a.active === 'Y' && !airlineMapping[a.icao]) {
+                        airlineMapping[a.icao] = a.iata;
                     }
-                }
-            });
-            console.log(`Loaded ${Object.keys(airlineMapping).length} airline codes dynamically.`);
-            
-        } catch (error) {
-            console.warn('Could not load dynamic airline codes, falling back to manuals.', error);
-        }
+                });
+            }
+        } catch (e) { console.warn('Fallback to manual codes'); }
     }
-
-    // Call immediately on load
     loadAirlineDatabase();
 
-    // --- Socket Event Listeners ---
+    // --- Airport Switching Logic ---
+    
+    // 1. Join default airport on load
+    socket.emit('join_airport', { airport: currentAirport });
 
-    socket.on('connect', () => {
-        console.log('Connected to VATSIM data stream');
-        showConnectionStatus(true);
+    // 2. Handle dropdown change
+    elements.airportSelect.addEventListener('change', (e) => {
+        const newAirport = e.target.value;
+        
+        // Leave old room, join new room
+        socket.emit('leave_airport', { airport: currentAirport });
+        currentAirport = newAirport;
+        socket.emit('join_airport', { airport: currentAirport });
+        
+        // Clear tables to show loading state
+        clearTables();
     });
 
-    socket.on('disconnect', () => {
-        console.log('Disconnected from server');
-        showConnectionStatus(false);
-    });
+    // --- Socket Events ---
 
     socket.on('flight_update', (data) => {
-        if (!data) return;
-        
+        // Update Header Name (e.g., "Geneva Airport")
+        if (data.airport_name) {
+            elements.airportName.textContent = data.airport_name;
+        }
+
         renderTable(data.departures || [], elements.departureList, 'Departures');
         renderTable(data.arrivals || [], elements.arrivalList, 'Arrivals');
         renderTable(data.enroute || [], elements.enrouteList, 'En Route');
@@ -78,11 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTimestamp();
     });
 
-    // --- Rendering Functions ---
+    // --- Helpers ---
+    
+    function clearTables() {
+        const loadingRow = '<tr><td colspan="6" class="loading-cell">Loading...</td></tr>';
+        elements.departureList.innerHTML = loadingRow;
+        elements.arrivalList.innerHTML = loadingRow;
+        elements.enrouteList.innerHTML = loadingRow;
+        elements.metar.textContent = 'Loading...';
+        elements.controllers.innerHTML = 'Loading...';
+    }
 
     function renderTable(flights, container, type) {
         container.innerHTML = '';
-
         if (flights.length === 0) {
             container.innerHTML = `<tr><td colspan="6" class="loading-cell">No active ${type.toLowerCase()}</td></tr>`;
             return;
@@ -90,86 +89,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
         flights.forEach(flight => {
             const row = document.createElement('tr');
-            
-            // 1. Get ICAO prefix (e.g., "SWR")
-            const callsignPrefix = flight.callsign.substring(0, 3).toUpperCase();
-            
-            // 2. Lookup IATA code (e.g., "LX") using our dynamic map
-            // Fallback to prefix if not found (sometimes logo APIs accept ICAO)
-            const airlineCode = airlineMapping[callsignPrefix] || callsignPrefix;
-            
-            const logoUrl = `https://images.kiwi.com/airlines/64/${airlineCode}.png`;
-            
+            const prefix = flight.callsign.substring(0, 3).toUpperCase();
+            const code = airlineMapping[prefix] || prefix;
+            const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`;
             const statusClass = getStatusClass(flight.status);
-            const formattedStatus = capitalize(flight.status);
-            const formattedAltitude = flight.altitude.toLocaleString();
             
             row.innerHTML = `
                 <td>
                     <div class="flight-cell">
-                        <img src="${logoUrl}" 
-                             alt="${airlineCode}" 
-                             class="airline-logo" 
-                             onerror="this.style.display='none'"> 
-                             <span class="flight-number">${flight.callsign}</span>
+                        <img src="${logoUrl}" class="airline-logo" onerror="this.style.display='none'"> 
+                        <span class="flight-number">${flight.callsign}</span>
                     </div>
                 </td>
                 <td><span class="destination-code">${type === 'Arrivals' ? flight.origin : flight.destination}</span></td>
                 <td><span class="aircraft-type">${flight.aircraft}</span></td>
-                <td><span class="altitude-data">${formattedAltitude} ft</span></td>
+                <td><span class="altitude-data">${flight.altitude.toLocaleString()} ft</span></td>
                 <td><span class="speed-data">${flight.groundspeed} kts</span></td>
-                <td><span class="status-badge ${statusClass}">${formattedStatus}</span></td>
+                <td><span class="status-badge ${statusClass}">${flight.status}</span></td>
             `;
             container.appendChild(row);
         });
     }
 
-    function updateMetar(metarData) {
-        elements.metar.textContent = metarData || 'METAR unavailable';
-    }
-
-    function updateControllers(controllers) {
-        elements.controllers.innerHTML = '';
-
-        if (!controllers || controllers.length === 0) {
-            elements.controllers.innerHTML = '<span class="no-controllers">No ATC Online</span>';
-            return;
-        }
-
-        controllers.forEach(ctrl => {
-            const badge = document.createElement('div');
-            badge.className = 'controller-badge';
-            badge.innerHTML = `
-                <span>${ctrl.callsign}</span>
-                <span class="controller-freq">${ctrl.frequency}</span>
-            `;
-            elements.controllers.appendChild(badge);
-        });
-    }
-
     function getStatusClass(status) {
         if (!status) return '';
+        // Handle the dynamic delay status (starts with "Delayed")
+        if (status.startsWith('Delayed')) return 'status-delayed'; 
         return `status-${status.toLowerCase().replace(/\s+/g, '-')}`;
     }
 
-    function capitalize(str) {
-        if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1);
+    function updateMetar(metar) { elements.metar.textContent = metar || 'Unavailable'; }
+    
+    function updateControllers(ctrls) {
+        elements.controllers.innerHTML = '';
+        if (!ctrls || ctrls.length === 0) {
+            elements.controllers.innerHTML = '<span class="no-controllers">No ATC Online</span>';
+            return;
+        }
+        ctrls.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'controller-badge';
+            div.innerHTML = `<span>${c.callsign}</span><span class="controller-freq">${c.frequency}</span>`;
+            elements.controllers.appendChild(div);
+        });
     }
 
     function updateTimestamp() {
         const now = new Date();
-        const timeString = new Intl.DateTimeFormat('en-GB', {
-            hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC'
-        }).format(now);
-        elements.lastUpdate.textContent = `${timeString} Z`;
-    }
-
-    function showConnectionStatus(isConnected) {
-        const indicator = document.querySelector('.live-indicator');
-        if (indicator) {
-            indicator.style.color = isConnected ? '#ef4444' : '#64748b';
-            indicator.textContent = isConnected ? '● LIVE' : '● OFFLINE';
-        }
+        elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'}) + ' Z';
     }
 });
