@@ -109,8 +109,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const alt = `${flight.altitude.toLocaleString()} ft`;
             const spd = `${flight.groundspeed} kts`;
             
-            // LOGIC: If En Route, show empty string. Otherwise show Gate or TBA.
-            const gate = (type === 'En Route') ? '' : (flight.gate || 'TBA'); 
+            // --- GATE STATUS LOGIC ---
+            let gate = flight.gate || 'TBA'; // Default
+
+            if (type === 'En Route') {
+                gate = ''; // Never show gate for En Route
+            } 
+            else if (type === 'Departures') {
+                // For Departures: If the plane is moving (Taxiing/Departing), 
+                // the gate is technically closed/vacated.
+                if (flight.status === 'Taxiing' || flight.status === 'Departing') {
+                    gate = 'CLOSED'; 
+                }
+            }
+            // Arrivals will fall through to default (Show Stand or TBA)
+            // -------------------------
 
             // Determine logic for Status Column
             const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
@@ -127,8 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // We ALWAYS generate the gate cell (td) so the columns align,
-                // but the 'gate' variable above decides if it has text or not.
                 row.innerHTML = `
                     <td>
                         <div class="flight-cell">
@@ -150,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
-            updateFlapText(document.getElementById(`${rowId}-gate`), gate); // Updates with "" or "A12"
+            updateFlapText(document.getElementById(`${rowId}-gate`), gate); // Will show "CLOSED" for departing flights
             updateFlapText(document.getElementById(`${rowId}-alt`), alt);
             updateFlapText(document.getElementById(`${rowId}-spd`), spd);
             
