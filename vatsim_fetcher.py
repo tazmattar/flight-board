@@ -187,27 +187,39 @@ class VatsimFetcher:
 
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
-        # Pass dist_km to determine_status to fix "Landed at Origin" bug
+        # Get the raw status (Landed, Taxiing, etc.)
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km)
         
+        # --- GATE LOGIC ---
         gate = None
+        # Check for gate if departing (Boarding/Pushback) or arriving (Landed)
         if (direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']) or \
            (direction == 'ARR' and raw_status == 'Landed'):
-            gate = self.find_stand(pilot['latitude'], pilot['longitude'], airport_code, pilot['groundspeed'], pilot['altitude'])
+            gate = self.find_stand(
+                pilot['latitude'], 
+                pilot['longitude'], 
+                airport_code, 
+                pilot['groundspeed'], 
+                pilot['altitude']
+            )
             
+        # --- DELAY LOGIC ---
         delay_text = None
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
-            # Calculate delay based on filed departure time
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
-            
-            # Only show delay if it's significant (> 15 mins) and realistic (< 5 hours)
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
-                if h > 0:
-                    delay_text = f"Delayed {h}h {m:02d}m"
-                else:
-                    delay_text = f"Delayed {m} min"
+                delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
+        # --- STATUS OVERRIDE ("At Gate") ---
+        # Default the display status to the raw status
+        display_status = raw_status
+        
+        # If it is an arrival and we successfully found a gate, change status to "At Gate"
+        if direction == 'ARR' and gate:
+            display_status = 'At Gate'
+
+        # --- TIME CALCULATION ---
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
         return {
@@ -217,12 +229,12 @@ class VatsimFetcher:
             'destination': fp.get('arrival', 'N/A'),
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
-            'status': raw_status,
+            'status': display_status,      # This now shows "At Gate"
+            'status_raw': raw_status,      # Keep original for internal filtering
             'delay_text': delay_text,
             'gate': gate or 'TBA',
             'time_display': time_display,
-            'direction': direction,
-            'status_raw': raw_status
+            'direction': direction
         }
 
     def determine_status(self, pilot, direction, ceiling, dist_km):
