@@ -61,9 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTableSmart(data.departures || [], elements.departureList, 'Departures');
         updateTableSmart(data.arrivals || [], elements.arrivalList, 'Arrivals');
         updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
-        
-        const now = new Date();
-        elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'});
     });
 
     // --- THE CYCLE ENGINE (Restores the flashing/flipping behavior) ---
@@ -218,4 +215,22 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { element.textContent = newChar; }, 200); 
         }
     }
+
+    // --- REAL-TIME CLOCK ENGINE ---
+    function updateClock() {
+        const now = new Date();
+        // Format time as HH:MM:SS
+        const timeString = now.toLocaleTimeString('en-GB', { 
+            timeZone: 'UTC', 
+            hour12: false 
+        });
+        
+        if (elements.lastUpdate) {
+            elements.lastUpdate.textContent = timeString;
+        }
+    }
+
+    // Start the clock immediately and update every 1000ms (1 second)
+    updateClock(); 
+    setInterval(updateClock, 1000);
 });
