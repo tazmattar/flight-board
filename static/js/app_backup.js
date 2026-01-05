@@ -61,9 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTableSmart(data.departures || [], elements.departureList, 'Departures');
         updateTableSmart(data.arrivals || [], elements.arrivalList, 'Arrivals');
         updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
-        
-        const now = new Date();
-        elements.lastUpdate.textContent = now.toLocaleTimeString('en-GB', {timeZone:'UTC'});
     });
 
     // --- THE CYCLE ENGINE (Restores the flashing/flipping behavior) ---
@@ -106,27 +103,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
 
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
-            const alt = `${flight.altitude.toLocaleString()} ft`;
-            const spd = `${flight.groundspeed} kts`;
             
-            // --- GATE STATUS LOGIC ---
-            let gate = flight.gate || 'TBA'; // Default
+            // Time Column
+            const timeStr = flight.time_display || "--:--";
+
+            // --- IMPROVED GATE LOGIC ---
+            let gate = flight.gate; // Start with raw data (e.g. "A49" or null)
+            let isGateWaiting = false; // Flag to trigger the pulsing animation
 
             if (type === 'En Route') {
-                gate = ''; // Never show gate for En Route
+                gate = ''; // No gate info for enroute
             } 
             else if (type === 'Departures') {
-                // For Departures: If the plane is moving (Taxiing/Departing), 
-                // the gate is technically closed/vacated.
                 if (flight.status === 'Taxiing' || flight.status === 'Departing') {
                     gate = 'CLOSED'; 
+                } else {
+                    gate = gate || 'TBA'; 
                 }
             }
-            // Arrivals will fall through to default (Show Stand or TBA)
-            // -------------------------
+            else if (type === 'Arrivals') {
+                // Check if gate is missing or literally "TBA"
+                if (!gate || gate === 'TBA') {
+                    // LOGIC: Only show pulsing WAIT if the plane has actually landed.
+                    // If it is still 'Approaching', just show standard TBA.
+                    if (flight.status === 'Landed' || flight.status === 'Landing') {
+                        gate = 'WAIT';
+                        isGateWaiting = true; // Triggers the pulse class
+                    } else {
+                        gate = 'TBA'; // Keep static TBA for Approaching
+                    }
+                }
+            }
+            // ---------------------------
 
-            // Determine logic for Status Column
-            const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
+            // Status Logic
+            const isActiveDeparture = ['Boarding', 'Ready', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
+            const hasDelay = (flight.delay_text && isActiveDeparture);
             
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
@@ -150,8 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><div class="flap-container" id="${rowId}-dest"></div></td>
                     <td><div class="flap-container" id="${rowId}-ac"></div></td>
                     <td><div class="flap-container" id="${rowId}-gate"></div></td> 
-                    <td><div class="flap-container" id="${rowId}-alt"></div></td>
-                    <td><div class="flap-container" id="${rowId}-spd"></div></td>
+                    <td><div class="flap-container" id="${rowId}-time"></div></td>
                     <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                 `;
                 container.appendChild(row);
@@ -161,9 +172,19 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
-            updateFlapText(document.getElementById(`${rowId}-gate`), gate); // Will show "CLOSED" for departing flights
-            updateFlapText(document.getElementById(`${rowId}-alt`), alt);
-            updateFlapText(document.getElementById(`${rowId}-spd`), spd);
+            updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
+            
+            // --- UPDATE GATE WITH ANIMATION ---
+            const gateContainer = document.getElementById(`${rowId}-gate`);
+            updateFlapText(gateContainer, gate);
+            
+            // Toggle the pulsing class
+            if (isGateWaiting) {
+                gateContainer.classList.add('status-wait');
+            } else {
+                gateContainer.classList.remove('status-wait');
+            }
+            // ----------------------------------
             
             // Update Status
             const statusCell = row.querySelector('.col-status');
@@ -180,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         existingRows.forEach(row => {
             if (!seenIds.has(row.id)) row.remove();
         });
-    }
+    }   
 
     function updateFlapText(container, newText) {
         if (!container) return;
@@ -219,4 +240,22 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { element.textContent = newChar; }, 200); 
         }
     }
+
+    // --- REAL-TIME CLOCK ENGINE ---
+    function updateClock() {
+        const now = new Date();
+        // Format time as HH:MM:SS
+        const timeString = now.toLocaleTimeString('en-GB', { 
+            timeZone: 'UTC', 
+            hour12: false 
+        });
+        
+        if (elements.lastUpdate) {
+            elements.lastUpdate.textContent = timeString;
+        }
+    }
+
+    // Start the clock immediately and update every 1000ms (1 second)
+    updateClock(); 
+    setInterval(updateClock, 1000);
 });
