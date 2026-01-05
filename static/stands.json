@@ -12,7 +12,13 @@
     { "name": "A57", "lat": 47.454294, "lon": 8.555679, "radius": 35, "type": "contact" },
     { "name": "A10", "lat": 47.453635, "lon": 8.556494, "radius": 35, "type": "contact" },
     { "name": "A08", "lat": 47.453662, "lon": 8.557049, "radius": 35, "type": "contact" },
-    
+    { "name": "A48", "lat": 47.453604, "lon": 8.557580, "radius": 35, "type": "contact" },
+    { "name": "A04", "lat": 47.453494, "lon": 8.558091, "radius": 35, "type": "contact" },
+    { "name": "A46", "lat": 47.453544, "lon": 8.558460, "radius": 35, "type": "contact" },
+    { "name": "A02", "lat": 47.453555, "lon": 8.558640, "radius": 35, "type": "contact" },
+    { "name": "A44", "lat": 47.453465, "lon": 8.559455, "radius": 35, "type": "contact" },
+    { "name": "A42", "lat": 47.453339, "lon": 8.560193, "radius": 35, "type": "contact" },
+
     { "name": "B31", "lat": 47.4517, "lon": 8.5600, "radius": 35, "type": "contact" },
     { "name": "B33", "lat": 47.4517, "lon": 8.5603, "radius": 35, "type": "contact" },
     { "name": "B35", "lat": 47.4517, "lon": 8.5583, "radius": 35, "type": "contact" },
