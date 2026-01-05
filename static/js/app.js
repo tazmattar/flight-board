@@ -122,8 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Status Logic
-            const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
+            // Determine logic for Status Column
+            // NEW VERSION 
+            // Allow delay status for ANY active departure (Boarding, Pushback, Taxiing, Departing)
+            const isActiveDeparture = ['Boarding', 'Ready', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
+            const hasDelay = (flight.delay_text && isActiveDeparture);
+            
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
