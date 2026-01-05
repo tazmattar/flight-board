@@ -172,3 +172,17 @@ td, th {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+/* --- Pulsing WAIT Status for Gates --- */
+@keyframes gate-pulse {
+    0% { opacity: 1; color: var(--fids-amber); text-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
+    50% { opacity: 0.5; color: var(--fids-yellow); text-shadow: none; }
+    100% { opacity: 1; color: var(--fids-amber); text-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
+}
+
+/* This class will be applied by JS */
+.status-wait .flap-char {
+    color: var(--fids-amber) !important;
+    animation: gate-pulse 2s infinite ease-in-out;
+    border-color: rgba(245, 158, 11, 0.3); /* Optional: subtle border color change */
+}

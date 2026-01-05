@@ -104,24 +104,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
             
-            // --- NEW TIME COLUMN LOGIC ---
-            // 'time_display' comes from the Python backend (STD for Dep, STA for Arr)
+            // Time Column
             const timeStr = flight.time_display || "--:--";
-            // -----------------------------
 
-            // Gate Logic
-            let gate = flight.gate || 'TBA'; 
+            // --- IMPROVED GATE LOGIC ---
+            let gate = flight.gate; // Start with raw data (e.g. "A49" or null)
+            let isGateWaiting = false; // Flag to trigger the pulsing animation
+
             if (type === 'En Route') {
-                gate = ''; 
-            } else if (type === 'Departures') {
+                gate = ''; // No gate info for enroute
+            } 
+            else if (type === 'Departures') {
+                // Departures logic
                 if (flight.status === 'Taxiing' || flight.status === 'Departing') {
                     gate = 'CLOSED'; 
+                } else {
+                    gate = gate || 'TBA'; // Default to TBA if not yet assigned
                 }
             }
+            else if (type === 'Arrivals') {
+                // Arrivals logic
+                if (!gate) {
+                    gate = 'WAIT'; // Show pulsing WAIT instead of TBA
+                    isGateWaiting = true;
+                }
+            }
+            // ---------------------------
 
-            // Determine logic for Status Column
-            // NEW VERSION 
-            // Allow delay status for ANY active departure (Boarding, Pushback, Taxiing, Departing)
+            // Status Logic
             const isActiveDeparture = ['Boarding', 'Ready', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
             const hasDelay = (flight.delay_text && isActiveDeparture);
             
@@ -137,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // Replaced Alt/Speed cells with a single Time cell
                 row.innerHTML = `
                     <td>
                         <div class="flight-cell">
@@ -158,8 +167,19 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
-            updateFlapText(document.getElementById(`${rowId}-gate`), gate);
-            updateFlapText(document.getElementById(`${rowId}-time`), timeStr); // Update Time
+            updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
+            
+            // --- UPDATE GATE WITH ANIMATION ---
+            const gateContainer = document.getElementById(`${rowId}-gate`);
+            updateFlapText(gateContainer, gate);
+            
+            // Toggle the pulsing class
+            if (isGateWaiting) {
+                gateContainer.classList.add('status-wait');
+            } else {
+                gateContainer.classList.remove('status-wait');
+            }
+            // ----------------------------------
             
             // Update Status
             const statusCell = row.querySelector('.col-status');
