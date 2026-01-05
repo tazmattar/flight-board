@@ -145,18 +145,33 @@ class VatsimFetcher:
         fp = pilot.get('flight_plan', {})
         raw_status = self.determine_status(pilot, direction, ceiling)
         
-        # Calculate Gate
+        # --- FIXED GATE LOGIC ---
         gate = None
-        if direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']:
-            gate = self.find_stand(pilot['latitude'], pilot['longitude'], airport_code, pilot['groundspeed'], pilot['altitude'])
+        
+        # Check gate if:
+        # 1. Departure is at the stand (Boarding/Ready/Pushback)
+        # 2. Arrival has landed and is potentially parked (find_stand checks speed < 5)
+        if (direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']) or \
+           (direction == 'ARR' and raw_status == 'Landed'):
+            
+            gate = self.find_stand(
+                pilot['latitude'], 
+                pilot['longitude'], 
+                airport_code, 
+                pilot['groundspeed'], 
+                pilot['altitude']
+            )
+        # ------------------------
             
         # Calculate Delay Text
         delay_text = None
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
-             # (Delay calculation logic omitted for brevity, similar to previous)
-             pass 
+            delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
+            if 15 < delay_min < 300: 
+                h, m = divmod(delay_min, 60)
+                delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # NEW: Calculate Time Column
+        # Calculate Time Column
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
         return {
@@ -169,7 +184,7 @@ class VatsimFetcher:
             'status': raw_status,
             'delay_text': delay_text,
             'gate': gate or 'TBA',
-            'time_display': time_display, # <--- NEW FIELD
+            'time_display': time_display,
             'direction': direction,
             'status_raw': raw_status
         }
