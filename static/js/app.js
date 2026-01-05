@@ -115,18 +115,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 gate = ''; // No gate info for enroute
             } 
             else if (type === 'Departures') {
-                // Departures logic
                 if (flight.status === 'Taxiing' || flight.status === 'Departing') {
                     gate = 'CLOSED'; 
                 } else {
-                    gate = gate || 'TBA'; // Default to TBA if not yet assigned
+                    gate = gate || 'TBA'; 
                 }
             }
             else if (type === 'Arrivals') {
-                // Arrivals logic
-                if (!gate) {
-                    gate = 'WAIT'; // Show pulsing WAIT instead of TBA
-                    isGateWaiting = true;
+                // Check if gate is missing or literally "TBA"
+                if (!gate || gate === 'TBA') {
+                    // LOGIC: Only show pulsing WAIT if the plane has actually landed.
+                    // If it is still 'Approaching', just show standard TBA.
+                    if (flight.status === 'Landed' || flight.status === 'Landing') {
+                        gate = 'WAIT';
+                        isGateWaiting = true; // Triggers the pulse class
+                    } else {
+                        gate = 'TBA'; // Keep static TBA for Approaching
+                    }
                 }
             }
             // ---------------------------
@@ -196,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         existingRows.forEach(row => {
             if (!seenIds.has(row.id)) row.remove();
         });
-    }
+    }   
 
     function updateFlapText(container, newText) {
         if (!container) return;
