@@ -106,24 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
 
             const dest = type === 'Arrivals' ? flight.origin : flight.destination;
+            const alt = `${flight.altitude.toLocaleString()} ft`;
+            const spd = `${flight.groundspeed} kts`;
             
-            // --- NEW TIME COLUMN LOGIC ---
-            // 'time_display' comes from the Python backend (STD for Dep, STA for Arr)
-            const timeStr = flight.time_display || "--:--";
-            // -----------------------------
+            // --- GATE STATUS LOGIC ---
+            let gate = flight.gate || 'TBA'; // Default
 
-            // Gate Logic
-            let gate = flight.gate || 'TBA'; 
             if (type === 'En Route') {
-                gate = ''; 
-            } else if (type === 'Departures') {
+                gate = ''; // Never show gate for En Route
+            } 
+            else if (type === 'Departures') {
+                // For Departures: If the plane is moving (Taxiing/Departing), 
+                // the gate is technically closed/vacated.
                 if (flight.status === 'Taxiing' || flight.status === 'Departing') {
                     gate = 'CLOSED'; 
                 }
             }
+            // Arrivals will fall through to default (Show Stand or TBA)
+            // -------------------------
 
-            // Status Logic
+            // Determine logic for Status Column
             const hasDelay = (flight.delay_text && (flight.status === 'Boarding' || flight.status === 'Ready'));
+            
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
@@ -136,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // Replaced Alt/Speed cells with a single Time cell
                 row.innerHTML = `
                     <td>
                         <div class="flight-cell">
@@ -147,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><div class="flap-container" id="${rowId}-dest"></div></td>
                     <td><div class="flap-container" id="${rowId}-ac"></div></td>
                     <td><div class="flap-container" id="${rowId}-gate"></div></td> 
-                    <td><div class="flap-container" id="${rowId}-time"></div></td>
+                    <td><div class="flap-container" id="${rowId}-alt"></div></td>
+                    <td><div class="flap-container" id="${rowId}-spd"></div></td>
                     <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                 `;
                 container.appendChild(row);
@@ -157,8 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             updateFlapText(document.getElementById(`${rowId}-dest`), dest);
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
-            updateFlapText(document.getElementById(`${rowId}-gate`), gate);
-            updateFlapText(document.getElementById(`${rowId}-time`), timeStr); // Update Time
+            updateFlapText(document.getElementById(`${rowId}-gate`), gate); // Will show "CLOSED" for departing flights
+            updateFlapText(document.getElementById(`${rowId}-alt`), alt);
+            updateFlapText(document.getElementById(`${rowId}-spd`), spd);
             
             // Update Status
             const statusCell = row.querySelector('.col-status');
