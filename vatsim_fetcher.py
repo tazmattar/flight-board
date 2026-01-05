@@ -133,6 +133,58 @@ class VatsimFetcher:
         except:
             return display_time
 
+    def calculate_delay(self, scheduled_time, logon_time_str):
+        """
+        Calculates delay in minutes between scheduled departure and current time.
+        Handles day crossovers (e.g. Sched 23:50, Now 00:10).
+        """
+        if not scheduled_time or len(scheduled_time) < 4:
+            return 0
+            
+        try:
+            # Current time in UTC
+            now = datetime.utcnow()
+            
+            # Parse scheduled time (HHMM)
+            sched_hour = int(scheduled_time[:2])
+            sched_min = int(scheduled_time[2:4])
+            
+            # Create a datetime for the scheduled time using today's date
+            sched_dt = now.replace(hour=sched_hour, minute=sched_min, second=0, microsecond=0)
+            
+            # Calculate difference
+            diff = now - sched_dt
+            
+            # Logic for day crossover:
+            # If the difference is massive (e.g. > 12 hours), the scheduled time
+            # likely belongs to the next day (we are early) or previous day (we are very late).
+            
+            # Example: Now 00:10, Sched 23:50. Diff is -23h 40m. 
+            # We are actually 20 mins late (scheduled yesterday).
+            if diff.total_seconds() < -12 * 3600:
+                sched_dt -= timedelta(days=1)
+                diff = now - sched_dt
+            
+            # Example: Now 23:50, Sched 00:10. Diff is +23h 40m.
+            # We are early (scheduled tomorrow).
+            elif diff.total_seconds() > 12 * 3600:
+                sched_dt += timedelta(days=1)
+                diff = now - sched_dt
+                
+            # Convert to minutes
+            delay_minutes = int(diff.total_seconds() / 60)
+            
+            # Filter out negative delays (early) or massive unrealistic delays (> 12 hours)
+            # Also optionally check logon_time to ensure it's a fresh session
+            if delay_minutes < 0: return 0
+            if delay_minutes > 720: return 0 
+            
+            return delay_minutes
+            
+        except Exception as e:
+            print(f"Delay calc error: {e}")
+            return 0
+
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
         # Pass dist_km to determine_status to fix "Landed at Origin" bug
@@ -145,7 +197,16 @@ class VatsimFetcher:
             
         delay_text = None
         if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
-             pass # Delay logic handled by frontend or existing method if needed
+            # Calculate delay based on filed departure time
+            delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
+            
+            # Only show delay if it's significant (> 15 mins) and realistic (< 5 hours)
+            if 15 < delay_min < 300: 
+                h, m = divmod(delay_min, 60)
+                if h > 0:
+                    delay_text = f"Delayed {h}h {m:02d}m"
+                else:
+                    delay_text = f"Delayed {m} min"
 
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
