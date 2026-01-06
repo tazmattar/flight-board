@@ -118,27 +118,42 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
     });
 
-    // --- THE CYCLE ENGINE (Restores the flashing/flipping behavior) ---
+    // --- THE CYCLE ENGINE (Flipping Status Behavior) ---
     setInterval(() => {
         showingDelayPhase = !showingDelayPhase;
         
-        const delayedCells = document.querySelectorAll('.col-status[data-has-delay="true"]');
+        // Select both Delayed cells AND Boarding cells
+        const cyclingCells = document.querySelectorAll('.col-status[data-has-delay="true"], .col-status[data-is-boarding="true"]');
         
-        delayedCells.forEach(cell => {
+        cyclingCells.forEach(cell => {
             const flapContainer = cell.querySelector('.flap-container');
-            const normalStatus = cell.getAttribute('data-status-normal');
-            const delayText = cell.getAttribute('data-status-delay');
+            const normalStatus = cell.getAttribute('data-status-normal'); // e.g. "BOARDING"
+            const delayText = cell.getAttribute('data-status-delay');     // e.g. "DELAYED 15 MIN"
             
+            const hasDelay = cell.getAttribute('data-has-delay') === 'true';
+            const isBoarding = cell.getAttribute('data-is-boarding') === 'true';
+            const gate = cell.getAttribute('data-gate');
+
             if (showingDelayPhase) {
-                cell.setAttribute('data-status', 'Delayed');
-                updateFlapText(flapContainer, delayText.toUpperCase());
+                // Priority 1: Show Delay
+                if (hasDelay) {
+                    cell.setAttribute('data-status', 'Delayed');
+                    updateFlapText(flapContainer, delayText.toUpperCase());
+                } 
+                // Priority 2: Show "GO TO GATE" instruction
+                else if (isBoarding) {
+                    // Keep status as 'Boarding' so it stays Green
+                    cell.setAttribute('data-status', 'Boarding');
+                    updateFlapText(flapContainer, `GO TO GATE ${gate}`);
+                }
             } else {
+                // Revert to Normal (e.g. "BOARDING")
                 cell.setAttribute('data-status', normalStatus);
                 updateFlapText(flapContainer, normalStatus.toUpperCase());
             }
         });
 
-    }, 5000);
+    }, 5000); // Cycles every 5 seconds
 
     // --- SPLIT FLAP ENGINE ---
 
@@ -188,17 +203,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Status Logic
-            // Updated to include 'Check-in' in the active list
             const isActiveDeparture = ['Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
             const hasDelay = (flight.delay_text && isActiveDeparture);
             
+            // NEW: Detect if we should cycle the Boarding message
+            // Must be Boarding, have a real gate, and not be closed
+            const isBoarding = (flight.status === 'Boarding' && gate && gate !== 'TBA' && gate !== 'CLOSED');
+
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
-
-            if (hasDelay && showingDelayPhase) {
-                displayStatus = flight.delay_text;
-                displayColorClass = 'Delayed';
-            }
 
             if (!row) {
                 row = document.createElement('tr');
@@ -251,9 +264,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusFlaps = document.getElementById(`${rowId}-status`);
             
             statusCell.setAttribute('data-has-delay', hasDelay ? "true" : "false");
+            statusCell.setAttribute('data-is-boarding', isBoarding ? "true" : "false");
+            statusCell.setAttribute('data-gate', gate); // Store gate for the cycle engine
+            
             statusCell.setAttribute('data-status-normal', flight.status);
             statusCell.setAttribute('data-status-delay', flight.delay_text || "");
             
+            // Set Initial State
+            // If we are currently in the "Delay/Alt" phase, show the alt text immediately to avoid flickering
+            if (showingDelayPhase) {
+                if (hasDelay) {
+                    displayStatus = flight.delay_text;
+                    displayColorClass = 'Delayed';
+                } else if (isBoarding) {
+                    displayStatus = `GO TO GATE ${gate}`;
+                    displayColorClass = 'Boarding';
+                }
+            }
+
             statusCell.setAttribute('data-status', displayColorClass);
             updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
