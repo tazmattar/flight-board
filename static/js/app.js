@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const manualRenames = {
                     "EGLL": "London Heathrow",
                     "EGKK": "London Gatwick",
+                    "EGSS": "London Stansted",
+                    "EGGW": "London Luton",
+                    "EGMC": "London City",
                     "KJFK": "New York JFK",
                     "KEWR": "Newark",
                     "KLGA": "New York LaGuardia",
