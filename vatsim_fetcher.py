@@ -227,50 +227,53 @@ class VatsimFetcher:
         
         if direction == 'DEP':
             if alt < ceiling: 
-                # LOGIC: You can only be 'Check-in' or 'Boarding' if you are AT A GATE.
-                # If you are stopped (gs < 1) but NOT at a gate, you are 'Taxiing' (e.g. holding short).
-                
-                # 1. Check-in Logic (Speed 0 + At Gate)
+                # --- NEW: CALCULATE TIME ONLINE ---
+                minutes_online = 0
+                logon_time = pilot.get('logon_time') # e.g. "2023-10-27T10:00:00.1234567Z"
+                if logon_time:
+                    try:
+                        # Slice [:19] to remove fractional seconds/Z (e.g. get "2023-10-27T10:00:00")
+                        # This ensures compatibility with datetime.fromisoformat in all Python versions
+                        logon_dt = datetime.fromisoformat(logon_time[:19])
+                        diff = datetime.utcnow() - logon_dt
+                        minutes_online = diff.total_seconds() / 60
+                    except:
+                        pass # Default to 0 if parsing fails
+
+                # 1. Zero Speed Logic (Static at Gate)
                 if gs < 1:
-                    if gate_found: return 'Check-in'
-                    else: return 'Taxiing' # Stopped on taxiway
+                    if gate_found:
+                        # LOGIC: First 5 minutes = Check-in, then switch to Boarding
+                        if minutes_online < 5: 
+                            return 'Check-in'
+                        else: 
+                            return 'Boarding'
+                    else: 
+                        return 'Taxiing' # Stopped on taxiway/runway
                     
-                # 2. Pushback / Boarding Logic (Speed < 5)
+                # 2. Low Speed Logic (Drifting or Pushing)
                 if gs < 5: 
-                    # If transponder is active, they are pushing/moving
+                    # If transponder is active, they are pushing back
                     if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'}:
                         return 'Pushback'
-                    # If transponder is default (2000/2200), they might be drifting at gate or slowly moving
                     else:
+                        # If transponder is default, it's likely just GPS drift at the gate
                         if gate_found: return 'Boarding'
-                        else: return 'Taxiing' # Slowly moving on taxiway
+                        else: return 'Taxiing'
                 
                 # 3. Standard Taxiing
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'
-            
+        
         else:
-            # ARRIVALS
-            # Logic: If plane is low (<2000ft) and slow (<40kts)
+            # ARRIVALS (Standard Logic)
             if alt < 2000 and gs < 40:
-                # If it's close to destination (within 50km), it has Landed.
                 if dist_km < 50: return 'Landed'
-                # If it's far away, it hasn't left the origin yet.
-                else: return 'Scheduled' 
-            
-            # Landing: Close and low
-            elif alt < 4000 and dist_km < 25: 
-                return 'Landing'
-                
-            # Approaching: Relaxed range (250km / ~135nm) so they appear on the board earlier.
-            # Removed altitude check so high-flying arrivals aren't hidden.
-            elif dist_km < 250: 
-                return 'Approaching'
-                
-            # Anything else is just En Route (far out)
-            else: 
-                return 'En Route'
+                else: return 'Scheduled'
+            elif alt < 4000 and dist_km < 25: return 'Landing'
+            elif dist_km < 250: return 'Approaching'
+            else: return 'En Route'
 
     def get_metar(self, code):
         try: return requests.get(f'https://metar.vatsim.net/{code}', timeout=2).text.strip()
