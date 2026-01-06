@@ -121,7 +121,7 @@ body {
 .col-status .flap-char { color: var(--fids-yellow); } 
 .col-status[data-status="Boarding"] .flap-char { background: var(--fids-green); color: black; }
 .col-status[data-status*="Delayed"] .flap-char { background: var(--fids-red); color: white; }
-.col-status[data-status="Check-in"] .flap-char { color: var(--fids-amber); }
+.col-status[data-status="Check-in"] .flap-char { background: var(--fids-amber); color: black;}
 
 /* Footer */
 .fids-footer {
