@@ -100,7 +100,7 @@ class VatsimFetcher:
         status = flight_info['status_raw']
         
         if direction == 'DEP':
-            if status in ['Boarding', 'Ready', 'Pushback', 'Taxiing'] and dist_km < self.ground_range:
+            if status in ['Check-in', 'Boarding', 'Pushback', 'Taxiing'] and dist_km < self.ground_range:
                 airport_data['departures'].append(flight_info)
             elif status == 'Departing' and dist_km < self.cleanup_dist_dep:
                 airport_data['departures'].append(flight_info)
@@ -231,11 +231,23 @@ class VatsimFetcher:
         alt = pilot['altitude']
         gs = pilot['groundspeed']
         
+        # In vatsim_fetcher.py, inside determine_status method:
+
         if direction == 'DEP':
-            if alt < ceiling: 
-                if gs < 5: return 'Pushback' if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'} else 'Boarding'
-                # CHANGED: 'Ready' -> 'Check-in'
-                if gs < 1: return 'Check-in' 
+            if alt < ceiling:
+                # 1. Check if completely stationary (Check-in)
+                if gs < 1: 
+                    return 'Check-in'
+                    
+                # 2. Check if moving very slowly (Pushback/Boarding)
+                if gs < 5: 
+                    # If squawk is set to non-default, they are likely pushing back
+                    if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'}:
+                        return 'Pushback'
+                    else:
+                        return 'Boarding'
+
+                # 3. Moving faster
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'

@@ -156,26 +156,15 @@ class VatsimFetcher:
             diff = now - sched_dt
             
             # Logic for day crossover:
-            # If the difference is massive (e.g. > 12 hours), the scheduled time
-            # likely belongs to the next day (we are early) or previous day (we are very late).
-            
-            # Example: Now 00:10, Sched 23:50. Diff is -23h 40m. 
-            # We are actually 20 mins late (scheduled yesterday).
             if diff.total_seconds() < -12 * 3600:
                 sched_dt -= timedelta(days=1)
                 diff = now - sched_dt
-            
-            # Example: Now 23:50, Sched 00:10. Diff is +23h 40m.
-            # We are early (scheduled tomorrow).
             elif diff.total_seconds() > 12 * 3600:
                 sched_dt += timedelta(days=1)
                 diff = now - sched_dt
                 
-            # Convert to minutes
             delay_minutes = int(diff.total_seconds() / 60)
             
-            # Filter out negative delays (early) or massive unrealistic delays (> 12 hours)
-            # Also optionally check logon_time to ensure it's a fresh session
             if delay_minutes < 0: return 0
             if delay_minutes > 720: return 0 
             
@@ -187,27 +176,40 @@ class VatsimFetcher:
 
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
-        # Pass dist_km to determine_status to fix "Landed at Origin" bug
+        # Get the raw status (Landed, Taxiing, etc.)
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km)
         
+        # --- GATE LOGIC ---
         gate = None
-        if (direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']) or \
+        # Check for gate if departing (Boarding/Pushback) or arriving (Landed)
+        if (direction == 'DEP' and raw_status in ['Boarding', 'Check-in', 'Pushback']) or \
            (direction == 'ARR' and raw_status == 'Landed'):
-            gate = self.find_stand(pilot['latitude'], pilot['longitude'], airport_code, pilot['groundspeed'], pilot['altitude'])
+            gate = self.find_stand(
+                pilot['latitude'], 
+                pilot['longitude'], 
+                airport_code, 
+                pilot['groundspeed'], 
+                pilot['altitude']
+            )
             
+        # --- DELAY LOGIC ---
         delay_text = None
-        if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
-            # Calculate delay based on filed departure time
+        # Updated to check for 'Check-in' instead of 'Ready'
+        if direction == 'DEP' and raw_status in ['Boarding', 'Check-in']:
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
-            
-            # Only show delay if it's significant (> 15 mins) and realistic (< 5 hours)
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
-                if h > 0:
-                    delay_text = f"Delayed {h}h {m:02d}m"
-                else:
-                    delay_text = f"Delayed {m} min"
+                delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
+        # --- STATUS OVERRIDE ("At Gate") ---
+        # Default the display status to the raw status
+        display_status = raw_status
+        
+        # If it is an arrival and we successfully found a gate, change status to "At Gate"
+        if direction == 'ARR' and gate:
+            display_status = 'At Gate'
+
+        # --- TIME CALCULATION ---
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
         return {
@@ -217,12 +219,12 @@ class VatsimFetcher:
             'destination': fp.get('arrival', 'N/A'),
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
-            'status': raw_status,
+            'status': display_status,      # This now shows "At Gate"
+            'status_raw': raw_status,      # Keep original for internal filtering
             'delay_text': delay_text,
             'gate': gate or 'TBA',
             'time_display': time_display,
-            'direction': direction,
-            'status_raw': raw_status
+            'direction': direction
         }
 
     def determine_status(self, pilot, direction, ceiling, dist_km):
@@ -232,20 +234,32 @@ class VatsimFetcher:
         if direction == 'DEP':
             if alt < ceiling: 
                 if gs < 5: return 'Pushback' if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'} else 'Boarding'
-                if gs < 1: return 'Ready' 
+                # CHANGED: 'Ready' -> 'Check-in'
+                if gs < 1: return 'Check-in' 
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'
         else:
             # ARRIVALS
-            # If plane is low and slow BUT far away (>50km), it's at the origin airport.
+            # Logic: If plane is low (<2000ft) and slow (<40kts)
             if alt < 2000 and gs < 40:
+                # If it's close to destination (within 50km), it has Landed.
                 if dist_km < 50: return 'Landed'
-                else: return 'Scheduled' # Sitting at origin
+                # If it's far away, it hasn't left the origin yet.
+                else: return 'Scheduled' 
             
-            elif alt < 2500 and dist_km < 50: return 'Landing'
-            elif alt < 10000 and dist_km < 80: return 'Approaching'
-            else: return 'En Route'
+            # Landing: Close and low
+            elif alt < 4000 and dist_km < 25: 
+                return 'Landing'
+                
+            # Approaching: Relaxed range (250km / ~135nm) so they appear on the board earlier.
+            # Removed altitude check so high-flying arrivals aren't hidden.
+            elif dist_km < 250: 
+                return 'Approaching'
+                
+            # Anything else is just En Route (far out)
+            else: 
+                return 'En Route'
 
     def get_metar(self, code):
         try: return requests.get(f'https://metar.vatsim.net/{code}', timeout=2).text.strip()
