@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     "EGKK": "London Gatwick",
                     "EGSS": "London Stansted",
                     "EGGW": "London Luton",
-                    "EGMC": "London City",
+                    "EGLC": "London City",
                     "KJFK": "New York JFK",
                     "KEWR": "Newark",
                     "KLGA": "New York LaGuardia",
