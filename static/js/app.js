@@ -305,8 +305,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Status Logic
-            const isActiveDeparture = ['Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
-            const hasDelay = (flight.delay_text && isActiveDeparture);
+            // Renaming this to 'canShowDelay' to be more accurate
+            const canShowDelay = [
+                'Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing', // Deps
+                'Approaching', 'Landing'                                    // Arrs
+            ].includes(flight.status);
+
+            const hasDelay = (flight.delay_text && canShowDelay);
             
             // NEW: Detect if we should cycle the Boarding message
             // Must be Boarding, have a real gate, and not be closed

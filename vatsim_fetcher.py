@@ -83,10 +83,17 @@ class VatsimFetcher:
                     self.process_flight(pilot, arr, 'ARR', results[arr])
 
             for code in self.airports:
+                # --- NEW SORTING LOGIC ---
+                # Sort Departures by Time (HH:MM string sorts correctly chronologically)
+                results[code]['departures'].sort(key=lambda x: x.get('time_display', ''))
+
+                # Sort Arrivals by Time
+                results[code]['arrivals'].sort(key=lambda x: x.get('time_display', ''))
+
                 # 1. Sort En Route flights by distance (closest first)
                 #    This puts departures (leaving) and arrivals (coming) in order of proximity.
                 results[code]['enroute'].sort(key=lambda x: x['distance'])
-                
+
                 # 2. Limit to the closest 10 flights
                 results[code]['enroute'] = results[code]['enroute'][:10]
 
@@ -198,20 +205,34 @@ class VatsimFetcher:
         # 2. DETERMINE STATUS (Now passing the 'gate' variable)
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
         
+        # --- CALCULATE TIME FIRST (Needed for delay logic) ---
+        time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
+
         # --- DELAY LOGIC ---
         delay_text = None
+        # 1. DEPARTURES (Existing Logic)
         if direction == 'DEP' and raw_status in ['Boarding', 'Check-in']:
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
                 delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
+        # 2. ARRIVALS (New Logic)
+        # If they are Landing or Approaching but the time is past schedule
+        elif direction == 'ARR' and raw_status in ['Approaching', 'Landing']:
+            # Convert "HH:MM" back to "HHMM" string for the calculator
+            if time_display and time_display != "--:--":
+                sched_arr_str = time_display.replace(':', '')
+                delay_min = self.calculate_delay(sched_arr_str, pilot.get('logon_time'))
+                
+                if 15 < delay_min < 300:
+                    h, m = divmod(delay_min, 60)
+                    delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
+
         # --- STATUS OVERRIDE ("At Gate") ---
         display_status = raw_status
         if direction == 'ARR' and gate:
             display_status = 'At Gate'
-
-        time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
         return {
             'callsign': pilot.get('callsign', 'N/A'),
