@@ -156,26 +156,15 @@ class VatsimFetcher:
             diff = now - sched_dt
             
             # Logic for day crossover:
-            # If the difference is massive (e.g. > 12 hours), the scheduled time
-            # likely belongs to the next day (we are early) or previous day (we are very late).
-            
-            # Example: Now 00:10, Sched 23:50. Diff is -23h 40m. 
-            # We are actually 20 mins late (scheduled yesterday).
             if diff.total_seconds() < -12 * 3600:
                 sched_dt -= timedelta(days=1)
                 diff = now - sched_dt
-            
-            # Example: Now 23:50, Sched 00:10. Diff is +23h 40m.
-            # We are early (scheduled tomorrow).
             elif diff.total_seconds() > 12 * 3600:
                 sched_dt += timedelta(days=1)
                 diff = now - sched_dt
                 
-            # Convert to minutes
             delay_minutes = int(diff.total_seconds() / 60)
             
-            # Filter out negative delays (early) or massive unrealistic delays (> 12 hours)
-            # Also optionally check logon_time to ensure it's a fresh session
             if delay_minutes < 0: return 0
             if delay_minutes > 720: return 0 
             
