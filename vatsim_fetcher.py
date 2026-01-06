@@ -83,6 +83,13 @@ class VatsimFetcher:
                     self.process_flight(pilot, arr, 'ARR', results[arr])
 
             for code in self.airports:
+                # 1. Sort En Route flights by distance (closest first)
+                #    This puts departures (leaving) and arrivals (coming) in order of proximity.
+                results[code]['enroute'].sort(key=lambda x: x['distance'])
+                
+                # 2. Limit to the closest 10 flights
+                results[code]['enroute'] = results[code]['enroute'][:10]
+
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
@@ -218,7 +225,8 @@ class VatsimFetcher:
             'delay_text': delay_text,
             'gate': gate or 'TBA', # gate is now already calculated
             'time_display': time_display,
-            'direction': direction
+            'direction': direction,
+            'distance': dist_km
         }
 
     def determine_status(self, pilot, direction, ceiling, dist_km, gate_found):
