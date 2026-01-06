@@ -121,12 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = airlineMapping[prefix] || prefix;
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
 
-            // Resolve Destination/Origin
-            const destIcao = type === 'Arrivals' ? flight.origin : flight.destination;
-            const destName = airportMapping[destIcao] || destIcao; // Fallback to ICAO if name not found
+            // --- CHANGED LOGIC HERE ---
+            // If it's Arrivals OR En Route, show the Origin. Otherwise (Departures), show Destination.
+            const destIcao = (type === 'Arrivals' || type === 'En Route') ? flight.origin : flight.destination;
+            const destName = airportMapping[destIcao] || destIcao;
+            // --------------------------
             
             // Time Column
             const timeStr = flight.time_display || "--:--";
+
+            // ... (rest of the function remains the same)
 
             // Gate Logic
             let gate = flight.gate || 'TBA'; 
