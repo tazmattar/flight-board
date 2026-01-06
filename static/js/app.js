@@ -35,20 +35,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) { console.warn('Airline DB failed', e); }
 
-        // 2. Load Airports (New!)
+        // 2. Load Airports (Improved Naming Logic)
         try {
-            // Using a lightweight open-source airport JSON
             const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
             if (response.ok) {
                 const data = await response.json();
-                // Data format: { "LSZH": { "name": "Zurich Airport", ... }, ... }
+                
+                // Specific overrides for when City name isn't enough or you want a specific format
+                const manualRenames = {
+                    "EGLL": "London Heathrow",
+                    "EGKK": "London Gatwick",
+                    "KJFK": "New York JFK",
+                    "KEWR": "Newark",
+                    "KLGA": "New York LaGuardia",
+                    "LFPG": "Paris CDG",
+                    "LFPO": "Paris Orly",
+                    "EDDF": "Frankfurt",
+                    "EDDM": "Munich",
+                    "OMDB": "Dubai",
+                    "VHHH": "Hong Kong",
+                    "WSSS": "Singapore",
+                    "KBOS": "Boston",  // Explicit fix just in case
+                    "LLBG": "Tel Aviv" // Fix for Ben Gurion
+                };
+
                 for (const [icao, details] of Object.entries(data)) {
-                    // Clean the name: remove "Airport", "International", etc. to save space
-                    let cleanName = details.name
+                    let displayName;
+
+                    // 1. Check for manual override first
+                    if (manualRenames[icao]) {
+                        displayName = manualRenames[icao];
+                    } 
+                    // 2. Otherwise, prefer the CITY name (e.g. "Boston" instead of "Gen. Edward Lawrence...")
+                    else if (details.city) {
+                        displayName = details.city;
+                    } 
+                    // 3. Fallback to airport name if city is missing
+                    else {
+                        displayName = details.name;
+                    }
+
+                    // Final cleanup to remove junk words just in case
+                    airportMapping[icao] = displayName
                         .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
                         .replace(/\s+/g, ' ')
                         .trim();
-                    airportMapping[icao] = cleanName;
                 }
             }
         } catch (e) { console.warn('Airport DB failed', e); }
