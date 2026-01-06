@@ -31,77 +31,88 @@
                 
             <div class="fids-table-wrapper">
     
-    <div class="section-divider">
-        Departures <span id="depPageInd" class="page-ind"></span>
-    </div>
-    <table class="flight-table">
-        <colgroup>
-            <col style="width: 15%"> 
-            <col style="width: 25%"> 
-            <col style="width: 10%">
-            <col style="width: 10%"> 
-            <col style="width: 10%"> 
-            <col style="width: 30%">
-        </colgroup>
-        <thead>
-            <tr>
-                <th>Flight</th>
-                <th>Destination</th> <th>Aircraft</th>
-                <th>Gate</th>
-                <th>Dep Time</th> 
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="departureList"></tbody>
-    </table>
+    <div class="split-top-row">
+        
+        <div class="split-panel">
+            <div class="section-divider">
+                Departures <span id="depPageInd" class="page-ind"></span>
+            </div>
+            <table class="flight-table">
+                <colgroup>
+                    <col style="width: 18%"> 
+                    <col style="width: 22%"> 
+                    <col style="width: 12%">
+                    <col style="width: 10%"> 
+                    <col style="width: 13%"> 
+                    <col style="width: 25%"> 
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Dst</th> 
+                        <th>A/C</th>
+                        <th>Gate</th>
+                        <th>Time</th> 
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="departureList"></tbody>
+            </table>
+        </div>
 
-    <div class="section-divider">
-        Arrivals <span id="arrPageInd" class="page-ind"></span>
+        <div class="split-panel">
+            <div class="section-divider">
+                Arrivals <span id="arrPageInd" class="page-ind"></span>
+            </div>
+            <table class="flight-table">
+                <colgroup>
+                    <col style="width: 18%"> 
+                    <col style="width: 22%"> 
+                    <col style="width: 12%">
+                    <col style="width: 10%"> 
+                    <col style="width: 13%"> 
+                    <col style="width: 25%"> 
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Org</th> 
+                        <th>A/C</th>
+                        <th>Gate</th>
+                        <th>Time</th> 
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="arrivalList"></tbody>
+            </table>
+        </div>
+        
+    </div> <div class="full-panel">
+        <div class="section-divider">
+            En Route <span id="enrPageInd" class="page-ind"></span>
+        </div>
+        <table class="flight-table">
+            <colgroup>
+                <col style="width: 15%"> 
+                <col style="width: 25%"> 
+                <col style="width: 10%">
+                <col style="width: 10%"> 
+                <col style="width: 10%"> 
+                <col style="width: 30%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Flight</th>
+                    <th>Origin</th> <th>Aircraft</th>
+                    <th></th>
+                    <th>Time</th> 
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="enrouteList"></tbody>
+        </table>
     </div>
-    <table class="flight-table">
-        <colgroup>
-            <col style="width: 15%"> 
-            <col style="width: 25%"> 
-            <col style="width: 10%">
-            <col style="width: 10%"> 
-            <col style="width: 10%"> 
-            <col style="width: 30%">
-        </colgroup>
-        <thead>
-            <tr>
-                <th>Flight</th>
-                <th>Origin</th> <th>Aircraft</th>
-                <th>Gate</th>
-                <th>Arr Time</th> 
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="arrivalList"></tbody>
-    </table>
-    
-    <div class="section-divider">
-        En Route <span id="enrPageInd" class="page-ind"></span>
-    </div>
-    <table class="flight-table">
-        <colgroup>
-            <col style="width: 15%"> 
-            <col style="width: 25%"> 
-            <col style="width: 10%">
-            <col style="width: 10%"> 
-            <col style="width: 10%"> 
-            <col style="width: 30%">
-        </colgroup>
-        <thead>
-            <tr>
-                <th>Flight</th>
-                <th>Origin</th> <th>Aircraft</th>
-                <th></th>
-                <th>Time</th> 
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="enrouteList"></tbody>
-    </table>
+
 </div>
 
         <footer class="fids-footer">

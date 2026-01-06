@@ -224,3 +224,45 @@ td, th {
     border-radius: 4px;
     border: 1px solid #333;
 }
+
+/* --- SPLIT LAYOUT STYLES --- */
+
+/* The container for the top two tables */
+.split-top-row {
+    display: flex;
+    gap: 20px;          /* Space between Dep and Arr */
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+/* The individual panels */
+.split-panel {
+    flex: 1;            /* Each takes 50% width */
+    min-width: 0;       /* Prevents table from forcing the div wider */
+}
+
+/* Ensure tables fit inside the panels */
+.split-panel .flight-table th, 
+.split-panel .flight-table td {
+    padding: 8px 4px;   /* Reduce padding slightly to save space */
+    font-size: 18px;    /* Slightly smaller font for compact view */
+}
+
+/* Adjust column headers for tight spaces */
+.split-panel th {
+    font-size: 14px;
+}
+
+/* En Route stays full width */
+.full-panel {
+    width: 100%;
+}
+
+/* --- RESPONSIVE FALLBACK --- */
+/* If the screen is too narrow (like a phone or standard Portrait monitor), 
+   stack them back vertically so they don't break. */
+@media (max-width: 1200px) {
+    .split-top-row {
+        flex-direction: column;
+    }
+}   
