@@ -176,25 +176,23 @@ class VatsimFetcher:
 
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
-        # Get the raw status (Landed, Taxiing, etc.)
-        raw_status = self.determine_status(pilot, direction, ceiling, dist_km)
         
-        # --- GATE LOGIC ---
-        gate = None
-        # Check for gate if departing (Boarding/Pushback) or arriving (Landed)
-        if (direction == 'DEP' and raw_status in ['Boarding', 'Check-in', 'Pushback']) or \
-           (direction == 'ARR' and raw_status == 'Landed'):
-            gate = self.find_stand(
-                pilot['latitude'], 
-                pilot['longitude'], 
-                airport_code, 
-                pilot['groundspeed'], 
-                pilot['altitude']
-            )
-            
+        # 1. FIND GATE FIRST
+        # We try to find a gate regardless of status initially, provided they are slow/low enough
+        # (The find_stand function already has speed/alt checks inside it)
+        gate = self.find_stand(
+            pilot['latitude'], 
+            pilot['longitude'], 
+            airport_code, 
+            pilot['groundspeed'], 
+            pilot['altitude']
+        )
+
+        # 2. DETERMINE STATUS (Now passing the 'gate' variable)
+        raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
+        
         # --- DELAY LOGIC ---
         delay_text = None
-        # Updated to check for 'Check-in' instead of 'Ready'
         if direction == 'DEP' and raw_status in ['Boarding', 'Check-in']:
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
             if 15 < delay_min < 300: 
@@ -202,14 +200,10 @@ class VatsimFetcher:
                 delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
         # --- STATUS OVERRIDE ("At Gate") ---
-        # Default the display status to the raw status
         display_status = raw_status
-        
-        # If it is an arrival and we successfully found a gate, change status to "At Gate"
         if direction == 'ARR' and gate:
             display_status = 'At Gate'
 
-        # --- TIME CALCULATION ---
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
         return {
@@ -219,38 +213,43 @@ class VatsimFetcher:
             'destination': fp.get('arrival', 'N/A'),
             'altitude': pilot.get('altitude', 0),
             'groundspeed': pilot.get('groundspeed', 0),
-            'status': display_status,      # This now shows "At Gate"
-            'status_raw': raw_status,      # Keep original for internal filtering
+            'status': display_status,
+            'status_raw': raw_status,
             'delay_text': delay_text,
-            'gate': gate or 'TBA',
+            'gate': gate or 'TBA', # gate is now already calculated
             'time_display': time_display,
             'direction': direction
         }
 
-    def determine_status(self, pilot, direction, ceiling, dist_km):
+    def determine_status(self, pilot, direction, ceiling, dist_km, gate_found):
         alt = pilot['altitude']
         gs = pilot['groundspeed']
         
-        # In vatsim_fetcher.py, inside determine_status method:
-
         if direction == 'DEP':
-            if alt < ceiling:
-                # 1. Check if completely stationary (Check-in)
-                if gs < 1: 
-                    return 'Check-in'
+            if alt < ceiling: 
+                # LOGIC: You can only be 'Check-in' or 'Boarding' if you are AT A GATE.
+                # If you are stopped (gs < 1) but NOT at a gate, you are 'Taxiing' (e.g. holding short).
+                
+                # 1. Check-in Logic (Speed 0 + At Gate)
+                if gs < 1:
+                    if gate_found: return 'Check-in'
+                    else: return 'Taxiing' # Stopped on taxiway
                     
-                # 2. Check if moving very slowly (Pushback/Boarding)
+                # 2. Pushback / Boarding Logic (Speed < 5)
                 if gs < 5: 
-                    # If squawk is set to non-default, they are likely pushing back
+                    # If transponder is active, they are pushing/moving
                     if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'}:
                         return 'Pushback'
+                    # If transponder is default (2000/2200), they might be drifting at gate or slowly moving
                     else:
-                        return 'Boarding'
-
-                # 3. Moving faster
+                        if gate_found: return 'Boarding'
+                        else: return 'Taxiing' # Slowly moving on taxiway
+                
+                # 3. Standard Taxiing
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'
+            
         else:
             # ARRIVALS
             # Logic: If plane is low (<2000ft) and slow (<40kts)
