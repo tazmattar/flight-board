@@ -112,13 +112,16 @@ body {
     50% { transform: rotateX(90deg); opacity: 0; }
     51% { transform: rotateX(-90deg); opacity: 0; }
     100% { transform: rotateX(0deg); opacity: 1; }
-}
+} 
+
+/* ADD THIS NEW RULE FOR ORANGE CHECK-IN */
+
 
 /* Specific Colors for Data */
 .col-status .flap-char { color: var(--fids-yellow); } 
 .col-status[data-status="Boarding"] .flap-char { background: var(--fids-green); color: black; }
 .col-status[data-status*="Delayed"] .flap-char { background: var(--fids-red); color: white; }
-.col-status[data-status*="Check-in"] .flap-char { background: var(--fids-blue); color: orangered; }
+.col-status[data-status="Check-in"] .flap-char { color: var(--fids-amber); }
 
 /* Footer */
 .fids-footer {
