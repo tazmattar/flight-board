@@ -294,9 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!row) {
                     row = document.createElement('tr');
                     row.id = rowId;
-                    // Create empty cells with non-breaking space to maintain height
+                    // Create empty cells but include a dummy flap-container to force exact row height
                     row.innerHTML = `
-                        <td>&nbsp;</td><td></td><td></td>
+                        <td><div class="flap-container"><span class="flap-char" style="background:transparent;">&nbsp;</span></div></td>
+                        <td></td><td></td>
                         <td></td><td></td><td></td>
                     `;
                     container.appendChild(row);

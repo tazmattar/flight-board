@@ -266,3 +266,39 @@ td, th {
         flex-direction: column;
     }
 }   
+
+/* --- COMPACT MODE FOR SPLIT PANELS --- */
+
+/* 1. Shrink the table cells */
+.split-panel .flight-table td {
+    font-size: 15px;      /* Down from 20px */
+    padding: 5px 8px;     /* Much tighter padding */
+    height: 34px;         /* Force a fixed row height for consistency */
+}
+
+/* 2. Shrink the Split-Flap Tiles (The most important fix!) */
+.split-panel .flap-char {
+    min-width: 10px;      /* Down from 16px - huge space saver */
+    height: 20px;         /* Down from 28px */
+    line-height: 20px;    /* Match height */
+    font-size: 13px;      /* Smaller text inside the tile */
+    font-weight: 600;     /* Slightly lighter weight for legibility */
+}
+
+/* 3. Adjust the Gap between tiles */
+.split-panel .flap-container {
+    gap: 1px;
+}
+
+/* 4. Fix the Airline Logo size to match new row height */
+.split-panel .airline-logo {
+    height: 18px;
+    width: 18px;
+}
+
+/* 5. Force Header Alignment */
+/* This ensures the "Departures" and "Arrivals" headers are exactly the same height */
+.section-divider {
+    min-height: 38px; /* Force specific height so invisible badges don't collapse */
+    align-items: center;
+}
