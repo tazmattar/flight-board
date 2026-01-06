@@ -3,11 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE MANAGEMENT ---
     let currentAirport = 'LSZH';
-    let rawFlightData = { departures: [], arrivals: [], enroute: [] };
+    // Remove 'enroute' from data and pages
+    let rawFlightData = { departures: [], arrivals: [] };
     
     // Independent Page Counters
-    let pages = { dep: 0, arr: 0, enr: 0 };
-    const PAGE_SIZE = 12; 
+    let pages = { dep: 0, arr: 0 };
+    const PAGE_SIZE = 20; 
     
     // Global flag to track the display cycle (Status vs Delay)
     let showingDelayPhase = false;
@@ -17,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         airportName: document.getElementById('airportName'),
         departureList: document.getElementById('departureList'),
         arrivalList: document.getElementById('arrivalList'),
-        enrouteList: document.getElementById('enrouteList'),
         lastUpdate: document.getElementById('lastUpdate'),
         metar: document.getElementById('metar'),
         controllers: document.getElementById('controllers'),
@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
-        elements.enrouteList.innerHTML = '';
     });
 
     if (elements.fsBtn) {
@@ -124,10 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update raw data
         rawFlightData = data;
         
-        // Refresh all lists immediately (keeping current page index)
+        // Refresh departure and arrival lists immediately
         renderSection('dep');
         renderSection('arr');
-        renderSection('enr');
     });
 
     // --- THE CYCLE ENGINE (Flipping Status Behavior) ---
@@ -189,11 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pageKey = 'arr';
             label = 'Arrivals';
         } else {
-            list = rawFlightData.enroute || [];
-            container = elements.enrouteList;
-            indicator = document.getElementById('enrPageInd');
-            pageKey = 'enr';
-            label = 'En Route';
+            // No other sections supported (enroute removed)
+            return;
         }
 
         // Calculate Pages
@@ -243,18 +238,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 15000);
     }, 5000);
 
-    // 3. En Route: Flips every 15s (Start with 10s delay)
-    setTimeout(() => {
-        setInterval(() => {
-            advancePage('enr');
-        }, 15000);
-    }, 10000);
+    // 3. En Route: removed (no longer rendering enroute table)
 
     function advancePage(type) {
-        let list = (type === 'dep') ? (rawFlightData.departures || []) : 
-                   (type === 'arr') ? (rawFlightData.arrivals || []) : 
-                   (rawFlightData.enroute || []);
-                   
+        let list = (type === 'dep') ? (rawFlightData.departures || []) :
+                   (rawFlightData.arrivals || []);
+
         const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
         
         // Only flip if we actually have multiple pages

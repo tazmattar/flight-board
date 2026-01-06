@@ -92,10 +92,11 @@ class VatsimFetcher:
 
                 # 1. Sort En Route flights by distance (closest first)
                 #    This puts departures (leaving) and arrivals (coming) in order of proximity.
-                results[code]['enroute'].sort(key=lambda x: x['distance'])
+                # NOTE: En Route rendering was removed from the UI; commenting out the sort/limit to save CPU
+                # results[code]['enroute'].sort(key=lambda x: x['distance'])
 
                 # 2. Limit to the closest 10 flights
-                results[code]['enroute'] = results[code]['enroute'][:10]
+                # results[code]['enroute'] = results[code]['enroute'][:10]
 
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
