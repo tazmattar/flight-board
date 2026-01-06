@@ -189,10 +189,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 15000); // 15 Seconds per page
 
     function renderFlightPage() {
+        // 1. Calculate Total Pages (based on the busiest column)
+        const maxCount = Math.max(
+            rawFlightData.departures.length,
+            rawFlightData.arrivals.length,
+            rawFlightData.enroute.length
+        );
+        const totalPages = Math.ceil(maxCount / PAGE_SIZE) || 1;
+
+        // 2. Update the Indicator Text
+        const indicator = document.getElementById('pageIndicator');
+        if (indicator) {
+            indicator.textContent = `${currentPage + 1} OF ${totalPages}`;
+        }
+
+        // 3. Slice and Render Data
         const start = currentPage * PAGE_SIZE;
         const end = start + PAGE_SIZE;
 
-        // Slice the data for the current view
         const depPage = rawFlightData.departures.slice(start, end);
         const arrPage = rawFlightData.arrivals.slice(start, end);
         const enrPage = rawFlightData.enroute.slice(start, end);

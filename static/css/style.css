@@ -190,3 +190,23 @@ td, th {
     animation: gate-pulse 2s infinite ease-in-out;
     border-color: rgba(245, 158, 11, 0.3); /* Optional: subtle border color change */
 }
+
+.sub-header {
+    display: flex;
+    justify-content: flex-end; /* Pushes content to the right */
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+#pageIndicator {
+    font-family: var(--font-ui);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--fids-yellow); /* Matching the clock/headers */
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #1a1a1a;
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid #333;
+}

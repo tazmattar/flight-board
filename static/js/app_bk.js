@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     let currentAirport = 'LSZH';
     
+    // --- PAGINATION STATE ---
+    let rawFlightData = { departures: [], arrivals: [], enroute: [] };
+    let currentPage = 0;
+    const PAGE_SIZE = 12; // How many flights per table before flipping?
+    
     // Global flag to track the display cycle (Status vs Delay)
     let showingDelayPhase = false;
 
@@ -113,9 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('flight_update', (data) => {
         if (data.airport_name) elements.airportName.textContent = data.airport_name;
         
-        updateTableSmart(data.departures || [], elements.departureList, 'Departures');
-        updateTableSmart(data.arrivals || [], elements.arrivalList, 'Arrivals');
-        updateTableSmart(data.enroute || [], elements.enrouteList, 'En Route');
+        // 1. Store the raw data globally
+        rawFlightData = {
+            departures: data.departures || [],
+            arrivals: data.arrivals || [],
+            enroute: data.enroute || []
+        };
+
+        // 2. Render the current page immediately with the new data
+        renderFlightPage();
     });
 
     // --- THE CYCLE ENGINE (Flipping Status Behavior) ---
@@ -156,6 +167,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000); // Cycles every 5 seconds
 
     // --- SPLIT FLAP ENGINE ---
+
+    // --- PAGINATION ENGINE ---
+    // Cycles through pages of flights every 15 seconds
+    setInterval(() => {
+        // 1. Determine how many pages we need based on the busiest column
+        const maxCount = Math.max(
+            rawFlightData.departures.length,
+            rawFlightData.arrivals.length,
+            rawFlightData.enroute.length
+        );
+        
+        const totalPages = Math.ceil(maxCount / PAGE_SIZE) || 1;
+        
+        // 2. Increment Page
+        currentPage = (currentPage + 1) % totalPages;
+        
+        // 3. Render
+        renderFlightPage();
+        
+    }, 15000); // 15 Seconds per page
+
+    function renderFlightPage() {
+        const start = currentPage * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+
+        // Slice the data for the current view
+        const depPage = rawFlightData.departures.slice(start, end);
+        const arrPage = rawFlightData.arrivals.slice(start, end);
+        const enrPage = rawFlightData.enroute.slice(start, end);
+
+        updateTableSmart(depPage, elements.departureList, 'Departures');
+        updateTableSmart(arrPage, elements.arrivalList, 'Arrivals');
+        updateTableSmart(enrPage, elements.enrouteList, 'En Route');
+    }
 
     function updateTableSmart(flights, container, type) {
         const existingRows = Array.from(container.children);
