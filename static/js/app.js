@@ -205,13 +205,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update Indicator
         if (indicator) {
-            // Only show indicator if there is more than 1 page
+            // ALWAYS set text content to ensure it has size (even if 1/1)
+            indicator.textContent = `${pages[pageKey] + 1}/${totalPages}`;
+            
             if (totalPages > 1) {
-                indicator.textContent = `${pages[pageKey] + 1}/${totalPages}`;
-                indicator.style.display = 'block';
+                // Visible if multiple pages
+                indicator.style.visibility = 'visible';
             } else {
-                indicator.style.display = 'none';
+                // Invisible (but keeps layout space) if single page
+                indicator.style.visibility = 'hidden'; 
             }
+            // Ensure we remove the old display property if it exists
+            indicator.style.display = 'block';
         }
 
         // Slice Data
@@ -260,10 +265,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTableSmart(flights, container, type) {
+        // --- NEW: FILLER ROWS LOGIC ---
+        // Create a copy of the flights array so we don't modify the raw data
+        let displayFlights = [...flights];
+        
+        // Calculate how many empty rows we need
+        const rowsNeeded = PAGE_SIZE - displayFlights.length;
+        
+        // Add empty "placeholder" objects
+        for (let i = 0; i < rowsNeeded; i++) {
+            displayFlights.push({ 
+                callsign: `empty-${i}`, // Unique ID for DOM
+                isEmpty: true 
+            });
+        }
+        // -----------------------------
+
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
 
-        flights.forEach(flight => {
+        displayFlights.forEach(flight => {
+            // Handle Empty Rows
+            if (flight.isEmpty) {
+                const rowId = `row-empty-${type}-${flight.callsign}`;
+                seenIds.add(rowId);
+                
+                let row = document.getElementById(rowId);
+                if (!row) {
+                    row = document.createElement('tr');
+                    row.id = rowId;
+                    // Create empty cells with non-breaking space to maintain height
+                    row.innerHTML = `
+                        <td>&nbsp;</td><td></td><td></td>
+                        <td></td><td></td><td></td>
+                    `;
+                    container.appendChild(row);
+                }
+                return; // Skip the rest of the logic for this row
+            }
             const rowId = `row-${flight.callsign}`;
             seenIds.add(rowId);
             
