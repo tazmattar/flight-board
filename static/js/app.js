@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
+
+    // --- STATE MANAGEMENT ---
     let currentAirport = 'LSZH';
-    
-    // --- PAGINATION STATE ---
     let rawFlightData = { departures: [], arrivals: [], enroute: [] };
-    let currentPage = 0;
-    const PAGE_SIZE = 12; // How many flights per table before flipping?
+    
+    // Independent Page Counters
+    let pages = { dep: 0, arr: 0, enr: 0 };
+    const PAGE_SIZE = 12; 
     
     // Global flag to track the display cycle (Status vs Delay)
     let showingDelayPhase = false;
@@ -115,18 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- SOCKET LISTENER ---
     socket.on('flight_update', (data) => {
         if (data.airport_name) elements.airportName.textContent = data.airport_name;
         
-        // 1. Store the raw data globally
-        rawFlightData = {
-            departures: data.departures || [],
-            arrivals: data.arrivals || [],
-            enroute: data.enroute || []
-        };
-
-        // 2. Render the current page immediately with the new data
-        renderFlightPage();
+        // Update raw data
+        rawFlightData = data;
+        
+        // Refresh all lists immediately (keeping current page index)
+        renderSection('dep');
+        renderSection('arr');
+        renderSection('enr');
     });
 
     // --- THE CYCLE ENGINE (Flipping Status Behavior) ---
@@ -168,52 +169,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SPLIT FLAP ENGINE ---
 
-    // --- PAGINATION ENGINE ---
-    // Cycles through pages of flights every 15 seconds
-    setInterval(() => {
-        // 1. Determine how many pages we need based on the busiest column
-        const maxCount = Math.max(
-            rawFlightData.departures.length,
-            rawFlightData.arrivals.length,
-            rawFlightData.enroute.length
-        );
-        
-        const totalPages = Math.ceil(maxCount / PAGE_SIZE) || 1;
-        
-        // 2. Increment Page
-        currentPage = (currentPage + 1) % totalPages;
-        
-        // 3. Render
-        renderFlightPage();
-        
-    }, 15000); // 15 Seconds per page
+    // --- INDEPENDENT PAGINATION ENGINE ---
+    
+    // Helper to render a specific section
+    function renderSection(type) {
+        let list, container, indicator, pageKey, label;
 
-    function renderFlightPage() {
-        // 1. Calculate Total Pages (based on the busiest column)
-        const maxCount = Math.max(
-            rawFlightData.departures.length,
-            rawFlightData.arrivals.length,
-            rawFlightData.enroute.length
-        );
-        const totalPages = Math.ceil(maxCount / PAGE_SIZE) || 1;
-
-        // 2. Update the Indicator Text
-        const indicator = document.getElementById('pageIndicator');
-        if (indicator) {
-            indicator.textContent = `${currentPage + 1} OF ${totalPages}`;
+        // Map abstract type to real elements
+        if (type === 'dep') {
+            list = rawFlightData.departures || [];
+            container = elements.departureList;
+            indicator = document.getElementById('depPageInd');
+            pageKey = 'dep';
+            label = 'Departures';
+        } else if (type === 'arr') {
+            list = rawFlightData.arrivals || [];
+            container = elements.arrivalList;
+            indicator = document.getElementById('arrPageInd');
+            pageKey = 'arr';
+            label = 'Arrivals';
+        } else {
+            list = rawFlightData.enroute || [];
+            container = elements.enrouteList;
+            indicator = document.getElementById('enrPageInd');
+            pageKey = 'enr';
+            label = 'En Route';
         }
 
-        // 3. Slice and Render Data
-        const start = currentPage * PAGE_SIZE;
+        // Calculate Pages
+        const totalItems = list.length;
+        const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+        
+        // Wrap around if data shrank and we are on a non-existent page
+        if (pages[pageKey] >= totalPages) pages[pageKey] = 0;
+
+        // Update Indicator
+        if (indicator) {
+            // Only show indicator if there is more than 1 page
+            if (totalPages > 1) {
+                indicator.textContent = `${pages[pageKey] + 1}/${totalPages}`;
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+
+        // Slice Data
+        const start = pages[pageKey] * PAGE_SIZE;
         const end = start + PAGE_SIZE;
+        const pageData = list.slice(start, end);
 
-        const depPage = rawFlightData.departures.slice(start, end);
-        const arrPage = rawFlightData.arrivals.slice(start, end);
-        const enrPage = rawFlightData.enroute.slice(start, end);
+        // Render
+        updateTableSmart(pageData, container, label);
+    }
 
-        updateTableSmart(depPage, elements.departureList, 'Departures');
-        updateTableSmart(arrPage, elements.arrivalList, 'Arrivals');
-        updateTableSmart(enrPage, elements.enrouteList, 'En Route');
+    // --- STAGGERED TIMERS ---
+    // This prevents the "all at once" flip effect.
+    
+    // 1. Departures: Flips every 15s (Start immediately)
+    setInterval(() => {
+        advancePage('dep');
+    }, 15000);
+
+    // 2. Arrivals: Flips every 15s (Start with 5s delay)
+    setTimeout(() => {
+        setInterval(() => {
+            advancePage('arr');
+        }, 15000);
+    }, 5000);
+
+    // 3. En Route: Flips every 15s (Start with 10s delay)
+    setTimeout(() => {
+        setInterval(() => {
+            advancePage('enr');
+        }, 15000);
+    }, 10000);
+
+    function advancePage(type) {
+        let list = (type === 'dep') ? (rawFlightData.departures || []) : 
+                   (type === 'arr') ? (rawFlightData.arrivals || []) : 
+                   (rawFlightData.enroute || []);
+                   
+        const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
+        
+        // Only flip if we actually have multiple pages
+        if (totalPages > 1) {
+            pages[type] = (pages[type] + 1) % totalPages;
+            renderSection(type);
+        }
     }
 
     function updateTableSmart(flights, container, type) {

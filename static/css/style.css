@@ -49,6 +49,9 @@ body {
     font-size: 20px; font-weight: 700; text-transform: uppercase;
     color: var(--fids-yellow); margin-top: 20px; padding-bottom: 5px;
     border-bottom: 1px solid var(--border-dim);
+    display: flex;
+    justify-content: space-between; /* Pushes page number to the right */
+    align-items: center;
 }
 .flight-table { width: 100%; border-collapse: collapse; }
 .flight-table th {
@@ -207,6 +210,17 @@ td, th {
     text-transform: uppercase;
     background: #1a1a1a;
     padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+/* Page indicator displayed per-section (right side of header) */
+.page-ind {
+    font-family: var(--font-data); /* Monospace looks technical */
+    font-size: 16px;
+    color: var(--text-dim);
+    background: #111;
+    padding: 2px 8px;
     border-radius: 4px;
     border: 1px solid #333;
 }
