@@ -239,14 +239,25 @@ class VatsimFetcher:
             else: return 'En Route'
         else:
             # ARRIVALS
-            # If plane is low and slow BUT far away (>50km), it's at the origin airport.
+            # Logic: If plane is low (<2000ft) and slow (<40kts)
             if alt < 2000 and gs < 40:
+                # If it's close to destination (within 50km), it has Landed.
                 if dist_km < 50: return 'Landed'
-                else: return 'Scheduled' # Sitting at origin
+                # If it's far away, it hasn't left the origin yet.
+                else: return 'Scheduled' 
             
-            elif alt < 2500 and dist_km < 50: return 'Landing'
-            elif alt < 10000 and dist_km < 80: return 'Approaching'
-            else: return 'En Route'
+            # Landing: Close and low
+            elif alt < 4000 and dist_km < 25: 
+                return 'Landing'
+                
+            # Approaching: Relaxed range (250km / ~135nm) so they appear on the board earlier.
+            # Removed altitude check so high-flying arrivals aren't hidden.
+            elif dist_km < 250: 
+                return 'Approaching'
+                
+            # Anything else is just En Route (far out)
+            else: 
+                return 'En Route'
 
     def get_metar(self, code):
         try: return requests.get(f'https://metar.vatsim.net/{code}', timeout=2).text.strip()
