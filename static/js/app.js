@@ -59,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     "VHHH": "Hong Kong",
                     "WSSS": "Singapore",
                     "KBOS": "Boston",  // Explicit fix just in case
-                    "LLBG": "Tel Aviv" // Fix for Ben Gurion
+                    "LLBG": "Tel Aviv", // Fix for Ben Gurion
+                    "LSHD": "Zurich Heliport" // Fix for Zurich Heliport
                 };
 
                 for (const [icao, details] of Object.entries(data)) {
