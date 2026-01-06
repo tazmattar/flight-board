@@ -182,7 +182,7 @@ class VatsimFetcher:
         # --- GATE LOGIC ---
         gate = None
         # Check for gate if departing (Boarding/Pushback) or arriving (Landed)
-        if (direction == 'DEP' and raw_status in ['Boarding', 'Ready', 'Pushback']) or \
+        if (direction == 'DEP' and raw_status in ['Boarding', 'Check-in', 'Pushback']) or \
            (direction == 'ARR' and raw_status == 'Landed'):
             gate = self.find_stand(
                 pilot['latitude'], 
@@ -194,7 +194,8 @@ class VatsimFetcher:
             
         # --- DELAY LOGIC ---
         delay_text = None
-        if direction == 'DEP' and raw_status in ['Boarding', 'Ready']:
+        # Updated to check for 'Check-in' instead of 'Ready'
+        if direction == 'DEP' and raw_status in ['Boarding', 'Check-in']:
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
@@ -233,7 +234,8 @@ class VatsimFetcher:
         if direction == 'DEP':
             if alt < ceiling: 
                 if gs < 5: return 'Pushback' if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'} else 'Boarding'
-                if gs < 1: return 'Ready' 
+                # CHANGED: 'Ready' -> 'Check-in'
+                if gs < 1: return 'Check-in' 
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'

@@ -186,7 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Status Logic
-            const isActiveDeparture = ['Boarding', 'Ready', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
+            // Updated to include 'Check-in' in the active list
+            const isActiveDeparture = ['Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing'].includes(flight.status);
             const hasDelay = (flight.delay_text && isActiveDeparture);
             
             let displayStatus = flight.status;
