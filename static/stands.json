@@ -145,7 +145,26 @@
 
     { "name": "W01", "lat": 47.448287, "lon": 8.548981, "radius": 35, "type": "remote" },
     { "name": "W21", "lat": 47.448429, "lon": 8.549062, "radius": 35, "type": "remote" },
-    { "name": "W02", "lat": 47.448461, "lon": 8.549529, "radius": 35, "type": "remote" }
+    { "name": "W02", "lat": 47.448461, "lon": 8.549529, "radius": 35, "type": "remote" },
+    { "name": "W30", "lat": 47.448634, "lon": 8.549811, "radius": 35, "type": "remote" },
+    { "name": "W22", "lat": 47.448688, "lon": 8.549964, "radius": 35, "type": "remote" },
+    { "name": "W03", "lat": 47.448647, "lon": 8.550125, "radius": 35, "type": "remote" },
+    { "name": "W04", "lat": 47.448778, "lon": 8.550847, "radius": 35, "type": "remote" },
+    { "name": "W23", "lat": 47.448997, "lon": 8.550937, "radius": 35, "type": "remote" },
+    { "name": "W05", "lat": 47.448934, "lon": 8.551339, "radius": 35, "type": "remote" },
+    { "name": "W41", "lat": 47.454334, "lon": 8.546408, "radius": 35, "type": "remote" },
+    { "name": "W42", "lat": 47.452315, "lon": 8.547802, "radius": 35, "type": "remote" },
+
+    { "name": "HP1", "lat": 47.449532, "lon": 8.547426, "radius": 35, "type": "remote" },
+    { "name": "HP2", "lat": 47.449771, "lon": 8.547535, "radius": 35, "type": "remote" },
+    { "name": "HP3", "lat": 47.450014, "lon": 8.547649, "radius": 35, "type": "remote" },
+    { "name": "HP4", "lat": 47.450252, "lon": 8.547765, "radius": 35, "type": "remote" },
+    { "name": "HP5", "lat": 47.450491, "lon": 8.547885, "radius": 35, "type": "remote" },
+    { "name": "HP6", "lat": 47.450729, "lon": 8.547999, "radius": 35, "type": "remote" },
+    { "name": "HP7", "lat": 47.450970, "lon": 8.548114, "radius": 35, "type": "remote" },
+    { "name": "HP8", "lat": 47.451208, "lon": 8.548229, "radius": 35, "type": "remote" },
+    { "name": "HP9", "lat": 47.451448, "lon": 8.548343, "radius": 35, "type": "remote" },
+    { "name": "HP10", "lat": 47.451688, "lon": 8.548458, "radius": 35, "type": "remote" }
   ],
   "LSGG": [
     {
