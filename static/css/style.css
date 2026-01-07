@@ -59,7 +59,7 @@ body {
     font-size: 16px; padding: 10px 8px; font-weight: 400; letter-spacing: 1px;
 }
 .flight-table td {
-    padding: 8px; font-family: var(--font-data); font-size: 20px;
+    padding: 8px; font-family: var(--font-data); font-size: 18px;
     border-bottom: 1px solid #1a1a1a; vertical-align: middle;
 }
 
@@ -163,7 +163,7 @@ body {
     .fids-footer { padding: 10px 15px; height: auto; }
     .main-label { font-size: 28px; }
     .huge-arrow { font-size: 40px; }
-    .flight-table td { font-size: 16px; }
+    .flight-table td { font-size: 15px; }
     .flap-char { min-width: 12px; height: 22px; line-height: 22px; }
 }
 
@@ -245,7 +245,7 @@ td, th {
 .split-panel .flight-table th, 
 .split-panel .flight-table td {
     padding: 8px 4px;   /* Reduce padding slightly to save space */
-    font-size: 18px;    /* Slightly smaller font for compact view */
+    font-size: 16px;    /* Slightly smaller font for compact view */
 }
 
 /* Adjust column headers for tight spaces */
@@ -294,7 +294,7 @@ td, th {
 /* 1. Shrink the table cells */
 .split-panel .flight-table td,
 .full-panel .flight-table td {
-    font-size: 15px;      /* Consistent 15px everywhere */
+    font-size: 14px;      /* Consistent 14px everywhere */
     padding: 5px 8px;     /* Tight padding */
     height: 34px;         /* Fixed row height */
 }
