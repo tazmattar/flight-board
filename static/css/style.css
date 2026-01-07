@@ -265,7 +265,29 @@ td, th {
     .split-top-row {
         flex-direction: column;
     }
-}   
+
+    /* --- IPAD / PORTRAIT MODE TWEAKS --- */
+    /* When stacked, give the sections some breathing room */
+    .split-panel {
+        margin-bottom: 20px;
+        min-height: auto; /* Allow it to shrink */
+    }
+
+    /* Ensure the footer has space above it so it doesn't touch the last flight */
+    .fids-footer {
+        margin-top: auto; /* Pushes footer to bottom if page is short */
+    }
+    
+    /* Ensure the main container handles scrolling cleanly */
+    .page-container {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .fids-table-wrapper {
+        flex: 1; /* Allows this section to grow/shrink */
+    }
+}
 
 /* --- COMPACT MODE (Applied to Split Panels AND Full Panel) --- */
 

@@ -254,45 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTableSmart(flights, container, type) {
-        // --- NEW: FILLER ROWS LOGIC ---
-        // Create a copy of the flights array so we don't modify the raw data
-        let displayFlights = [...flights];
-        
-        // Calculate how many empty rows we need
-        const rowsNeeded = PAGE_SIZE - displayFlights.length;
-        
-        // Add empty "placeholder" objects
-        for (let i = 0; i < rowsNeeded; i++) {
-            displayFlights.push({ 
-                callsign: `empty-${i}`, // Unique ID for DOM
-                isEmpty: true 
-            });
-        }
-        // -----------------------------
-
+        // Render only the actual flights passed in (no filler rows)
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
 
-        displayFlights.forEach(flight => {
-            // Handle Empty Rows
-            if (flight.isEmpty) {
-                const rowId = `row-empty-${type}-${flight.callsign}`;
-                seenIds.add(rowId);
-                
-                let row = document.getElementById(rowId);
-                if (!row) {
-                    row = document.createElement('tr');
-                    row.id = rowId;
-                    // Create empty cells but include a dummy flap-container to force exact row height
-                    row.innerHTML = `
-                        <td><div class="flap-container"><span class="flap-char" style="background:transparent;">&nbsp;</span></div></td>
-                        <td></td><td></td>
-                        <td></td><td></td><td></td>
-                    `;
-                    container.appendChild(row);
-                }
-                return; // Skip the rest of the logic for this row
-            }
+        flights.forEach(flight => {
             const rowId = `row-${flight.callsign}`;
             seenIds.add(rowId);
             
