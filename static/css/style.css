@@ -46,7 +46,7 @@ body {
 
 .airport-selector select {
     background: black; color: var(--fids-green); border: none;
-    font-family: var(--font-ui); font-size: 24px; font-weight: 700;
+    font-family: var(--font-ui); font-size: 32px; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
 }
 .clock-container {
