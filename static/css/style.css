@@ -66,17 +66,38 @@ body {
     min-height: 38px;
 }
 
-.flight-table { width: 100%; border-collapse: collapse; }
+.flight-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    /* FIX 1: Lock the table layout */
+    table-layout: fixed; 
+}
 
 .flight-table th {
     text-align: left; text-transform: uppercase; color: var(--fids-green);
     font-size: 16px; padding: 10px 8px; font-weight: 400; letter-spacing: 1px;
+    /* FIX 2: Ensure headers don't overflow */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+
+/* FIX 3: LOCK COLUMN WIDTHS (Desktop) */
+/* These percentages dictate exactly how much space each column gets */
+.flight-table th:nth-child(1) { width: 12%; } /* Flight */
+.flight-table th:nth-child(2) { width: 25%; } /* Destination/Origin (Widest) */
+.flight-table th:nth-child(3) { width: 12%; } /* Aircraft */
+.flight-table th:nth-child(4) { width: 10%; } /* Check-in */
+.flight-table th:nth-child(5) { width: 8%; }  /* Gate */
+.flight-table th:nth-child(6) { width: 10%; } /* Time */
+.flight-table th:nth-child(7) { width: auto; } /* Status (Takes remaining space) */
 
 /* DEFAULT (DESKTOP) CELL SIZE */
 .flight-table td {
     padding: 8px; font-family: var(--font-data); font-size: 18px;
     border-bottom: 1px solid #1a1a1a; vertical-align: middle;
+    /* FIX 4: Handle long text gracefully (e.g. "San Franci...") */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
 }
 
 /* --- SPLIT LAYOUT --- */
