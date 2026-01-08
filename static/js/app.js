@@ -3,12 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE MANAGEMENT ---
     let currentAirport = 'LSZH';
-    // Remove 'enroute' from data and pages
     let rawFlightData = { departures: [], arrivals: [] };
-    
-    // Independent Page Counters
-    let pages = { dep: 0, arr: 0 };
-    const PAGE_SIZE = 20; 
     
     // Global flag to track the display cycle (Status vs Delay)
     let showingDelayPhase = false;
@@ -19,14 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
         departureList: document.getElementById('departureList'),
         arrivalList: document.getElementById('arrivalList'),
         lastUpdate: document.getElementById('lastUpdate'),
-        metar: document.getElementById('metar'),
-        controllers: document.getElementById('controllers'),
         fsBtn: document.getElementById('fullscreenBtn')
     };
 
     // --- Dynamic Data Sources ---
     const airlineMapping = { 'SWS': 'LX', 'EZY': 'U2', 'EZS': 'DS', 'BEL': 'SN', 'GWI': '4U', 'EDW': 'WK' };
-    const airportMapping = {}; // Stores ICAO -> "Zurich"
+    const airportMapping = {}; 
 
     async function loadDatabases() {
         // 1. Load Airlines
@@ -42,52 +35,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) { console.warn('Airline DB failed', e); }
 
-        // 2. Load Airports (Improved Naming Logic)
+        // 2. Load Airports
         try {
             const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
             if (response.ok) {
                 const data = await response.json();
-                
-                // Specific overrides for when City name isn't enough or you want a specific format
                 const manualRenames = {
-                    "EGLL": "London Heathrow",
-                    "EGKK": "London Gatwick",
-                    "EGSS": "London Stansted",
-                    "EGGW": "London Luton",
-                    "EGLC": "London City",
-                    "KJFK": "New York JFK",
-                    "KEWR": "Newark",
-                    "KLGA": "New York LaGuardia",
-                    "LFPG": "Paris CDG",
-                    "LFPO": "Paris Orly",
-                    "EDDF": "Frankfurt",
-                    "EDDM": "Munich",
-                    "OMDB": "Dubai",
-                    "VHHH": "Hong Kong",
-                    "WSSS": "Singapore",
-                    "KBOS": "Boston",  // Explicit fix just in case
-                    "LLBG": "Tel Aviv", // Fix for Ben Gurion
-                    "LSHD": "Zurich Heliport", // Fix for Zurich Heliport
-                    "LIBG": "Taranto-Grottaglie" // Fix for Grottaglie
+                    "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
+                    "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
+                    "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
+                    "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
+                    "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
+                    "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
+                    "LIBG": "Taranto-Grottaglie"
                 };
 
                 for (const [icao, details] of Object.entries(data)) {
                     let displayName;
+                    if (manualRenames[icao]) displayName = manualRenames[icao];
+                    else if (details.city) displayName = details.city;
+                    else displayName = details.name;
 
-                    // 1. Check for manual override first
-                    if (manualRenames[icao]) {
-                        displayName = manualRenames[icao];
-                    } 
-                    // 2. Otherwise, prefer the CITY name (e.g. "Boston" instead of "Gen. Edward Lawrence...")
-                    else if (details.city) {
-                        displayName = details.city;
-                    } 
-                    // 3. Fallback to airport name if city is missing
-                    else {
-                        displayName = details.name;
-                    }
-
-                    // Final cleanup to remove junk words just in case
                     airportMapping[icao] = displayName
                         .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
                         .replace(/\s+/g, ' ')
@@ -105,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
         socket.emit('join_airport', { airport: currentAirport });
+        // Clear lists immediately on switch
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
     });
@@ -123,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update raw data
         rawFlightData = data;
         
-        // Refresh departure and arrival lists immediately
+        // Render IMMEDIATELY (No pagination logic)
         renderSection('dep');
         renderSection('arr');
     });
@@ -132,129 +101,59 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         showingDelayPhase = !showingDelayPhase;
         
-        // Select both Delayed cells AND Boarding cells
         const cyclingCells = document.querySelectorAll('.col-status[data-has-delay="true"], .col-status[data-is-boarding="true"]');
         
         cyclingCells.forEach(cell => {
             const flapContainer = cell.querySelector('.flap-container');
-            const normalStatus = cell.getAttribute('data-status-normal'); // e.g. "BOARDING"
-            const delayText = cell.getAttribute('data-status-delay');     // e.g. "DELAYED 15 MIN"
+            const normalStatus = cell.getAttribute('data-status-normal'); 
+            const delayText = cell.getAttribute('data-status-delay');     
             
             const hasDelay = cell.getAttribute('data-has-delay') === 'true';
             const isBoarding = cell.getAttribute('data-is-boarding') === 'true';
             const gate = cell.getAttribute('data-gate');
 
             if (showingDelayPhase) {
-                // Priority 1: Show Delay
                 if (hasDelay) {
                     cell.setAttribute('data-status', 'Delayed');
                     updateFlapText(flapContainer, delayText.toUpperCase());
-                } 
-                // Priority 2: Show "GO TO GATE" instruction
-                else if (isBoarding) {
-                    // Keep status as 'Boarding' so it stays Green
+                } else if (isBoarding) {
                     cell.setAttribute('data-status', 'Boarding');
                     updateFlapText(flapContainer, `GO TO GATE ${gate}`);
                 }
             } else {
-                // Revert to Normal (e.g. "BOARDING")
                 cell.setAttribute('data-status', normalStatus);
                 updateFlapText(flapContainer, normalStatus.toUpperCase());
             }
         });
+    }, 5000); 
 
-    }, 5000); // Cycles every 5 seconds
-
-    // --- SPLIT FLAP ENGINE ---
-
-    // --- INDEPENDENT PAGINATION ENGINE ---
-    
-    // Helper to render a specific section
+    // --- RENDER ENGINE (REMOVED PAGINATION) ---
     function renderSection(type) {
-        let list, container, indicator, pageKey, label;
+        let list, container, indicator, label;
 
-        // Map abstract type to real elements
         if (type === 'dep') {
             list = rawFlightData.departures || [];
             container = elements.departureList;
-            indicator = document.getElementById('depPageInd');
-            pageKey = 'dep';
+            indicator = document.getElementById('depPageInd'); // We will hide this
             label = 'Departures';
         } else if (type === 'arr') {
             list = rawFlightData.arrivals || [];
             container = elements.arrivalList;
-            indicator = document.getElementById('arrPageInd');
-            pageKey = 'arr';
+            indicator = document.getElementById('arrPageInd'); // We will hide this
             label = 'Arrivals';
         } else {
-            // No other sections supported (enroute removed)
             return;
         }
 
-        // Calculate Pages
-        const totalItems = list.length;
-        const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
-        
-        // Wrap around if data shrank and we are on a non-existent page
-        if (pages[pageKey] >= totalPages) pages[pageKey] = 0;
+        // Hide the page indicator since we are showing ALL flights
+        if (indicator) indicator.style.display = 'none';
 
-        // Update Indicator
-        if (indicator) {
-            // ALWAYS set text content to ensure it has size (even if 1/1)
-            indicator.textContent = `${pages[pageKey] + 1}/${totalPages}`;
-            
-            if (totalPages > 1) {
-                // Visible if multiple pages
-                indicator.style.visibility = 'visible';
-            } else {
-                // Invisible (but keeps layout space) if single page
-                indicator.style.visibility = 'hidden'; 
-            }
-            // Ensure we remove the old display property if it exists
-            indicator.style.display = 'block';
-        }
-
-        // Slice Data
-        const start = pages[pageKey] * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        const pageData = list.slice(start, end);
-
-        // Render
-        updateTableSmart(pageData, container, label);
+        // PASS THE FULL LIST (No Slicing)
+        updateTableSmart(list, container, label);
     }
 
-    // --- STAGGERED TIMERS ---
-    // This prevents the "all at once" flip effect.
-    
-    // 1. Departures: Flips every 15s (Start immediately)
-    setInterval(() => {
-        advancePage('dep');
-    }, 15000);
-
-    // 2. Arrivals: Flips every 15s (Start with 5s delay)
-    setTimeout(() => {
-        setInterval(() => {
-            advancePage('arr');
-        }, 15000);
-    }, 5000);
-
-    // 3. En Route: removed (no longer rendering enroute table)
-
-    function advancePage(type) {
-        let list = (type === 'dep') ? (rawFlightData.departures || []) :
-                   (rawFlightData.arrivals || []);
-
-        const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
-        
-        // Only flip if we actually have multiple pages
-        if (totalPages > 1) {
-            pages[type] = (pages[type] + 1) % totalPages;
-            renderSection(type);
-        }
-    }
-
-        function updateTableSmart(flights, container, type) {
-        // Render only the actual flights passed in (no filler rows)
+    function updateTableSmart(flights, container, type) {
+        // Sync rows (Create new ones, update existing, remove old)
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
 
@@ -270,19 +169,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
 
             // Destination/Origin Logic
-            const destIcao = (type === 'Arrivals' || type === 'En Route') ? flight.origin : flight.destination;
+            const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
             const destName = airportMapping[destIcao] || destIcao;
             
-            // Time Column
+            // Time & Gate
             const timeStr = flight.time_display || "--:--";
-
-            // Gate Logic
             let gate = flight.gate || 'TBA'; 
             let isGateWaiting = false;
 
-            if (type === 'En Route') {
-                gate = ''; 
-            } else if (type === 'Departures') {
+            if (type === 'Departures') {
                 if (flight.status === 'Taxiing' || flight.status === 'Departing') {
                     gate = 'CLOSED'; 
                 }
@@ -295,28 +190,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Status Logic
-            const canShowDelay = [
-                'Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing', 
-                'Approaching', 'Landing'
-            ].includes(flight.status);
-
+            const canShowDelay = ['Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing', 'Approaching', 'Landing'].includes(flight.status);
             const hasDelay = (flight.delay_text && canShowDelay);
-            
-            // Cycle Logic (Boarding)
             const isBoarding = (flight.status === 'Boarding' && gate && gate !== 'TBA' && gate !== 'CLOSED');
 
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
-            // --- ROW CREATION LOGIC ---
+            // --- ROW CREATION ---
             if (!row) {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // CONDITIONAL HTML: Check the 'type' to decide which columns to build
+                // DEPARTURES (7 Cols) vs ARRIVALS (7 Cols - with ghost col)
                 if (type === 'Departures') {
-                    // DEPARTURES: 7 Columns (Includes Check-in)
                     row.innerHTML = `
                         <td>
                             <div class="flight-cell">
@@ -332,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
                 } else {
-                    // ARRIVALS: 6 Columns (Standard)
                     row.innerHTML = `
                         <td>
                             <div class="flight-cell">
@@ -342,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
-                        <td><div class="flap-container" id="${rowId}-gate"></div></td> 
+                        <td></td> <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
@@ -350,39 +236,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(row);
             }
 
-            // --- CELL UPDATES ---
-            
-            // 1. Callsign
+            // --- UPDATE FLAPS ---
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             
-            // 2. Destination/Origin (with flip logic)
             const destFlap = document.getElementById(`${rowId}-dest`);
             destFlap.setAttribute('data-code', destIcao);
             destFlap.setAttribute('data-name', destName);
             
-            if (showAirportNames && destName) {
-                updateFlapText(destFlap, destName.toUpperCase());
-            } else {
-                updateFlapText(destFlap, destIcao);
-            }
+            if (showAirportNames && destName) updateFlapText(destFlap, destName.toUpperCase());
+            else updateFlapText(destFlap, destIcao);
 
-            // 3. Aircraft & Time
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
             
-            // 4. NEW: Check-in (Only runs if the element exists)
             const checkinFlap = document.getElementById(`${rowId}-checkin`);
-            if (checkinFlap) {
-                updateFlapText(checkinFlap, flight.checkin || ""); 
-            }
+            if (checkinFlap) updateFlapText(checkinFlap, flight.checkin || ""); 
 
-            // 5. Gate (with Wait Pulse)
             const gateContainer = document.getElementById(`${rowId}-gate`);
             updateFlapText(gateContainer, gate);
             if (isGateWaiting) gateContainer.classList.add('status-wait');
             else gateContainer.classList.remove('status-wait');
             
-            // 6. Status (with Delay/Boarding Cycles)
             const statusCell = row.querySelector('.col-status');
             const statusFlaps = document.getElementById(`${rowId}-status`);
             
@@ -407,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
 
-        // Cleanup old rows
+        // Cleanup
         existingRows.forEach(row => {
             if (!seenIds.has(row.id)) row.remove();
         });
@@ -416,14 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFlapText(container, newText) {
         if (!container) return;
         newText = String(newText || "");
-        
         const currentChildren = container.children;
         const maxLen = Math.max(currentChildren.length, newText.length);
 
         for (let i = 0; i < maxLen; i++) {
             const newChar = newText[i] || "";
             let span = currentChildren[i];
-
             if (!span) {
                 span = document.createElement('span');
                 span.className = 'flap-char';
@@ -431,64 +303,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(span);
                 triggerFlip(span);
             } else {
-                if (span.textContent !== newChar) {
-                    triggerFlip(span, newChar);
-                }
+                if (span.textContent !== newChar) triggerFlip(span, newChar);
             }
         }
-        
-        while (container.children.length > newText.length) {
-            container.removeChild(container.lastChild);
-        }
+        while (container.children.length > newText.length) container.removeChild(container.lastChild);
     }
 
     function triggerFlip(element, newChar) {
         element.classList.remove('flipping');
         void element.offsetWidth;
         element.classList.add('flipping');
-        if (newChar !== undefined) {
-            setTimeout(() => { element.textContent = newChar; }, 200); 
-        }
+        if (newChar !== undefined) setTimeout(() => { element.textContent = newChar; }, 200); 
     }
 
-    // --- REAL-TIME CLOCK ENGINE ---
+    // --- REAL-TIME CLOCK ---
     function updateClock() {
         const now = new Date();
-        // Format time as HH:MM:SS
-        const timeString = now.toLocaleTimeString('en-GB', { 
-            timeZone: 'UTC', 
-            hour12: false 
-        });
-        
-        if (elements.lastUpdate) {
-            elements.lastUpdate.textContent = timeString;
-        }
+        const timeString = now.toLocaleTimeString('en-GB', { timeZone: 'UTC', hour12: false });
+        if (elements.lastUpdate) elements.lastUpdate.textContent = timeString;
     }
-
-    // Start the clock immediately and update every 1000ms (1 second)
     updateClock(); 
     setInterval(updateClock, 1000);
 
-    // --- DESTINATION FLIPPER ENGINE ---
-    let showAirportNames = false; // Toggle state
-
-    // Flip every 4 seconds
+    // --- DESTINATION FLIPPER ---
+    let showAirportNames = false; 
     setInterval(() => {
         showAirportNames = !showAirportNames;
-        
-        // Find all destination flap containers
         const destFlaps = document.querySelectorAll('.flap-dest');
-        
         destFlaps.forEach(flap => {
             const code = flap.getAttribute('data-code');
             const name = flap.getAttribute('data-name');
-            
-            // If we have a name and we are in "Name Mode", show it. Otherwise show ICAO.
-            if (showAirportNames && name && name !== 'undefined') {
-                updateFlapText(flap, name.toUpperCase());
-            } else {
-                updateFlapText(flap, code);
-            }
+            if (showAirportNames && name && name !== 'undefined') updateFlapText(flap, name.toUpperCase());
+            else updateFlapText(flap, code);
         });
-    }, 4000); // 4 Seconds per cycle
+    }, 4000); 
 });
