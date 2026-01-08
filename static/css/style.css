@@ -25,9 +25,9 @@ html, body {
     background-color: var(--bg-black);
     color: var(--text-white);
     font-family: var(--font-ui);
-    height: 100vh;       /* Force full viewport height */
-    height: 100dvh;      /* Mobile fix */
-    overflow: hidden;    /* No body scroll, internal scroll only */
+    height: 100vh;       
+    height: 100dvh;      
+    overflow: hidden;    
     display: flex;
     flex-direction: column;
 }
@@ -48,32 +48,36 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-shrink: 0;      /* Prevent shrinking */
+    flex-shrink: 0;      
     z-index: 10;
 }
 
 .airport-selector select {
-    background: black; color: var(--fids-green); border: none;
+    background: black; 
+    color: #ffffff; /* UPDATED: Was Green, now White */
+    border: none;
     font-family: var(--font-ui); font-size: 2.5rem; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
 }
 .clock-container {
-    font-size: 2.5rem; font-weight: 700; color: var(--fids-yellow); letter-spacing: 2px;
+    font-size: 2.5rem; font-weight: 700; 
+    color: #ffffff; /* UPDATED: Was Yellow, now White */
+    letter-spacing: 2px;
 }
 
 /* 3. CONTENT AREA (Fills remaining space) */
 .page-container { 
-    flex: 1;             /* Grow to fill space */
-    min-height: 0;       /* CRITICAL: Allows flex child to shrink below content size */
+    flex: 1;             
+    min-height: 0;       
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
-    overflow: hidden;    /* Ensure nothing spills out */
+    overflow: hidden;    
 }
 
 .fids-table-wrapper {
-    flex: 1;             /* Take all available space */
-    min-height: 0;       /* Allow shrinking */
+    flex: 1;             
+    min-height: 0;       
     display: flex;
     flex-direction: column;
 }
@@ -82,19 +86,19 @@ html, body {
 .split-top-row {
     display: flex;
     gap: 30px;
-    flex: 1;             /* Fill the wrapper */
-    min-height: 0;       /* Allow shrinking */
+    flex: 1;             
+    min-height: 0;       
 }
 
 .split-panel {
-    flex: 1;             /* Equal Width */
+    flex: 1;             
     display: flex;
     flex-direction: column;
     min-width: 0;        
     background: #0a0a0a; 
     border: 1px solid #222;
     border-radius: 8px;
-    overflow: hidden;    /* Mask content that is too long */
+    overflow: hidden;    
 }
 
 /* Sticky Table Headers */
@@ -102,24 +106,23 @@ html, body {
     font-size: 1.5rem; 
     font-weight: 700; 
     text-transform: uppercase;
-    color: var(--fids-yellow); 
+    color: var(--fids-yellow); /* Kept Yellow for Zurich "Pop" */
     padding: 15px;
     background: #111;
     border-bottom: 2px solid var(--border-dim);
     display: flex;
     justify-content: space-between; 
     align-items: center;
-    flex-shrink: 0;      /* Keep header fixed */
+    flex-shrink: 0;      
 }
 
 .table-scroll-area {
-    flex: 1;            /* Take remaining height in the panel */
-    min-height: 0;      /* Allow shrinking */
-    overflow-y: auto;   /* Enable scrolling inside this box only */
-    scrollbar-width: none; /* Hide scrollbar Firefox */
+    flex: 1;            
+    min-height: 0;      
+    overflow-y: auto;   
+    scrollbar-width: none; 
     scroll-behavior: smooth;
 }
-/* Hide scrollbar for Webkit (Chrome/Safari) */
 .table-scroll-area::-webkit-scrollbar { display: none; }
 
 .flight-table { 
@@ -129,9 +132,10 @@ html, body {
 }
 
 .flight-table th {
-    position: sticky; top: 0; /* Sticky Headers */
+    position: sticky; top: 0; 
     background: #151515; z-index: 2;
-    text-align: left; text-transform: uppercase; color: var(--fids-green);
+    text-align: left; text-transform: uppercase; 
+    color: #ffffff; /* UPDATED: Was Green, now White */
     font-size: var(--font-size-header); padding: 12px 10px; 
     font-weight: 400; letter-spacing: 1px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -186,7 +190,7 @@ html, body {
     display: flex; 
     justify-content: space-between;
     align-items: center; 
-    height: 100px; /* Fixed Height */
+    height: 100px; 
     flex-shrink: 0;
 }
 .footer-group { display: flex; align-items: center; gap: 20px; }
@@ -207,47 +211,29 @@ html, body {
    7. ORIENTATION MEDIA QUERIES
    ========================================= */
 
-/* PORTRAIT MODE (Stacked Layout) */
 @media (orientation: portrait) {
-    .split-top-row {
-        flex-direction: column; /* Stack top to bottom */
-    }
+    .split-top-row { flex-direction: column; }
     .airport-selector select { font-size: 2rem; }
-    
-    :root {
-        --font-size-cell: 1.4rem;
-        --font-size-header: 1.1rem;
-        --row-height: 50px;
-    }
-    
-    .flight-table th:nth-child(1) { width: 15%; } /* Flight */
-    .flight-table th:nth-child(2) { width: 30%; } /* Dest */
-    .flight-table th:nth-child(3) { width: 10%; } /* A/C */
-    .flight-table th:nth-child(4) { width: 12%; } /* Check-in */
-    .flight-table th:nth-child(5) { width: 8%; }  /* Gate */
-    .flight-table th:nth-child(6) { width: 10%; } /* Time */
-    .flight-table th:nth-child(7) { width: 15%; } /* Status */
+    :root { --font-size-cell: 1.4rem; --font-size-header: 1.1rem; --row-height: 50px; }
+    .flight-table th:nth-child(1) { width: 15%; }
+    .flight-table th:nth-child(2) { width: 30%; }
+    .flight-table th:nth-child(3) { width: 10%; }
+    .flight-table th:nth-child(4) { width: 12%; }
+    .flight-table th:nth-child(5) { width: 8%; } 
+    .flight-table th:nth-child(6) { width: 10%; }
+    .flight-table th:nth-child(7) { width: 15%; }
 }
 
-/* LANDSCAPE MODE (Side-by-Side Layout) */
 @media (orientation: landscape) {
-    .split-top-row {
-        flex-direction: row; /* Side by side */
-    }
-    
-    :root {
-        --font-size-cell: 0.95rem; /* Smaller font */
-        --font-size-header: 0.85rem;
-        --row-height: 36px; /* Tighter rows */
-    }
-    
-    .flight-table th:nth-child(1) { width: 14%; } /* Flight */
-    .flight-table th:nth-child(2) { width: 22%; } /* Dest */
-    .flight-table th:nth-child(3) { width: 10%; } /* A/C */
-    .flight-table th:nth-child(4) { width: 12%; } /* Check-in */
-    .flight-table th:nth-child(5) { width: 10%; } /* Gate */
-    .flight-table th:nth-child(6) { width: 10%; } /* Time */
-    .flight-table th:nth-child(7) { width: 22%; } /* Status */
+    .split-top-row { flex-direction: row; }
+    :root { --font-size-cell: 0.95rem; --font-size-header: 0.85rem; --row-height: 36px; }
+    .flight-table th:nth-child(1) { width: 14%; }
+    .flight-table th:nth-child(2) { width: 22%; }
+    .flight-table th:nth-child(3) { width: 10%; }
+    .flight-table th:nth-child(4) { width: 12%; }
+    .flight-table th:nth-child(5) { width: 10%; }
+    .flight-table th:nth-child(6) { width: 10%; }
+    .flight-table th:nth-child(7) { width: 22%; }
 }
 
 /* =========================================
@@ -255,85 +241,21 @@ html, body {
    ========================================= */
 
 /* --- GENEVA (LSGG) THEME --- */
-body.theme-lsgg {
-    --geneva-blue: #0055b8;
-}
-
-/* 1. Top Header */
-body.theme-lsgg .fids-header {
-    background-color: var(--geneva-blue);
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-}
-body.theme-lsgg .airport-selector select,
-body.theme-lsgg .clock-container {
-    color: #ffffff !important;
-    background: transparent; /* FIXED: Removes black box */
-}
-
-/* 2. Section Dividers */
-body.theme-lsgg .section-divider {
-    background-color: var(--geneva-blue);
-    color: #ffffff;
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-}
-
-/* 3. Table Columns */
-body.theme-lsgg .flight-table th {
-    color: #dbeeff; 
-}
-
+body.theme-lsgg { --geneva-blue: #0055b8; }
+body.theme-lsgg .fids-header { background-color: var(--geneva-blue); border-bottom: 1px solid rgba(255,255,255,0.3); }
+body.theme-lsgg .airport-selector select, body.theme-lsgg .clock-container { color: #ffffff !important; background: transparent; }
+body.theme-lsgg .section-divider { background-color: var(--geneva-blue); color: #ffffff; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.3); }
+body.theme-lsgg .flight-table th { color: #dbeeff; }
 
 /* --- BASEL (LFSB) THEME --- */
 body.theme-lfsb {
-    --euro-blue: #0060a9;
-    --euro-dark: #00457a;
-    
-    /* Global Overrides */
-    --bg-black: var(--euro-blue); 
-    --text-dim: #b3d9ff; 
-    --border-dim: rgba(255,255,255,0.3);
-    
-    --fids-green: #ffffff;
-    --fids-yellow: #ffffff;
+    --euro-blue: #0060a9; --euro-dark: #00457a;
+    --bg-black: var(--euro-blue); --text-dim: #b3d9ff; --border-dim: rgba(255,255,255,0.3);
+    --fids-green: #ffffff; --fids-yellow: #ffffff;
 }
-
-/* 1. Header & Selector */
-body.theme-lfsb .airport-selector select,
-body.theme-lfsb .clock-container {
-    color: #ffffff !important;
-    background: transparent; /* FIXED: Removes black box */
-}
-
-/* 2. Section Dividers */
-body.theme-lfsb .section-divider {
-    background-color: transparent;
-    color: #ffffff;
-    border-bottom: 2px solid #ffffff;
-}
-
-/* 3. Panel Containers */
-body.theme-lfsb .split-panel {
-    background: transparent;
-    border: none; 
-    box-shadow: none;
-}
-
-/* 4. Table Headers */
-body.theme-lfsb .flight-table th {
-    background-color: var(--euro-blue);
-    color: #ffffff;
-    border-bottom: 1px solid rgba(255,255,255,0.5);
-}
-
-/* 5. Flap Characters */
-body.theme-lfsb .flap-char {
-    background: var(--euro-dark); 
-    color: #ffffff;
-}
-
-/* 6. Footer */
-body.theme-lfsb .fids-footer {
-    background-color: var(--euro-dark);
-    border-top: 4px solid #ffffff;
-}
+body.theme-lfsb .airport-selector select, body.theme-lfsb .clock-container { color: #ffffff !important; background: transparent; }
+body.theme-lfsb .section-divider { background-color: transparent; color: #ffffff; border-bottom: 2px solid #ffffff; }
+body.theme-lfsb .split-panel { background: transparent; border: none; box-shadow: none; }
+body.theme-lfsb .flight-table th { background-color: var(--euro-blue); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.5); }
+body.theme-lfsb .flap-char { background: var(--euro-dark); color: #ffffff; }
+body.theme-lfsb .fids-footer { background-color: var(--euro-dark); border-top: 4px solid #ffffff; }
