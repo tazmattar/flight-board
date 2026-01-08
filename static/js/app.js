@@ -18,7 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Dynamic Data Sources ---
-    const airlineMapping = { 'SWS': 'LX', 'EZY': 'U2', 'EZS': 'DS', 'BEL': 'SN', 'GWI': '4U', 'EDW': 'WK','FDX': 'FX' };
+    // Added 'FDX': 'FX' and others to ensure cargo mapping works
+    const airlineMapping = { 
+        'SWS': 'LX', 
+        'EZY': 'U2', 
+        'EZS': 'DS', 
+        'BEL': 'SN', 
+        'GWI': '4U', 
+        'EDW': 'WK',
+        'FDX': 'FX',  // FedEx
+        'UPS': '5X',  // UPS
+        'GEC': 'LH',  // Lufthansa Cargo (often uses LH logo)
+        'BCS': 'QY'   // DHL
+    };
     const airportMapping = {}; 
 
     async function loadDatabases() {
@@ -38,8 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
             if (response.ok) {
                 const data = await response.json();
-                // ... (Keep your existing manual renames here if you want) ... 
-                // For brevity, using standard logic + your specific renames
                 const manualRenames = {
                     "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
                     "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
@@ -66,33 +76,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadDatabases();
 
-    // --- Core Logic ---
-    socket.emit('join_airport', { airport: currentAirport });
-
     // Helper to switch themes
     function updateTheme(airportCode) {
-        // 1. Remove all existing theme classes
         document.body.classList.remove('theme-lsgg', 'theme-lfsb'); 
         
-        // 2. Add class based on selection
         if (airportCode === 'LSGG') {
-            document.body.classList.add('theme-lsgg'); // Geneva Blue Headers
+            document.body.classList.add('theme-lsgg');
         } 
         else if (airportCode === 'LFSB') {
-            document.body.classList.add('theme-lfsb'); // Basel Full Blue
+            document.body.classList.add('theme-lfsb');
         }
     }
 
     // Initialize theme on load
     updateTheme(currentAirport);
 
+    // --- Core Logic ---
+    socket.emit('join_airport', { airport: currentAirport });
+
     elements.airportSelect.addEventListener('change', (e) => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
         
-        // --- NEW: Apply Theme ---
-        updateTheme(currentAirport);
-        // ------------------------
+        updateTheme(currentAirport); // Apply Theme Switch
 
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
@@ -114,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSection('arr');
     });
 
-    // --- AUTO-SCROLL ENGINE (TUNED) ---
+    // --- AUTO-SCROLL ENGINE ---
     function initAutoScroll() {
         const scrollContainers = document.querySelectorAll('.table-scroll-area');
         
@@ -122,37 +128,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (container.dataset.scrollInterval) return;
 
             const intervalId = setInterval(() => {
-                // Determine overflow
-                // scrollHeight = Total height of content
-                // clientHeight = Height of visible window
                 const maxScroll = container.scrollHeight - container.clientHeight;
                 const currentScroll = Math.ceil(container.scrollTop);
 
-                // DEBUG LOG: See this in your browser console (F12)
-                // console.log(`AutoScroll Check: Visible=${container.clientHeight}, Content=${container.scrollHeight}, Current=${currentScroll}, Max=${maxScroll}`);
-
-                // If content fits perfectly, do nothing
                 if (maxScroll <= 0) {
-                    // Reset to top just in case
                     if (currentScroll > 0) container.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
 
-                // If we are at the bottom (or very close), go back to top
-                if (currentScroll >= maxScroll - 5) { // 5px buffer
+                if (currentScroll >= maxScroll - 5) { 
                     container.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    // Scroll down by one page height
                     const nextScroll = currentScroll + container.clientHeight;
                     container.scrollTo({ top: nextScroll, behavior: 'smooth' });
                 }
-            }, 8000); // SCROLL EVERY 8 SECONDS
+            }, 8000); 
 
             container.dataset.scrollInterval = intervalId;
         });
     }
     
-    // Initialize scrolling immediately
     initAutoScroll();
 
     // --- STATUS FLIP ENGINE ---
@@ -200,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (indicator) indicator.style.display = 'none';
         
-        // Pass "type" string correctly so ghost columns render
         updateTableSmart(list, container, type === 'dep' ? 'Departures' : 'Arrivals');
     }
 
@@ -216,7 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
+            
+            // LOGO LOGIC: Primary (Kiwi) -> Backup (Kayak)
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
+            const backupLogoUrl = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
 
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
             const destName = airportMapping[destIcao] || destIcao;
@@ -243,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
-            // --- ROW CREATION ---
             if (!row) {
                 row = document.createElement('tr');
                 row.id = rowId;
@@ -251,7 +247,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // DEPARTURES HTML
                 if (type === 'Departures') {
                     row.innerHTML = `
-                        <td><div class="flight-cell"><img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'"><div class="flap-container" id="${rowId}-callsign"></div></div></td>
+                        <td>
+                            <div class="flight-cell">
+                                <img src="${logoUrl}" 
+                                     class="airline-logo" 
+                                     style="filter: none;" 
+                                     onerror="if (this.src !== '${backupLogoUrl}') { this.src = '${backupLogoUrl}'; } else { this.style.display='none'; }">
+                                <div class="flap-container" id="${rowId}-callsign"></div>
+                            </div>
+                        </td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
                         <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-checkin"></div></td>
@@ -263,7 +267,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // ARRIVALS HTML (With Ghost Column)
                 else {
                     row.innerHTML = `
-                        <td><div class="flight-cell"><img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'"><div class="flap-container" id="${rowId}-callsign"></div></div></td>
+                        <td>
+                            <div class="flight-cell">
+                                <img src="${logoUrl}" 
+                                     class="airline-logo" 
+                                     style="filter: none;" 
+                                     onerror="if (this.src !== '${backupLogoUrl}') { this.src = '${backupLogoUrl}'; } else { this.style.display='none'; }">
+                                <div class="flap-container" id="${rowId}-callsign"></div>
+                            </div>
+                        </td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
                         <td></td> <td><div class="flap-container" id="${rowId}-gate"></div></td> 
@@ -285,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
             
-            // Safe check for Check-in element (only exists in Departures)
             const checkinFlap = document.getElementById(`${rowId}-checkin`);
             if (checkinFlap) updateFlapText(checkinFlap, flight.checkin || ""); 
 
