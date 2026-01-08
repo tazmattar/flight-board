@@ -20,6 +20,7 @@ body {
     color: var(--text-white);
     font-family: var(--font-ui);
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -31,9 +32,24 @@ body {
 
 /* Header */
 .fids-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 0; border-bottom: 2px solid var(--text-white); margin-bottom: 10px;
+    background: var(--bg-header);
+    /* Remove padding: 24px 32px; if you want it slimmer, or keep it */
+    padding: 15px 32px; 
+    border-bottom: 2px solid var(--text-white);
+    /* Remove border-radius and box-shadow if you want a cleaner "bar" look, 
+       OR keep them if you want it to look like a floating card. */
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    /* NEW: Constrain width to match the tables below */
+    width: 98%;
+    max-width: 100%;
+    margin: 0 auto 10px auto; /* Centers the bar */
+    flex-shrink: 0; /* Prevents it from crushing if space is tight */
 }
+
 .airport-selector select {
     background: black; color: var(--fids-green); border: none;
     font-family: var(--font-ui); font-size: 24px; font-weight: 700;
