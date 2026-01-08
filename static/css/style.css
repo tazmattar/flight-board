@@ -97,7 +97,7 @@ html, body {
     overflow: hidden;    /* Mask content that is too long */
 }
 
-/* Sticky Table Headers - RESTORED STYLES */
+/* Sticky Table Headers */
 .section-divider {
     font-size: 1.5rem; 
     font-weight: 700; 
@@ -255,7 +255,6 @@ html, body {
    ========================================= */
 
 /* --- GENEVA (LSGG) THEME --- */
-/* Style: Solid Blue Header Bars with White Text */
 body.theme-lsgg {
     --geneva-blue: #0055b8;
 }
@@ -268,9 +267,10 @@ body.theme-lsgg .fids-header {
 body.theme-lsgg .airport-selector select,
 body.theme-lsgg .clock-container {
     color: #ffffff !important;
+    background: transparent; /* FIXED: Removes black box */
 }
 
-/* 2. Section Dividers (DEPARTURES / ARRIVALS) */
+/* 2. Section Dividers */
 body.theme-lsgg .section-divider {
     background-color: var(--geneva-blue);
     color: #ffffff;
@@ -285,35 +285,34 @@ body.theme-lsgg .flight-table th {
 
 
 /* --- BASEL (LFSB) THEME --- */
-/* Style: EuroAirport "Full Blue" Immersion */
 body.theme-lfsb {
-    --euro-blue: #0060a9; /* Main Background */
-    --euro-dark: #00457a; /* Footer/Tiles */
+    --euro-blue: #0060a9;
+    --euro-dark: #00457a;
     
-    /* Global Variable Overrides */
+    /* Global Overrides */
     --bg-black: var(--euro-blue); 
     --text-dim: #b3d9ff; 
     --border-dim: rgba(255,255,255,0.3);
     
-    --fids-green: #ffffff; /* Column Headers -> White */
-    --fids-yellow: #ffffff; /* Default Yellow Text -> White */
+    --fids-green: #ffffff;
+    --fids-yellow: #ffffff;
 }
 
 /* 1. Header & Selector */
 body.theme-lfsb .airport-selector select,
 body.theme-lfsb .clock-container {
     color: #ffffff !important;
+    background: transparent; /* FIXED: Removes black box */
 }
 
-/* 2. Section Dividers (DEPARTURES / ARRIVALS) - THE FIX */
+/* 2. Section Dividers */
 body.theme-lfsb .section-divider {
-    background-color: transparent; /* Let the blue show through */
-    color: #ffffff; /* White text */
-    border-bottom: 2px solid #ffffff; /* Crisp white line */
+    background-color: transparent;
+    color: #ffffff;
+    border-bottom: 2px solid #ffffff;
 }
 
 /* 3. Panel Containers */
-/* Make them blend seamlessly into the blue background */
 body.theme-lfsb .split-panel {
     background: transparent;
     border: none; 
@@ -322,13 +321,12 @@ body.theme-lfsb .split-panel {
 
 /* 4. Table Headers */
 body.theme-lfsb .flight-table th {
-    background-color: var(--euro-blue); /* Match body background */
+    background-color: var(--euro-blue);
     color: #ffffff;
     border-bottom: 1px solid rgba(255,255,255,0.5);
 }
 
 /* 5. Flap Characters */
-/* Dark Blue tiles with White text */
 body.theme-lfsb .flap-char {
     background: var(--euro-dark); 
     color: #ffffff;
