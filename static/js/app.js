@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
                 } else {
+                    // ARRIVALS: Now has 7 Columns (Added Ghost Column)
                     row.innerHTML = `
                         <td>
                             <div class="flight-cell">
@@ -228,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                        
                         <td></td> <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
