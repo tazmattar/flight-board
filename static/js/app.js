@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const airportMapping = {}; 
 
     async function loadDatabases() {
-        // 1. Load Airlines
         try {
             const response = await fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json');
             if (response.ok) {
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) { console.warn('Airline DB failed', e); }
 
-        // 2. Load Airports
         try {
             const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
             if (response.ok) {
@@ -73,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
         socket.emit('join_airport', { airport: currentAirport });
-        // Clear lists immediately on switch
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
     });
@@ -88,19 +85,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- SOCKET LISTENER ---
     socket.on('flight_update', (data) => {
         if (data.airport_name) elements.airportName.textContent = data.airport_name;
-        
-        // Update raw data
         rawFlightData = data;
-        
-        // Render IMMEDIATELY (No pagination logic)
         renderSection('dep');
         renderSection('arr');
     });
 
-    // --- THE CYCLE ENGINE (Flipping Status Behavior) ---
+    // --- AUTO-SCROLL ENGINE (The Magic) ---
+    function initAutoScroll() {
+        const scrollContainers = document.querySelectorAll('.table-scroll-area');
+        
+        scrollContainers.forEach(container => {
+            // Check if this container already has an interval ID attached
+            if (container.dataset.scrollInterval) return;
+
+            const intervalId = setInterval(() => {
+                // Determine if we can scroll further
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                
+                // If content fits perfectly, do nothing
+                if (maxScroll <= 0) {
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                const currentScroll = container.scrollTop;
+                // Scroll down by one page height (minus a small buffer to keep context)
+                let nextScroll = currentScroll + container.clientHeight - 50;
+
+                if (nextScroll >= maxScroll) {
+                    // If we reached bottom, go back to top
+                    // We wait a beat (optional logic could go here) then scroll top
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    // Scroll down
+                    container.scrollTo({ top: nextScroll, behavior: 'smooth' });
+                }
+            }, 15000); // 15 Seconds per scroll
+
+            container.dataset.scrollInterval = intervalId;
+        });
+    }
+    
+    // Initialize scrolling immediately
+    initAutoScroll();
+
+    // --- STATUS FLIP ENGINE ---
     setInterval(() => {
         showingDelayPhase = !showingDelayPhase;
-        
         const cyclingCells = document.querySelectorAll('.col-status[data-has-delay="true"], .col-status[data-is-boarding="true"]');
         
         cyclingCells.forEach(cell => {
@@ -127,33 +158,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 5000); 
 
-    // --- RENDER ENGINE (REMOVED PAGINATION) ---
+    // --- RENDER ENGINE ---
     function renderSection(type) {
         let list, container, indicator, label;
 
         if (type === 'dep') {
             list = rawFlightData.departures || [];
             container = elements.departureList;
-            indicator = document.getElementById('depPageInd'); // We will hide this
+            indicator = document.getElementById('depPageInd');
             label = 'Departures';
         } else if (type === 'arr') {
             list = rawFlightData.arrivals || [];
             container = elements.arrivalList;
-            indicator = document.getElementById('arrPageInd'); // We will hide this
+            indicator = document.getElementById('arrPageInd');
             label = 'Arrivals';
-        } else {
-            return;
-        }
+        } else { return; }
 
-        // Hide the page indicator since we are showing ALL flights
         if (indicator) indicator.style.display = 'none';
-
-        // PASS THE FULL LIST (No Slicing)
-        updateTableSmart(list, container, label);
+        updateTableSmart(list, container, type === 'dep' ? 'Departures' : 'Arrivals');
     }
 
     function updateTableSmart(flights, container, type) {
-        // Sync rows (Create new ones, update existing, remove old)
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
 
@@ -163,24 +188,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let row = document.getElementById(rowId);
             
-            // Format Data
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
 
-            // Destination/Origin Logic
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
             const destName = airportMapping[destIcao] || destIcao;
-            
-            // Time & Gate
             const timeStr = flight.time_display || "--:--";
+            
             let gate = flight.gate || 'TBA'; 
             let isGateWaiting = false;
 
             if (type === 'Departures') {
-                if (flight.status === 'Taxiing' || flight.status === 'Departing') {
-                    gate = 'CLOSED'; 
-                }
+                if (flight.status === 'Taxiing' || flight.status === 'Departing') gate = 'CLOSED'; 
             } else if (type === 'Arrivals') {
                 if (!gate || gate === 'TBA') {
                     if (flight.status === 'Landed' || flight.status === 'Landing') {
@@ -197,20 +217,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
-            // --- ROW CREATION ---
             if (!row) {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // DEPARTURES (7 Cols) vs ARRIVALS (7 Cols - with ghost col)
                 if (type === 'Departures') {
                     row.innerHTML = `
-                        <td>
-                            <div class="flight-cell">
-                                <img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'">
-                                <div class="flap-container" id="${rowId}-callsign"></div>
-                            </div>
-                        </td>
+                        <td><div class="flight-cell"><img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'"><div class="flap-container" id="${rowId}-callsign"></div></div></td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
                         <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-checkin"></div></td>
@@ -219,17 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
                 } else {
-                    // ARRIVALS: Now has 7 Columns (Added Ghost Column)
                     row.innerHTML = `
-                        <td>
-                            <div class="flight-cell">
-                                <img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'">
-                                <div class="flap-container" id="${rowId}-callsign"></div>
-                            </div>
-                        </td>
+                        <td><div class="flight-cell"><img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'"><div class="flap-container" id="${rowId}-callsign"></div></div></td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
-                        
                         <td></td> <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
@@ -238,13 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(row);
             }
 
-            // --- UPDATE FLAPS ---
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
-            
             const destFlap = document.getElementById(`${rowId}-dest`);
             destFlap.setAttribute('data-code', destIcao);
             destFlap.setAttribute('data-name', destName);
-            
             if (showAirportNames && destName) updateFlapText(destFlap, destName.toUpperCase());
             else updateFlapText(destFlap, destIcao);
 
@@ -265,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
             statusCell.setAttribute('data-has-delay', hasDelay ? "true" : "false");
             statusCell.setAttribute('data-is-boarding', isBoarding ? "true" : "false");
             statusCell.setAttribute('data-gate', gate); 
-            
             statusCell.setAttribute('data-status-normal', flight.status);
             statusCell.setAttribute('data-status-delay', flight.delay_text || "");
             
@@ -278,12 +280,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayColorClass = 'Boarding';
                 }
             }
-
             statusCell.setAttribute('data-status', displayColorClass);
             updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
 
-        // Cleanup
         existingRows.forEach(row => {
             if (!seenIds.has(row.id)) row.remove();
         });
@@ -294,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         newText = String(newText || "");
         const currentChildren = container.children;
         const maxLen = Math.max(currentChildren.length, newText.length);
-
         for (let i = 0; i < maxLen; i++) {
             const newChar = newText[i] || "";
             let span = currentChildren[i];
@@ -318,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newChar !== undefined) setTimeout(() => { element.textContent = newChar; }, 200); 
     }
 
-    // --- REAL-TIME CLOCK ---
     function updateClock() {
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-GB', { timeZone: 'UTC', hour12: false });
@@ -327,7 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock(); 
     setInterval(updateClock, 1000);
 
-    // --- DESTINATION FLIPPER ---
     let showAirportNames = false; 
     setInterval(() => {
         showAirportNames = !showAirportNames;

@@ -62,16 +62,17 @@ body {
 
 /* 3. CONTENT AREA (Fills remaining space) */
 .page-container { 
-    flex: 1;             /* Grow to fill space between header and footer */
-    overflow: hidden;    /* Handle scrolling inside the panels */
-    position: relative;
+    flex: 1;             /* Grow to fill space */
+    min-height: 0;       /* CRITICAL: Allows flex child to shrink below content size */
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
+    overflow: hidden;    /* Ensure nothing spills out */
 }
 
 .fids-table-wrapper {
-    height: 100%;
+    flex: 1;             /* Take all available space */
+    min-height: 0;       /* Allow shrinking */
     display: flex;
     flex-direction: column;
 }
@@ -80,38 +81,35 @@ body {
 .split-top-row {
     display: flex;
     gap: 30px;
-    height: 100%;        /* Fill the container */
+    flex: 1;             /* Fill the wrapper */
+    min-height: 0;       /* Allow shrinking */
 }
 
 .split-panel {
     flex: 1;             /* Equal Width */
     display: flex;
     flex-direction: column;
-    min-width: 0;        /* Prevent flex blowout */
-    background: #0a0a0a; /* Subtle background for contrast */
+    min-width: 0;        
+    background: #0a0a0a; 
     border: 1px solid #222;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: hidden;    /* Mask content that is too long */
 }
 
 /* Sticky Table Headers */
 .section-divider {
-    font-size: 1.5rem; font-weight: 700; text-transform: uppercase;
-    color: var(--fids-yellow); padding: 15px;
-    background: #111;
-    border-bottom: 2px solid var(--border-dim);
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    flex-shrink: 0;
+    /* ... (keep existing styles) ... */
+    flex-shrink: 0;      /* Never shrink the header */
 }
 
 .table-scroll-area {
-    flex: 1;            /* Table takes remaining vertical space */
-    overflow-y: auto;   /* Scroll ONLY the rows, not the header */
-    scrollbar-width: thin;
-    scrollbar-color: #333 #000;
+    flex: 1;            /* Take remaining height in the panel */
+    min-height: 0;      /* Allow shrinking */
+    overflow-y: auto;   /* Enable scrolling inside this box only */
+    scrollbar-width: none; /* Optional: Hide scrollbar for cleaner look */
 }
+/* Hide scrollbar for Webkit (Chrome/Safari) */
+.table-scroll-area::-webkit-scrollbar { display: none; }
 
 .flight-table { 
     width: 100%; 
