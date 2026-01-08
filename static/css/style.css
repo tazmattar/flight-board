@@ -20,7 +20,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* 1. ANCHORED LAYOUT (Sticky Header/Footer) */
+/* 1. ANCHORED LAYOUT */
 html, body {
     background-color: var(--bg-black);
     color: var(--text-white);
@@ -41,10 +41,11 @@ html, body {
 }
 
 /* 2. HEADER (Fixed) */
+/* DEFAULT: ZURICH STYLE (White Bar, Black Text) */
 .fids-header {
-    background: var(--bg-black);
+    background: #ffffff; /* Solid White */
     padding: 15px 30px; 
-    border-bottom: 2px solid var(--text-white);
+    border-bottom: 4px solid #000000; /* Strong contrast border */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -53,19 +54,19 @@ html, body {
 }
 
 .airport-selector select {
-    background: black; 
-    color: #ffffff; /* UPDATED: Was Green, now White */
+    background: transparent; 
+    color: #000000; /* Black Text */
     border: none;
     font-family: var(--font-ui); font-size: 2.5rem; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
 }
 .clock-container {
     font-size: 2.5rem; font-weight: 700; 
-    color: #ffffff; /* UPDATED: Was Yellow, now White */
+    color: #000000; /* Black Text */
     letter-spacing: 2px;
 }
 
-/* 3. CONTENT AREA (Fills remaining space) */
+/* 3. CONTENT AREA */
 .page-container { 
     flex: 1;             
     min-height: 0;       
@@ -106,7 +107,7 @@ html, body {
     font-size: 1.5rem; 
     font-weight: 700; 
     text-transform: uppercase;
-    color: var(--fids-yellow); /* Kept Yellow for Zurich "Pop" */
+    color: var(--fids-yellow); /* Yellow for Zurich "Pop" */
     padding: 15px;
     background: #111;
     border-bottom: 2px solid var(--border-dim);
@@ -135,7 +136,7 @@ html, body {
     position: sticky; top: 0; 
     background: #151515; z-index: 2;
     text-align: left; text-transform: uppercase; 
-    color: #ffffff; /* UPDATED: Was Green, now White */
+    color: #ffffff; /* White Headers */
     font-size: var(--font-size-header); padding: 12px 10px; 
     font-weight: 400; letter-spacing: 1px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -253,6 +254,8 @@ body.theme-lfsb {
     --bg-black: var(--euro-blue); --text-dim: #b3d9ff; --border-dim: rgba(255,255,255,0.3);
     --fids-green: #ffffff; --fids-yellow: #ffffff;
 }
+/* Ensure LFSB header stays BLUE (overriding the new white default) */
+body.theme-lfsb .fids-header { background-color: var(--euro-blue); border-bottom: none; }
 body.theme-lfsb .airport-selector select, body.theme-lfsb .clock-container { color: #ffffff !important; background: transparent; }
 body.theme-lfsb .section-divider { background-color: transparent; color: #ffffff; border-bottom: 2px solid #ffffff; }
 body.theme-lfsb .split-panel { background: transparent; border: none; box-shadow: none; }
