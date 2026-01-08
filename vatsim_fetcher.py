@@ -170,61 +170,22 @@ class VatsimFetcher:
             print(f"Delay calc error: {e}")
             return 0
 
-        # --- UPDATED: SMART DESK ALLOCATION ---
-    def get_checkin_area(self, callsign, airport_code):
-        if not callsign: return ""
-        
-        # 1. Deterministic "Random" Desk
-        # Use the callsign characters to generate a stable number
-        # (e.g., 'SWR123' -> sum of ascii codes -> modulo range)
-        seed = sum(ord(c) for c in callsign) 
+    # --- NEW HELPER METHOD FOR CHECK-IN AREAS ---
+    def get_checkin_area(self, callsign):
+        if not callsign: return "2"
         
         airline = callsign[:3].upper()
         
-        # --- ZURICH (LSZH) ---
-        # Keeps your original "Area 1/2/3" logic because Zurich uses "Check-in Areas"
-        if airport_code == 'LSZH':
-            if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
-                return "1" # Star Alliance -> Check-in 1
-            if airline in ['EZY', 'EZS', 'PGT', 'BTI']: 
-                return "3" # Low Cost -> Check-in 3 (above station)
-            return "2"     # Everyone else -> Check-in 2
-
-        # --- GENEVA (LSGG) ---
-        # Uses specific Desk Numbers (Ranges based on real terminal layout)
-        elif airport_code == 'LSGG':
-            # Terminal 2 (Winter Charters)
-            if airline in ['EXS', 'TOM', 'TRA', 'JAI']:
-                desk = (seed % 10) + 80  # Desks 80-89
-                return f"T2-{desk}"
+        # Check-in 1: Lufthansa Group & Star Alliance
+        if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
+            return "1"
+        
+        # Check-in 3: Low Cost / Charters
+        if airline in ['EZY', 'EZS', 'PGT']: 
+            return "3"
             
-            # French Sector (Air France)
-            if airline == 'AFR': 
-                desk = (seed % 8) + 70   # Desks 70-77 (French Sector)
-                return f"F{desk}"
-                
-            # Main Terminal - Star Alliance / Swiss (Prime location)
-            if airline in ['SWR', 'LX', 'EDW', 'DLH', 'UAE', 'ETD', 'QTR']:
-                desk = (seed % 15) + 1   # Desks 01-15
-                return f"{desk:02d}"
-                
-            # Main Terminal - Others (EasyJet, BA, KLM, etc)
-            desk = (seed % 30) + 20      # Desks 20-49
-            return f"{desk:02d}"
-
-        # --- BASEL (LFSB) ---
-        # Split into Swiss Side (Hall 1/4) and French Side (Hall 3?)
-        elif airport_code == 'LFSB':
-            # French Sector (Air France, Wizz, Ryanair?)
-            if airline in ['AFR', 'WZZ', 'RYR', 'ENT']: 
-                desk = (seed % 15) + 60  # Desks 60-74
-                return f"F{desk}"
-            
-            # Swiss Sector (EasyJet, Swiss, Lufthansa) - Main Hall
-            desk = (seed % 40) + 1       # Desks 01-40
-            return f"{desk:02d}"
-            
-        return ""
+        # Check-in 2: Everyone else
+        return "2"
 
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
