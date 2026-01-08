@@ -211,9 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             
-            // LOGO LOGIC: Primary (Kiwi) -> Backup (Kayak)
-            const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
-            const backupLogoUrl = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
+            // --- LOGO LOGIC (3-Step Fallback) ---
+            // 1. Local File
+            const localLogo = `/static/logos/${code}.png`;
+            // 2. Primary API (Kiwi)
+            const kiwiLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
+            // 3. Backup API (Kayak)
+            const kayakLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
 
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
             const destName = airportMapping[destIcao] || destIcao;
@@ -249,10 +253,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.innerHTML = `
                         <td>
                             <div class="flight-cell">
-                                <img src="${logoUrl}" 
+                                <img src="${localLogo}" 
                                      class="airline-logo" 
                                      style="filter: none;" 
-                                     onerror="if (this.src !== '${backupLogoUrl}') { this.src = '${backupLogoUrl}'; } else { this.style.display='none'; }">
+                                     onerror="
+                                        if (this.src.includes('static/logos')) { this.src = '${kiwiLogo}'; }
+                                        else if (this.src.includes('kiwi.com')) { this.src = '${kayakLogo}'; }
+                                        else { this.style.display='none'; }
+                                     ">
                                 <div class="flap-container" id="${rowId}-callsign"></div>
                             </div>
                         </td>
@@ -264,21 +272,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
                 } 
-                // ARRIVALS HTML (With Ghost Column)
+                // ARRIVALS HTML
                 else {
                     row.innerHTML = `
                         <td>
                             <div class="flight-cell">
-                                <img src="${logoUrl}" 
+                                <img src="${localLogo}" 
                                      class="airline-logo" 
                                      style="filter: none;" 
-                                     onerror="if (this.src !== '${backupLogoUrl}') { this.src = '${backupLogoUrl}'; } else { this.style.display='none'; }">
+                                     onerror="
+                                        if (this.src.includes('static/logos')) { this.src = '${kiwiLogo}'; }
+                                        else if (this.src.includes('kiwi.com')) { this.src = '${kayakLogo}'; }
+                                        else { this.style.display='none'; }
+                                     ">
                                 <div class="flap-container" id="${rowId}-callsign"></div>
                             </div>
                         </td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
                         <td><div class="flap-container" id="${rowId}-ac"></div></td>
-                        <td></td> <td><div class="flap-container" id="${rowId}-gate"></div></td> 
+                        <td></td> 
+                        <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
@@ -286,7 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(row);
             }
 
-            // --- CELL UPDATES ---
+            // ... (Rest of the update function remains identical) ...
+            // Just copy the content from your existing file for the updates below this point
+            // (callsign, dest, aircraft, gate, status updates)
+            
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             const destFlap = document.getElementById(`${rowId}-dest`);
             destFlap.setAttribute('data-code', destIcao);
