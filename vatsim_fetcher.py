@@ -189,12 +189,17 @@ class VatsimFetcher:
             print(f"Delay calc error: {e}")
             return 0
 
-    def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
+        def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
         
-        # 1. FIND GATE FIRST
-        # We try to find a gate regardless of status initially, provided they are slow/low enough
-        # (The find_stand function already has speed/alt checks inside it)
+        # --- 1. NEW: CHECK-IN ASSIGNMENT ---
+        checkin_area = None
+        if direction == 'DEP':
+            # This uses the new helper method we added to the class
+            checkin_area = self.get_checkin_area(pilot.get('callsign'))
+
+        # --- 2. FIND GATE ---
+        # We try to find a gate regardless of status initially
         gate = self.find_stand(
             pilot['latitude'], 
             pilot['longitude'], 
@@ -203,26 +208,27 @@ class VatsimFetcher:
             pilot['altitude']
         )
 
-        # 2. DETERMINE STATUS (Now passing the 'gate' variable)
+        # --- 3. DETERMINE STATUS ---
+        # Pass the 'gate' variable we just found
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
         
-        # --- CALCULATE TIME FIRST (Needed for delay logic) ---
+        # --- 4. CALCULATE TIME ---
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
-        # --- DELAY LOGIC ---
+        # --- 5. DELAY LOGIC ---
         delay_text = None
-        # 1. DEPARTURES (Existing Logic)
+        
+        # Departures Delay
         if direction == 'DEP' and raw_status in ['Boarding', 'Check-in']:
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
                 delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # 2. ARRIVALS (New Logic)
-        # If they are Landing or Approaching but the time is past schedule
+        # Arrivals Delay
         elif direction == 'ARR' and raw_status in ['Approaching', 'Landing']:
-            # Convert "HH:MM" back to "HHMM" string for the calculator
             if time_display and time_display != "--:--":
+                # Convert "HH:MM" back to "HHMM" string for calculation
                 sched_arr_str = time_display.replace(':', '')
                 delay_min = self.calculate_delay(sched_arr_str, pilot.get('logon_time'))
                 
@@ -230,7 +236,7 @@ class VatsimFetcher:
                     h, m = divmod(delay_min, 60)
                     delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # --- STATUS OVERRIDE ("At Gate") ---
+        # --- 6. STATUS OVERRIDE ("At Gate") ---
         display_status = raw_status
         if direction == 'ARR' and gate:
             display_status = 'At Gate'
@@ -245,11 +251,13 @@ class VatsimFetcher:
             'status': display_status,
             'status_raw': raw_status,
             'delay_text': delay_text,
-            'gate': gate or 'TBA', # gate is now already calculated
+            'gate': gate or 'TBA',
+            'checkin': checkin_area,  # Added this field
             'time_display': time_display,
             'direction': direction,
             'distance': dist_km
         }
+
 
     def determine_status(self, pilot, direction, ceiling, dist_km, gate_found):
         alt = pilot['altitude']
@@ -316,3 +324,21 @@ class VatsimFetcher:
             if c['callsign'].startswith(prefixes):
                 res.append({'callsign': c['callsign'], 'frequency': c['frequency'], 'position': c['callsign'].split('_')[-1]})
         return res
+
+        def get_checkin_area(self, callsign):
+        if not callsign: return "2"
+        
+        # Extract ICAO airline code (first 3 letters)
+        airline = callsign[:3].upper()
+        
+        # LOGIC FOR LSZH (Zurich)
+        # Check-in 1: Lufthansa Group & Star Alliance
+        if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
+            return "1"
+        
+        # Check-in 3: Low Cost / Charters
+        if airline in ['EZY', 'EZS', 'PGT']: 
+            return "3"
+            
+        # Check-in 2: Everyone else (Oneworld, Skyteam, Non-aligned)
+        return "2"

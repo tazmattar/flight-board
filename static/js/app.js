@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateTableSmart(flights, container, type) {
+        function updateTableSmart(flights, container, type) {
         // Render only the actual flights passed in (no filler rows)
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
@@ -269,16 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = airlineMapping[prefix] || prefix;
             const logoUrl = `https://images.kiwi.com/airlines/64/${code}.png`; 
 
-            // --- CHANGED LOGIC HERE ---
-            // If it's Arrivals OR En Route, show the Origin. Otherwise (Departures), show Destination.
+            // Destination/Origin Logic
             const destIcao = (type === 'Arrivals' || type === 'En Route') ? flight.origin : flight.destination;
             const destName = airportMapping[destIcao] || destIcao;
-            // --------------------------
             
             // Time Column
             const timeStr = flight.time_display || "--:--";
-
-            // ... (rest of the function remains the same)
 
             // Gate Logic
             let gate = flight.gate || 'TBA'; 
@@ -300,80 +296,103 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Status Logic
-            // Renaming this to 'canShowDelay' to be more accurate
             const canShowDelay = [
-                'Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing', // Deps
-                'Approaching', 'Landing'                                    // Arrs
+                'Boarding', 'Check-in', 'Pushback', 'Taxiing', 'Departing', 
+                'Approaching', 'Landing'
             ].includes(flight.status);
 
             const hasDelay = (flight.delay_text && canShowDelay);
             
-            // NEW: Detect if we should cycle the Boarding message
-            // Must be Boarding, have a real gate, and not be closed
+            // Cycle Logic (Boarding)
             const isBoarding = (flight.status === 'Boarding' && gate && gate !== 'TBA' && gate !== 'CLOSED');
 
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
+            // --- ROW CREATION LOGIC ---
             if (!row) {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // Note the class "flap-dest" added to the destination container below
-                row.innerHTML = `
-                    <td>
-                        <div class="flight-cell">
-                            <img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'">
-                            <div class="flap-container" id="${rowId}-callsign"></div>
-                        </div>
-                    </td>
-                    <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
-                    <td><div class="flap-container" id="${rowId}-ac"></div></td>
-                    <td><div class="flap-container" id="${rowId}-gate"></div></td> 
-                    <td><div class="flap-container" id="${rowId}-time"></div></td>
-                    <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
-                `;
+                // CONDITIONAL HTML: Check the 'type' to decide which columns to build
+                if (type === 'Departures') {
+                    // DEPARTURES: 7 Columns (Includes Check-in)
+                    row.innerHTML = `
+                        <td>
+                            <div class="flight-cell">
+                                <img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'">
+                                <div class="flap-container" id="${rowId}-callsign"></div>
+                            </div>
+                        </td>
+                        <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
+                        <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                        <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-checkin"></div></td>
+                        <td><div class="flap-container" id="${rowId}-gate"></div></td> 
+                        <td><div class="flap-container" id="${rowId}-time"></div></td>
+                        <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
+                    `;
+                } else {
+                    // ARRIVALS: 6 Columns (Standard)
+                    row.innerHTML = `
+                        <td>
+                            <div class="flight-cell">
+                                <img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'">
+                                <div class="flap-container" id="${rowId}-callsign"></div>
+                            </div>
+                        </td>
+                        <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
+                        <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                        <td><div class="flap-container" id="${rowId}-gate"></div></td> 
+                        <td><div class="flap-container" id="${rowId}-time"></div></td>
+                        <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
+                    `;
+                }
                 container.appendChild(row);
             }
 
-            // Update Cells
+            // --- CELL UPDATES ---
+            
+            // 1. Callsign
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             
-            // --- UPDATE DESTINATION WITH METADATA ---
+            // 2. Destination/Origin (with flip logic)
             const destFlap = document.getElementById(`${rowId}-dest`);
-            
-            // Store data for the cycle engine
             destFlap.setAttribute('data-code', destIcao);
             destFlap.setAttribute('data-name', destName);
             
-            // Decide what to show RIGHT NOW (so it doesn't flicker on update)
             if (showAirportNames && destName) {
                 updateFlapText(destFlap, destName.toUpperCase());
             } else {
                 updateFlapText(destFlap, destIcao);
             }
-            // ----------------------------------------
 
+            // 3. Aircraft & Time
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
             
+            // 4. NEW: Check-in (Only runs if the element exists)
+            const checkinFlap = document.getElementById(`${rowId}-checkin`);
+            if (checkinFlap) {
+                updateFlapText(checkinFlap, flight.checkin || ""); 
+            }
+
+            // 5. Gate (with Wait Pulse)
             const gateContainer = document.getElementById(`${rowId}-gate`);
             updateFlapText(gateContainer, gate);
             if (isGateWaiting) gateContainer.classList.add('status-wait');
             else gateContainer.classList.remove('status-wait');
             
+            // 6. Status (with Delay/Boarding Cycles)
             const statusCell = row.querySelector('.col-status');
             const statusFlaps = document.getElementById(`${rowId}-status`);
             
             statusCell.setAttribute('data-has-delay', hasDelay ? "true" : "false");
             statusCell.setAttribute('data-is-boarding', isBoarding ? "true" : "false");
-            statusCell.setAttribute('data-gate', gate); // Store gate for the cycle engine
+            statusCell.setAttribute('data-gate', gate); 
             
             statusCell.setAttribute('data-status-normal', flight.status);
             statusCell.setAttribute('data-status-delay', flight.delay_text || "");
             
-            // Set Initial State
-            // If we are currently in the "Delay/Alt" phase, show the alt text immediately to avoid flickering
             if (showingDelayPhase) {
                 if (hasDelay) {
                     displayStatus = flight.delay_text;
@@ -388,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
 
+        // Cleanup old rows
         existingRows.forEach(row => {
             if (!seenIds.has(row.id)) row.remove();
         });

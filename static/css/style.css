@@ -274,6 +274,26 @@ td, th {
     width: 100%;
 }
 
+/* --- DESKTOP COMPACT MODE (Missing Piece) --- */
+/* Ensures split-flaps fit in the side-by-side view on Monitors */
+.split-panel .flap-char {
+    min-width: 10px;      /* Reduce from 16px -> 10px */
+    height: 20px;         /* Reduce from 28px -> 20px */
+    line-height: 20px;
+    font-size: 13px;      /* Smaller text inside the tile */
+    font-weight: 600;
+}
+
+.split-panel .flap-container {
+    gap: 1px;
+}
+
+.split-panel .airline-logo {
+    height: 18px;
+    width: 18px;
+}
+
+
 /* --- TABLET & MOBILE OPTIMIZATION (Max Width 1400px) --- */
 /* Applies to iPads (Portrait/Landscape) and smaller laptops */
 @media screen and (max-width: 1400px) {
@@ -330,6 +350,26 @@ td, th {
     
     /* Column 6: Status (GIVE IT ALL THE SPACE!) */
     .split-panel col:nth-child(6) { width: 35% !important; }
+
+        /* OPTIMIZED COLUMN WIDTHS FOR MOBILE (Departures has 7 cols now!) */
+    
+    /* DEPARTURES (The table with 7 columns) */
+    .split-panel:first-child col:nth-child(1) { width: 15% !important; } /* Flight */
+    .split-panel:first-child col:nth-child(2) { width: 18% !important; } /* Dst */
+    .split-panel:first-child col:nth-child(3) { width: 10% !important; } /* A/C */
+    .split-panel:first-child col:nth-child(4) { width: 8% !important; }  /* C/I */
+    .split-panel:first-child col:nth-child(5) { width: 8% !important; }  /* Gate */
+    .split-panel:first-child col:nth-child(6) { width: 11% !important; } /* Time */
+    .split-panel:first-child col:nth-child(7) { width: 30% !important; } /* Status */
+
+    /* ARRIVALS (Still has 6 columns, so keep old rules) */
+    .split-panel:last-child col:nth-child(1) { width: 15% !important; }
+    .split-panel:last-child col:nth-child(2) { width: 20% !important; }
+    .split-panel:last-child col:nth-child(3) { width: 10% !important; }
+    .split-panel:last-child col:nth-child(4) { width: 8% !important; }
+    .split-panel:last-child col:nth-child(5) { width: 12% !important; }
+    .split-panel:last-child col:nth-child(6) { width: 35% !important; }
+
 
     /* 4. LAYOUT ADJUSTMENTS */
     .page-container {
