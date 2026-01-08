@@ -117,7 +117,7 @@ body {
     100% { transform: rotateX(0deg); opacity: 1; }
 } 
 
-/* ADD THIS NEW RULE FOR ORANGE CHECK-IN */
+/* NEW RULE FOR ORANGE CHECK-IN */
 
 
 /* Specific Colors for Data */
@@ -258,72 +258,70 @@ td, th {
     width: 100%;
 }
 
-/* --- RESPONSIVE FALLBACK --- */
-/* If the screen is too narrow (like a phone or standard Portrait monitor), 
-   stack them back vertically so they don't break. */
-@media (max-width: 1200px) {
+/* --- TABLET & MOBILE OPTIMIZATION (Max Width 1400px) --- */
+/* Applies to iPads (Portrait/Landscape) and smaller laptops */
+@media screen and (max-width: 1400px) {
+    
+    /* 1. FORCE VERTICAL STACK (Option 1) */
     .split-top-row {
         flex-direction: column;
     }
-
-    /* --- IPAD / PORTRAIT MODE TWEAKS --- */
-    /* When stacked, give the sections some breathing room */
     .split-panel {
+        width: 100%;
         margin-bottom: 20px;
-        min-height: auto; /* Allow it to shrink */
     }
 
-    /* Ensure the footer has space above it so it doesn't touch the last flight */
-    .fids-footer {
-        margin-top: auto; /* Pushes footer to bottom if page is short */
+    /* 2. SUPER-COMPACT FLAPS & TEXT */
+    /* Shrink elements to fit the narrower width (e.g. 768px) */
+    .split-panel .flap-char, 
+    .full-panel .flap-char {
+        min-width: 8px !important;    /* Reduce from 10px to 8px */
+        font-size: 12px !important;   /* Slightly smaller text */
+        height: 18px !important;      /* Shorter tiles */
+        line-height: 18px !important;
+    }
+
+    .split-panel .flight-table td,
+    .full-panel .flight-table td {
+        padding: 4px 6px !important;  /* Tighter padding */
+        font-size: 14px !important;
+        height: 30px !important;      /* Shorter rows */
     }
     
-    /* Ensure the main container handles scrolling cleanly */
+    .split-panel .airline-logo,
+    .full-panel .airline-logo {
+        height: 16px;
+        width: 16px;
+    }
+
+    /* 3. OPTIMIZED COLUMN WIDTHS (The Secret Sauce) */
+    /* We use CSS to override the HTML colgroup widths for mobile */
+    
+    /* Column 1: Flight (Keep ~15%) */
+    .split-panel col:nth-child(1) { width: 15% !important; }
+    
+    /* Column 2: Destination (Reduce slightly) */
+    .split-panel col:nth-child(2) { width: 20% !important; }
+    
+    /* Column 3: Aircraft (Shrink - codes are short) */
+    .split-panel col:nth-child(3) { width: 10% !important; }
+    
+    /* Column 4: Gate (Shrink - "A12" is short) */
+    .split-panel col:nth-child(4) { width: 8% !important; }
+    
+    /* Column 5: Time (Shrink - "22:00" is short) */
+    .split-panel col:nth-child(5) { width: 12% !important; }
+    
+    /* Column 6: Status (GIVE IT ALL THE SPACE!) */
+    .split-panel col:nth-child(6) { width: 35% !important; }
+
+    /* 4. LAYOUT ADJUSTMENTS */
     .page-container {
-        display: flex;
-        flex-direction: column;
+        padding: 10px; /* reclaim edge space */
     }
     
-    .fids-table-wrapper {
-        flex: 1; /* Allows this section to grow/shrink */
+    .fids-footer {
+        margin-top: 20px;
+        padding: 10px 20px; /* smaller footer padding */
     }
-}
-
-/* --- COMPACT MODE (Applied to Split Panels AND Full Panel) --- */
-
-/* 1. Shrink the table cells */
-.split-panel .flight-table td,
-.full-panel .flight-table td {
-    font-size: 14px;      /* Consistent 14px everywhere */
-    padding: 5px 8px;     /* Tight padding */
-    height: 34px;         /* Fixed row height */
-}
-
-/* 2. Shrink the Split-Flap Tiles */
-.split-panel .flap-char,
-.full-panel .flap-char {
-    min-width: 10px;      /* Consistent 10px width */
-    height: 20px;         /* Consistent 20px height */
-    line-height: 20px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-/* 3. Adjust the Gap between tiles */
-.split-panel .flap-container,
-.full-panel .flap-container {
-    gap: 1px;
-}
-
-/* 4. Fix the Airline Logo size */
-.split-panel .airline-logo,
-.full-panel .airline-logo {
-    height: 18px;
-    width: 18px;
-}
-
-/* 5. Force Header Alignment */
-.section-divider {
-    min-height: 38px;
-    align-items: center;
 }
