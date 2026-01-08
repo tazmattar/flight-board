@@ -89,10 +89,6 @@ class VatsimFetcher:
                 # Sort Arrivals by Time
                 results[code]['arrivals'].sort(key=lambda x: x.get('time_display', ''))
 
-                # Note: En Route rendering removed to save performance
-                # results[code]['enroute'].sort(key=lambda x: x['distance'])
-                # results[code]['enroute'] = results[code]['enroute'][:10]
-
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
@@ -170,28 +166,24 @@ class VatsimFetcher:
             print(f"Delay calc error: {e}")
             return 0
 
-        # --- UPDATED: SMART DESK ALLOCATION ---
+    # --- MULTI-AIRPORT CHECK-IN LOGIC ---
     def get_checkin_area(self, callsign, airport_code):
         if not callsign: return ""
         
         # 1. Deterministic "Random" Desk
-        # Use the callsign characters to generate a stable number
-        # (e.g., 'SWR123' -> sum of ascii codes -> modulo range)
         seed = sum(ord(c) for c in callsign) 
         
         airline = callsign[:3].upper()
         
         # --- ZURICH (LSZH) ---
-        # Keeps your original "Area 1/2/3" logic because Zurich uses "Check-in Areas"
         if airport_code == 'LSZH':
             if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
-                return "1" # Star Alliance -> Check-in 1
+                return "1" 
             if airline in ['EZY', 'EZS', 'PGT', 'BTI']: 
-                return "3" # Low Cost -> Check-in 3 (above station)
-            return "2"     # Everyone else -> Check-in 2
+                return "3"
+            return "2"
 
         # --- GENEVA (LSGG) ---
-        # Uses specific Desk Numbers (Ranges based on real terminal layout)
         elif airport_code == 'LSGG':
             # Terminal 2 (Winter Charters)
             if airline in ['EXS', 'TOM', 'TRA', 'JAI']:
@@ -200,27 +192,26 @@ class VatsimFetcher:
             
             # French Sector (Air France)
             if airline == 'AFR': 
-                desk = (seed % 8) + 70   # Desks 70-77 (French Sector)
+                desk = (seed % 8) + 70   # Desks 70-77
                 return f"F{desk}"
                 
-            # Main Terminal - Star Alliance / Swiss (Prime location)
+            # Main Terminal - Star Alliance
             if airline in ['SWR', 'LX', 'EDW', 'DLH', 'UAE', 'ETD', 'QTR']:
                 desk = (seed % 15) + 1   # Desks 01-15
                 return f"{desk:02d}"
-                
-            # Main Terminal - Others (EasyJet, BA, KLM, etc)
+            
+            # Main Terminal - Others
             desk = (seed % 30) + 20      # Desks 20-49
             return f"{desk:02d}"
 
         # --- BASEL (LFSB) ---
-        # Split into Swiss Side (Hall 1/4) and French Side (Hall 3?)
         elif airport_code == 'LFSB':
-            # French Sector (Air France, Wizz, Ryanair?)
+            # French Sector
             if airline in ['AFR', 'WZZ', 'RYR', 'ENT']: 
                 desk = (seed % 15) + 60  # Desks 60-74
                 return f"F{desk}"
             
-            # Swiss Sector (EasyJet, Swiss, Lufthansa) - Main Hall
+            # Swiss Sector
             desk = (seed % 40) + 1       # Desks 01-40
             return f"{desk:02d}"
             
@@ -232,7 +223,8 @@ class VatsimFetcher:
         # 1. CHECK-IN ASSIGNMENT
         checkin_area = None
         if direction == 'DEP':
-            checkin_area = self.get_checkin_area(pilot.get('callsign'))
+            # FIX: Now passing both callsign AND airport_code
+            checkin_area = self.get_checkin_area(pilot.get('callsign'), airport_code)
 
         # 2. FIND GATE
         gate = self.find_stand(
