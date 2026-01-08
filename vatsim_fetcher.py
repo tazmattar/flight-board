@@ -217,13 +217,12 @@ class VatsimFetcher:
             
         return ""
 
-    def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
+        def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
         
         # 1. CHECK-IN ASSIGNMENT
         checkin_area = None
         if direction == 'DEP':
-            # FIX: Now passing both callsign AND airport_code
             checkin_area = self.get_checkin_area(pilot.get('callsign'), airport_code)
 
         # 2. FIND GATE
@@ -257,7 +256,15 @@ class VatsimFetcher:
                     h, m = divmod(delay_min, 60)
                     delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # 6. STATUS OVERRIDE ("At Gate")
+        # 6. GATE DISPLAY LOGIC (NEW SECTION)
+        # Default behavior
+        gate_display = gate or 'TBA'
+        
+        # If departing and moving (Pushback, Taxiing, etc), force CLOSED
+        if direction == 'DEP' and raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']:
+            gate_display = 'CLOSED'
+
+        # 7. STATUS OVERRIDE ("At Gate")
         display_status = raw_status
         if direction == 'ARR' and gate:
             display_status = 'At Gate'
@@ -272,7 +279,7 @@ class VatsimFetcher:
             'status': display_status,
             'status_raw': raw_status,
             'delay_text': delay_text,
-            'gate': gate or 'TBA',
+            'gate': gate_display,   # Updated variable here
             'checkin': checkin_area,
             'time_display': time_display,
             'direction': direction,
