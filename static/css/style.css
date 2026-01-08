@@ -257,13 +257,13 @@ html, body {
 /* --- GENEVA (LSGG) THEME --- */
 /* Overrides standard Zurich Green with Geneva Blue */
 body.theme-lsgg {
-    --fids-green: #0160D8;  /* Geneva Blue */
+    --fids-green: #0099cc;  /* Geneva Blue */
     --fids-yellow: #ffcc00; /* Keep yellow or adjust if needed */
 }
 
 /* Specific Header Override for Geneva */
 body.theme-lsgg .fids-header {
-    border-bottom: 2px solid var(--fids-blue);
+    border-bottom: 2px solid var(--fids-green);
 }
 
 body.theme-lsgg .airport-selector select {
