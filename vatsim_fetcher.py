@@ -217,7 +217,7 @@ class VatsimFetcher:
             
         return ""
 
-        def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
+    def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
         
         # 1. CHECK-IN ASSIGNMENT
@@ -279,12 +279,13 @@ class VatsimFetcher:
             'status': display_status,
             'status_raw': raw_status,
             'delay_text': delay_text,
-            'gate': gate_display,   # Updated variable here
+            'gate': gate_display,
             'checkin': checkin_area,
             'time_display': time_display,
             'direction': direction,
             'distance': dist_km
         }
+
 
     def determine_status(self, pilot, direction, ceiling, dist_km, gate_found):
         alt = pilot['altitude']
