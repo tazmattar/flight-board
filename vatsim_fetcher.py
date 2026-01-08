@@ -220,7 +220,7 @@ class VatsimFetcher:
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
         
-        # 1. CHECK-IN ASSIGNMENT
+        # 1. CHECK-IN ASSIGNMENT (Initial Calculation)
         checkin_area = None
         if direction == 'DEP':
             checkin_area = self.get_checkin_area(pilot.get('callsign'), airport_code)
@@ -237,6 +237,12 @@ class VatsimFetcher:
         # 3. DETERMINE STATUS
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
         
+        # --- NEW LOGIC: OVERWRITE CHECK-IN IF BOARDING OR LATER ---
+        # If status is Boarding, Pushback, Taxiing, etc., Check-in is CLOSED
+        if direction == 'DEP' and raw_status != 'Check-in':
+            checkin_area = 'CLOSED'
+        # ----------------------------------------------------------
+
         # 4. CALCULATE TIME
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
@@ -256,10 +262,8 @@ class VatsimFetcher:
                     h, m = divmod(delay_min, 60)
                     delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # 6. GATE DISPLAY LOGIC (NEW SECTION)
-        # Default behavior
+        # 6. GATE DISPLAY LOGIC
         gate_display = gate or 'TBA'
-        
         # If departing and moving (Pushback, Taxiing, etc), force CLOSED
         if direction == 'DEP' and raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']:
             gate_display = 'CLOSED'
