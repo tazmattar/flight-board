@@ -249,3 +249,72 @@ html, body {
     .flight-table th:nth-child(6) { width: 10%; } /* Time */
     .flight-table th:nth-child(7) { width: 22%; } /* Status */
 }
+
+/* =========================================
+   AIRPORT THEMES
+   ========================================= */
+
+/* --- GENEVA (LSGG) THEME --- */
+/* Overrides standard Zurich Green with Geneva Blue */
+body.theme-lsgg {
+    --fids-green: #0099cc;  /* Geneva Blue */
+    --fids-yellow: #ffcc00; /* Keep yellow or adjust if needed */
+}
+
+/* Specific Header Override for Geneva */
+body.theme-lsgg .fids-header {
+    border-bottom: 2px solid var(--fids-green);
+}
+
+body.theme-lsgg .airport-selector select {
+    color: var(--fids-green);
+}
+
+/* Optional: Make the table headers blue too if you want full immersion */
+body.theme-lsgg .flight-table th {
+    color: var(--fids-green);
+}
+
+/* --- BASEL (LFSB) THEME --- */
+/* "Euro Blue" style: Seamless blue background with white text */
+body.theme-lfsb {
+    /* 1. Redefine the "Black" background to EuroAirport Blue */
+    --bg-black: #0060a9; 
+    
+    /* 2. Adjust text colors for contrast on blue */
+    --text-dim: #b3d9ff;             /* Light blue for secondary text */
+    --border-dim: rgba(255,255,255,0.3); /* Semi-transparent white borders */
+    
+    --fids-green: #ffffff;           /* Column headers become White */
+    --fids-yellow: #ffcc00;          /* Yellow accents stay vivid */
+    --fids-amber: #ffdd44;           /* Brighter amber for visibility */
+}
+
+/* 3. Make panels transparent so the blue background shines through */
+body.theme-lfsb .split-panel {
+    background: rgba(0, 0, 0, 0.1);  /* Very subtle shade */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 4. Fix Sticky Headers to match the blue background */
+body.theme-lfsb .flight-table th {
+    background: #0060a9;             /* Match the body blue */
+    color: #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+/* 5. Custom Flap Style: Darker Blue tiles with White text */
+body.theme-lfsb .flap-char {
+    background: #004070;             /* Dark blue tile */
+    color: #ffffff;
+}
+
+/* 6. Footer Tweaks */
+body.theme-lfsb .fids-footer {
+    background-color: #005090;       /* Slightly darker blue anchor */
+    border-top: 4px solid #ffffff;
+}
+
+body.theme-lfsb .airport-selector select {
+    color: #ffffff;                  /* White dropdown text */
+}

@@ -69,9 +69,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Core Logic ---
     socket.emit('join_airport', { airport: currentAirport });
 
+    // Helper to switch themes
+    function updateTheme(airportCode) {
+        // 1. Remove all existing theme classes
+        document.body.classList.remove('theme-lsgg', 'theme-lfsb'); 
+        
+        // 2. Add class based on selection
+        if (airportCode === 'LSGG') {
+            document.body.classList.add('theme-lsgg'); // Geneva Blue Headers
+        } 
+        else if (airportCode === 'LFSB') {
+            document.body.classList.add('theme-lfsb'); // Basel Full Blue
+        }
+    }
+
+    // Initialize theme on load
+    updateTheme(currentAirport);
+
     elements.airportSelect.addEventListener('change', (e) => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
+        
+        // --- NEW: Apply Theme ---
+        updateTheme(currentAirport);
+        // ------------------------
+
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
