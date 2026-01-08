@@ -80,15 +80,25 @@ body {
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* FIX 3: LOCK COLUMN WIDTHS (Desktop) */
-/* These percentages dictate exactly how much space each column gets */
-.flight-table th:nth-child(1) { width: 12%; } /* Flight */
-.flight-table th:nth-child(2) { width: 25%; } /* Destination/Origin (Widest) */
-.flight-table th:nth-child(3) { width: 12%; } /* Aircraft */
-.flight-table th:nth-child(4) { width: 10%; } /* Check-in */
-.flight-table th:nth-child(5) { width: 8%; }  /* Gate */
-.flight-table th:nth-child(6) { width: 10%; } /* Time */
-.flight-table th:nth-child(7) { width: auto; } /* Status (Takes remaining space) */
+/* FIX 3: LOCK COLUMN WIDTHS (Desktop & Global) */
+/* This aligns shared columns (Flight, A/C, Gate, Time, Status) perfectly */
+
+/* --- DEPARTURES (First Panel) --- */
+.split-panel:first-child .flight-table th:nth-child(1) { width: 13%; } /* Flight */
+.split-panel:first-child .flight-table th:nth-child(2) { width: 23%; } /* Destination */
+.split-panel:first-child .flight-table th:nth-child(3) { width: 11%; } /* Aircraft */
+.split-panel:first-child .flight-table th:nth-child(4) { width: 10%; } /* Check-in */
+.split-panel:first-child .flight-table th:nth-child(5) { width: 8%; }  /* Gate */
+.split-panel:first-child .flight-table th:nth-child(6) { width: 10%; } /* Time */
+.split-panel:first-child .flight-table th:nth-child(7) { width: 25%; } /* Status */
+
+/* --- ARRIVALS (Second Panel) --- */
+.split-panel:last-child .flight-table th:nth-child(1) { width: 13%; } /* Flight */
+.split-panel:last-child .flight-table th:nth-child(2) { width: 33%; } /* Origin (Matches Dest + Checkin) */
+.split-panel:last-child .flight-table th:nth-child(3) { width: 11%; } /* Aircraft */
+.split-panel:last-child .flight-table th:nth-child(4) { width: 8%; }  /* Gate */
+.split-panel:last-child .flight-table th:nth-child(5) { width: 10%; } /* Time */
+.split-panel:last-child .flight-table th:nth-child(6) { width: 25%; } /* Status */
 
 /* DEFAULT (DESKTOP) CELL SIZE */
 .flight-table td {
@@ -153,6 +163,7 @@ body {
 .col-status[data-status="Boarding"] .flap-char { background: var(--fids-green); color: black; }
 .col-status[data-status*="Delayed"] .flap-char { background: var(--fids-red); color: white; }
 .col-status[data-status="Check-in"] .flap-char { background: var(--fids-amber); color: black; }
+.col-status[data-status="CLOSED"] .flap-char { color: var(--fids-red); }
 
 /* GATE PULSE */
 @keyframes gate-pulse {
@@ -225,23 +236,24 @@ body {
     .airline-logo { height: 16px; width: 16px; }
 
     /* 3. OPTIMIZED COLUMN WIDTHS (The Secret Sauce) */
+    /* Repeated here to ensure they stick when stacked vertically */
     
-    /* DEPARTURES */
-    .split-panel:first-child col:nth-child(1) { width: 15% !important; } /* Flight */
-    .split-panel:first-child col:nth-child(2) { width: 16% !important; } /* Dst (Reduced from 18%) */
-    .split-panel:first-child col:nth-child(3) { width: 10% !important; } /* A/C */
-    .split-panel:first-child col:nth-child(4) { width: 10% !important; } /* C/I (Increased from 8%) */
-    .split-panel:first-child col:nth-child(5) { width: 10% !important; } /* Gate (Increased from 8%) */
-    .split-panel:first-child col:nth-child(6) { width: 11% !important; } /* Time */
-    .split-panel:first-child col:nth-child(7) { width: 28% !important; } /* Status (Reduced from 30%) */
+    /* --- DEPARTURES (First Panel) --- */
+    .split-panel:first-child .flight-table th:nth-child(1) { width: 13%; } /* Flight */
+    .split-panel:first-child .flight-table th:nth-child(2) { width: 23%; } /* Destination */
+    .split-panel:first-child .flight-table th:nth-child(3) { width: 11%; } /* Aircraft */
+    .split-panel:first-child .flight-table th:nth-child(4) { width: 10%; } /* Check-in */
+    .split-panel:first-child .flight-table th:nth-child(5) { width: 8%; }  /* Gate */
+    .split-panel:first-child .flight-table th:nth-child(6) { width: 10%; } /* Time */
+    .split-panel:first-child .flight-table th:nth-child(7) { width: 25%; } /* Status */
 
-    /* ARRIVALS (6 Columns) */
-    .split-panel:last-child col:nth-child(1) { width: 15% !important; }
-    .split-panel:last-child col:nth-child(2) { width: 20% !important; }
-    .split-panel:last-child col:nth-child(3) { width: 10% !important; }
-    .split-panel:last-child col:nth-child(4) { width: 8% !important; }
-    .split-panel:last-child col:nth-child(5) { width: 12% !important; }
-    .split-panel:last-child col:nth-child(6) { width: 35% !important; }
+    /* --- ARRIVALS (Second Panel) --- */
+    .split-panel:last-child .flight-table th:nth-child(1) { width: 13%; } /* Flight */
+    .split-panel:last-child .flight-table th:nth-child(2) { width: 33%; } /* Origin */
+    .split-panel:last-child .flight-table th:nth-child(3) { width: 11%; } /* Aircraft */
+    .split-panel:last-child .flight-table th:nth-child(4) { width: 8%; }  /* Gate */
+    .split-panel:last-child .flight-table th:nth-child(5) { width: 10%; } /* Time */
+    .split-panel:last-child .flight-table th:nth-child(6) { width: 25%; } /* Status */
 
     /* 4. LAYOUT ADJUSTMENTS */
     .page-container { padding: 10px; }
