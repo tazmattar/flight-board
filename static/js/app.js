@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
             if (response.ok) {
                 const data = await response.json();
+                // ... (Keep your existing manual renames here if you want) ... 
+                // For brevity, using standard logic + your specific renames
                 const manualRenames = {
                     "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
                     "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
@@ -90,37 +92,39 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSection('arr');
     });
 
-    // --- AUTO-SCROLL ENGINE (The Magic) ---
+    // --- AUTO-SCROLL ENGINE (TUNED) ---
     function initAutoScroll() {
         const scrollContainers = document.querySelectorAll('.table-scroll-area');
         
         scrollContainers.forEach(container => {
-            // Check if this container already has an interval ID attached
             if (container.dataset.scrollInterval) return;
 
             const intervalId = setInterval(() => {
-                // Determine if we can scroll further
+                // Determine overflow
+                // scrollHeight = Total height of content
+                // clientHeight = Height of visible window
                 const maxScroll = container.scrollHeight - container.clientHeight;
-                
+                const currentScroll = Math.ceil(container.scrollTop);
+
+                // DEBUG LOG: See this in your browser console (F12)
+                // console.log(`AutoScroll Check: Visible=${container.clientHeight}, Content=${container.scrollHeight}, Current=${currentScroll}, Max=${maxScroll}`);
+
                 // If content fits perfectly, do nothing
                 if (maxScroll <= 0) {
-                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Reset to top just in case
+                    if (currentScroll > 0) container.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
 
-                const currentScroll = container.scrollTop;
-                // Scroll down by one page height (minus a small buffer to keep context)
-                let nextScroll = currentScroll + container.clientHeight - 50;
-
-                if (nextScroll >= maxScroll) {
-                    // If we reached bottom, go back to top
-                    // We wait a beat (optional logic could go here) then scroll top
+                // If we are at the bottom (or very close), go back to top
+                if (currentScroll >= maxScroll - 5) { // 5px buffer
                     container.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    // Scroll down
+                    // Scroll down by one page height
+                    const nextScroll = currentScroll + container.clientHeight;
                     container.scrollTo({ top: nextScroll, behavior: 'smooth' });
                 }
-            }, 15000); // 15 Seconds per scroll
+            }, 8000); // SCROLL EVERY 8 SECONDS
 
             container.dataset.scrollInterval = intervalId;
         });
@@ -160,21 +164,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER ENGINE ---
     function renderSection(type) {
-        let list, container, indicator, label;
+        let list, container, indicator;
 
         if (type === 'dep') {
             list = rawFlightData.departures || [];
             container = elements.departureList;
             indicator = document.getElementById('depPageInd');
-            label = 'Departures';
         } else if (type === 'arr') {
             list = rawFlightData.arrivals || [];
             container = elements.arrivalList;
             indicator = document.getElementById('arrPageInd');
-            label = 'Arrivals';
         } else { return; }
 
         if (indicator) indicator.style.display = 'none';
+        
+        // Pass "type" string correctly so ghost columns render
         updateTableSmart(list, container, type === 'dep' ? 'Departures' : 'Arrivals');
     }
 
@@ -217,10 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
             let displayStatus = flight.status;
             let displayColorClass = flight.status;
 
+            // --- ROW CREATION ---
             if (!row) {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
+                // DEPARTURES HTML
                 if (type === 'Departures') {
                     row.innerHTML = `
                         <td><div class="flight-cell"><img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'"><div class="flap-container" id="${rowId}-callsign"></div></div></td>
@@ -231,7 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
-                } else {
+                } 
+                // ARRIVALS HTML (With Ghost Column)
+                else {
                     row.innerHTML = `
                         <td><div class="flight-cell"><img src="${logoUrl}" class="airline-logo" style="filter: none;" onerror="this.style.display='none'"><div class="flap-container" id="${rowId}-callsign"></div></div></td>
                         <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
@@ -244,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(row);
             }
 
+            // --- CELL UPDATES ---
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             const destFlap = document.getElementById(`${rowId}-dest`);
             destFlap.setAttribute('data-code', destIcao);
@@ -254,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
             
+            // Safe check for Check-in element (only exists in Departures)
             const checkinFlap = document.getElementById(`${rowId}-checkin`);
             if (checkinFlap) updateFlapText(checkinFlap, flight.checkin || ""); 
 
