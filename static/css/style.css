@@ -205,14 +205,14 @@ body {
 
     /* 3. OPTIMIZED COLUMN WIDTHS (The Secret Sauce) */
     
-    /* DEPARTURES (7 Columns) */
+    /* DEPARTURES */
     .split-panel:first-child col:nth-child(1) { width: 15% !important; } /* Flight */
-    .split-panel:first-child col:nth-child(2) { width: 18% !important; } /* Dst */
+    .split-panel:first-child col:nth-child(2) { width: 16% !important; } /* Dst (Reduced from 18%) */
     .split-panel:first-child col:nth-child(3) { width: 10% !important; } /* A/C */
-    .split-panel:first-child col:nth-child(4) { width: 8% !important; }  /* C/I */
-    .split-panel:first-child col:nth-child(5) { width: 8% !important; }  /* Gate */
+    .split-panel:first-child col:nth-child(4) { width: 10% !important; } /* C/I (Increased from 8%) */
+    .split-panel:first-child col:nth-child(5) { width: 10% !important; } /* Gate (Increased from 8%) */
     .split-panel:first-child col:nth-child(6) { width: 11% !important; } /* Time */
-    .split-panel:first-child col:nth-child(7) { width: 30% !important; } /* Status */
+    .split-panel:first-child col:nth-child(7) { width: 28% !important; } /* Status (Reduced from 30%) */
 
     /* ARRIVALS (6 Columns) */
     .split-panel:last-child col:nth-child(1) { width: 15% !important; }
