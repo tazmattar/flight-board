@@ -19,7 +19,7 @@ class VatsimFetcher:
         self.cleanup_dist_dep = 80
         
         # --- FIX 1: INCREASED RANGE TO GLOBAL COVERAGE ---
-        self.radar_range_arr = 15000  # Was 1000 km
+        self.radar_range_arr = 15000 
         # -------------------------------------------------
         
         self.ground_range = 15
@@ -83,19 +83,14 @@ class VatsimFetcher:
                     self.process_flight(pilot, arr, 'ARR', results[arr])
 
             for code in self.airports:
-                # --- NEW SORTING LOGIC ---
-                # Sort Departures by Time (HH:MM string sorts correctly chronologically)
+                # Sort Departures by Time
                 results[code]['departures'].sort(key=lambda x: x.get('time_display', ''))
 
                 # Sort Arrivals by Time
                 results[code]['arrivals'].sort(key=lambda x: x.get('time_display', ''))
 
-                # 1. Sort En Route flights by distance (closest first)
-                #    This puts departures (leaving) and arrivals (coming) in order of proximity.
-                # NOTE: En Route rendering was removed from the UI; commenting out the sort/limit to save CPU
+                # Note: En Route rendering removed to save performance
                 # results[code]['enroute'].sort(key=lambda x: x['distance'])
-
-                # 2. Limit to the closest 10 flights
                 # results[code]['enroute'] = results[code]['enroute'][:10]
 
                 results[code]['metar'] = self.get_metar(code)
@@ -149,28 +144,16 @@ class VatsimFetcher:
             return display_time
 
     def calculate_delay(self, scheduled_time, logon_time_str):
-        """
-        Calculates delay in minutes between scheduled departure and current time.
-        Handles day crossovers (e.g. Sched 23:50, Now 00:10).
-        """
         if not scheduled_time or len(scheduled_time) < 4:
             return 0
-            
         try:
-            # Current time in UTC
             now = datetime.utcnow()
-            
-            # Parse scheduled time (HHMM)
             sched_hour = int(scheduled_time[:2])
             sched_min = int(scheduled_time[2:4])
-            
-            # Create a datetime for the scheduled time using today's date
             sched_dt = now.replace(hour=sched_hour, minute=sched_min, second=0, microsecond=0)
             
-            # Calculate difference
             diff = now - sched_dt
             
-            # Logic for day crossover:
             if diff.total_seconds() < -12 * 3600:
                 sched_dt -= timedelta(days=1)
                 diff = now - sched_dt
@@ -182,24 +165,37 @@ class VatsimFetcher:
             
             if delay_minutes < 0: return 0
             if delay_minutes > 720: return 0 
-            
             return delay_minutes
-            
         except Exception as e:
             print(f"Delay calc error: {e}")
             return 0
 
-        def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
+    # --- NEW HELPER METHOD FOR CHECK-IN AREAS ---
+    def get_checkin_area(self, callsign):
+        if not callsign: return "2"
+        
+        airline = callsign[:3].upper()
+        
+        # Check-in 1: Lufthansa Group & Star Alliance
+        if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
+            return "1"
+        
+        # Check-in 3: Low Cost / Charters
+        if airline in ['EZY', 'EZS', 'PGT']: 
+            return "3"
+            
+        # Check-in 2: Everyone else
+        return "2"
+
+    def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
         
-        # --- 1. NEW: CHECK-IN ASSIGNMENT ---
+        # 1. CHECK-IN ASSIGNMENT
         checkin_area = None
         if direction == 'DEP':
-            # This uses the new helper method we added to the class
             checkin_area = self.get_checkin_area(pilot.get('callsign'))
 
-        # --- 2. FIND GATE ---
-        # We try to find a gate regardless of status initially
+        # 2. FIND GATE
         gate = self.find_stand(
             pilot['latitude'], 
             pilot['longitude'], 
@@ -208,35 +204,29 @@ class VatsimFetcher:
             pilot['altitude']
         )
 
-        # --- 3. DETERMINE STATUS ---
-        # Pass the 'gate' variable we just found
+        # 3. DETERMINE STATUS
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
         
-        # --- 4. CALCULATE TIME ---
+        # 4. CALCULATE TIME
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
 
-        # --- 5. DELAY LOGIC ---
+        # 5. DELAY LOGIC
         delay_text = None
-        
-        # Departures Delay
         if direction == 'DEP' and raw_status in ['Boarding', 'Check-in']:
             delay_min = self.calculate_delay(fp.get('deptime', '0000'), pilot.get('logon_time'))
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
                 delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # Arrivals Delay
         elif direction == 'ARR' and raw_status in ['Approaching', 'Landing']:
             if time_display and time_display != "--:--":
-                # Convert "HH:MM" back to "HHMM" string for calculation
                 sched_arr_str = time_display.replace(':', '')
                 delay_min = self.calculate_delay(sched_arr_str, pilot.get('logon_time'))
-                
                 if 15 < delay_min < 300:
                     h, m = divmod(delay_min, 60)
                     delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
 
-        # --- 6. STATUS OVERRIDE ("At Gate") ---
+        # 6. STATUS OVERRIDE ("At Gate")
         display_status = raw_status
         if direction == 'ARR' and gate:
             display_status = 'At Gate'
@@ -252,12 +242,11 @@ class VatsimFetcher:
             'status_raw': raw_status,
             'delay_text': delay_text,
             'gate': gate or 'TBA',
-            'checkin': checkin_area,  # Added this field
+            'checkin': checkin_area,
             'time_display': time_display,
             'direction': direction,
             'distance': dist_km
         }
-
 
     def determine_status(self, pilot, direction, ceiling, dist_km, gate_found):
         alt = pilot['altitude']
@@ -265,47 +254,37 @@ class VatsimFetcher:
         
         if direction == 'DEP':
             if alt < ceiling: 
-                # --- NEW: CALCULATE TIME ONLINE ---
                 minutes_online = 0
-                logon_time = pilot.get('logon_time') # e.g. "2023-10-27T10:00:00.1234567Z"
+                logon_time = pilot.get('logon_time')
                 if logon_time:
                     try:
-                        # Slice [:19] to remove fractional seconds/Z (e.g. get "2023-10-27T10:00:00")
-                        # This ensures compatibility with datetime.fromisoformat in all Python versions
                         logon_dt = datetime.fromisoformat(logon_time[:19])
                         diff = datetime.utcnow() - logon_dt
                         minutes_online = diff.total_seconds() / 60
                     except:
-                        pass # Default to 0 if parsing fails
+                        pass 
 
-                # 1. Zero Speed Logic (Static at Gate)
                 if gs < 1:
                     if gate_found:
-                        # LOGIC: First 5 minutes = Check-in, then switch to Boarding
                         if minutes_online < 5: 
                             return 'Check-in'
                         else: 
                             return 'Boarding'
                     else: 
-                        return 'Taxiing' # Stopped on taxiway/runway
+                        return 'Taxiing'
                     
-                # 2. Low Speed Logic (Drifting or Pushing)
                 if gs < 5: 
-                    # If transponder is active, they are pushing back
                     if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'}:
                         return 'Pushback'
                     else:
-                        # If transponder is default, it's likely just GPS drift at the gate
                         if gate_found: return 'Boarding'
                         else: return 'Taxiing'
                 
-                # 3. Standard Taxiing
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'
         
         else:
-            # ARRIVALS (Standard Logic)
             if alt < 2000 and gs < 40:
                 if dist_km < 50: return 'Landed'
                 else: return 'Scheduled'
@@ -324,21 +303,3 @@ class VatsimFetcher:
             if c['callsign'].startswith(prefixes):
                 res.append({'callsign': c['callsign'], 'frequency': c['frequency'], 'position': c['callsign'].split('_')[-1]})
         return res
-
-        def get_checkin_area(self, callsign):
-        if not callsign: return "2"
-        
-        # Extract ICAO airline code (first 3 letters)
-        airline = callsign[:3].upper()
-        
-        # LOGIC FOR LSZH (Zurich)
-        # Check-in 1: Lufthansa Group & Star Alliance
-        if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
-            return "1"
-        
-        # Check-in 3: Low Cost / Charters
-        if airline in ['EZY', 'EZS', 'PGT']: 
-            return "3"
-            
-        # Check-in 2: Everyone else (Oneworld, Skyteam, Non-aligned)
-        return "2"
