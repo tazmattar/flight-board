@@ -324,4 +324,26 @@ td, th {
         margin-top: 20px;
         padding: 10px 20px; /* smaller footer padding */
     }
+    
+    /* 5. HEADER COMPACT MODE */
+    /* Prevents the clock from being pushed off-screen on tablets */
+    .fids-header {
+        padding: 10px 0;      /* Tighter vertical padding */
+        gap: 10px;            /* Adds safety space if they wrap */
+    }
+
+    .airport-selector select {
+        font-size: 18px;      /* Down from 24px */
+    }
+
+    .clock-container {
+        font-size: 24px;      /* Down from 32px */
+        letter-spacing: 1px;  /* Slightly tighter spacing */
+    }
+    
+    /* Optional: Ensure the "Z" label scales too */
+    .utc-label {
+        font-size: 18px;
+    }
+
 }
