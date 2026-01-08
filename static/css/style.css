@@ -274,25 +274,6 @@ td, th {
     width: 100%;
 }
 
-/* --- DESKTOP COMPACT MODE (Missing Piece) --- */
-/* Ensures split-flaps fit in the side-by-side view on Monitors */
-.split-panel .flap-char {
-    min-width: 10px;      /* Reduce from 16px -> 10px */
-    height: 20px;         /* Reduce from 28px -> 20px */
-    line-height: 20px;
-    font-size: 13px;      /* Smaller text inside the tile */
-    font-weight: 600;
-}
-
-.split-panel .flap-container {
-    gap: 1px;
-}
-
-.split-panel .airline-logo {
-    height: 18px;
-    width: 18px;
-}
-
 
 /* --- TABLET & MOBILE OPTIMIZATION (Max Width 1400px) --- */
 /* Applies to iPads (Portrait/Landscape) and smaller laptops */
