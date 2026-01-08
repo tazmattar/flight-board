@@ -21,7 +21,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 /* 1. ANCHORED LAYOUT (Sticky Header/Footer) */
-body {
+html, body {
     background-color: var(--bg-black);
     color: var(--text-white);
     font-family: var(--font-ui);
@@ -37,6 +37,7 @@ body {
     flex-direction: column; 
     height: 100%; 
     width: 100%; 
+    overflow: hidden;
 }
 
 /* 2. HEADER (Fixed) */
@@ -53,7 +54,7 @@ body {
 
 .airport-selector select {
     background: black; color: var(--fids-green); border: none;
-    font-family: var(--font-ui); font-size: 1.5rem; font-weight: 700;
+    font-family: var(--font-ui); font-size: 2.5rem; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
 }
 .clock-container {
@@ -96,17 +97,27 @@ body {
     overflow: hidden;    /* Mask content that is too long */
 }
 
-/* Sticky Table Headers */
+/* Sticky Table Headers - RESTORED STYLES */
 .section-divider {
-    /* ... (keep existing styles) ... */
-    flex-shrink: 0;      /* Never shrink the header */
+    font-size: 1.5rem; 
+    font-weight: 700; 
+    text-transform: uppercase;
+    color: var(--fids-yellow); 
+    padding: 15px;
+    background: #111;
+    border-bottom: 2px solid var(--border-dim);
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    flex-shrink: 0;      /* Keep header fixed */
 }
 
 .table-scroll-area {
     flex: 1;            /* Take remaining height in the panel */
     min-height: 0;      /* Allow shrinking */
     overflow-y: auto;   /* Enable scrolling inside this box only */
-    scrollbar-width: none; /* Optional: Hide scrollbar for cleaner look */
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+    scroll-behavior: smooth;
 }
 /* Hide scrollbar for Webkit (Chrome/Safari) */
 .table-scroll-area::-webkit-scrollbar { display: none; }
@@ -193,7 +204,7 @@ body {
 .flight-cell { display: flex; align-items: center; gap: 10px; }
 
 /* =========================================
-   7. ORIENTATION MEDIA QUERIES (The Magic)
+   7. ORIENTATION MEDIA QUERIES
    ========================================= */
 
 /* PORTRAIT MODE (Stacked Layout) */
@@ -203,14 +214,12 @@ body {
     }
     .airport-selector select { font-size: 2rem; }
     
-    /* Bigger fonts since we have full width */
     :root {
         --font-size-cell: 1.4rem;
         --font-size-header: 1.1rem;
         --row-height: 50px;
     }
     
-    /* Relaxed Column Widths */
     .flight-table th:nth-child(1) { width: 15%; } /* Flight */
     .flight-table th:nth-child(2) { width: 30%; } /* Dest */
     .flight-table th:nth-child(3) { width: 10%; } /* A/C */
@@ -226,14 +235,12 @@ body {
         flex-direction: row; /* Side by side */
     }
     
-    /* Compact fonts to prevent bunching */
     :root {
         --font-size-cell: 0.95rem; /* Smaller font */
         --font-size-header: 0.85rem;
         --row-height: 36px; /* Tighter rows */
     }
     
-    /* Tighter Column Widths */
     .flight-table th:nth-child(1) { width: 14%; } /* Flight */
     .flight-table th:nth-child(2) { width: 22%; } /* Dest */
     .flight-table th:nth-child(3) { width: 10%; } /* A/C */
