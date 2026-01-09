@@ -344,15 +344,60 @@ body.theme-lsgg .flight-table th { color: #dbeeff; }
 
 /* --- BASEL (LFSB) THEME --- */
 body.theme-lfsb {
-    --euro-blue: #0060a9; --euro-dark: #00457a;
-    --bg-black: var(--euro-blue); --text-dim: #b3d9ff; --border-dim: rgba(255,255,255,0.3);
-    --fids-green: #ffffff; --fids-yellow: #ffffff;
+    --euro-blue: #0060a9; 
+    --euro-dark: #00457a;
+    
+    /* Global Overrides */
+    --bg-black: var(--euro-blue); 
+    --text-dim: #b3d9ff; 
+    --border-dim: rgba(255,255,255,0.3);
+    
+    --fids-green: #ffffff; 
+    --fids-yellow: #ffffff;
 }
-/* Ensure LFSB header stays BLUE (overriding the new white default) */
-body.theme-lfsb .fids-header { background-color: var(--euro-blue); border-bottom: none; }
-body.theme-lfsb .airport-selector select, body.theme-lfsb .clock-container { color: #ffffff !important; background: transparent; }
-body.theme-lfsb .section-divider { background-color: transparent; color: #ffffff; border-bottom: 2px solid #ffffff; }
-body.theme-lfsb .split-panel { background: transparent; border: none; box-shadow: none; }
-body.theme-lfsb .flight-table th { background-color: var(--euro-blue); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.5); }
-body.theme-lfsb .flap-char { background: var(--euro-dark); color: #ffffff; }
-body.theme-lfsb .fids-footer { background-color: var(--euro-dark); border-top: 4px solid #ffffff; }
+
+/* 1. Header & Selector */
+/* Override the default white header with the Euro Blue */
+body.theme-lfsb .fids-header { 
+    background-color: var(--euro-blue); 
+    border-bottom: none; 
+}
+body.theme-lfsb .airport-selector select, 
+body.theme-lfsb .clock-container { 
+    color: #ffffff !important; 
+    background: transparent; 
+}
+
+/* 2. Section Dividers */
+body.theme-lfsb .section-divider {
+    background-color: transparent;
+    color: #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+/* 3. Panel Containers */
+body.theme-lfsb .split-panel {
+    background: transparent;
+    border: none; 
+    box-shadow: none;
+}
+
+/* 4. Table Headers */
+body.theme-lfsb .flight-table th {
+    background-color: var(--euro-blue);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+}
+
+/* 5. Flap Characters - THE FIX */
+/* Changed background from var(--euro-dark) to transparent */
+body.theme-lfsb .flap-char {
+    background: transparent; 
+    color: #ffffff;
+}
+
+/* 6. Footer */
+body.theme-lfsb .fids-footer {
+    background-color: var(--euro-dark);
+    border-top: 4px solid #ffffff;
+}
