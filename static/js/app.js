@@ -168,14 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showingDelayPhase) {
                 if (hasDelay) {
                     cell.setAttribute('data-status', 'Delayed');
-                    updateFlapText(flapContainer, delayText.toUpperCase());
+                    // FIX 1: Use textContent here too
+                    flapContainer.textContent = delayText.toUpperCase();
                 } else if (isBoarding) {
                     cell.setAttribute('data-status', 'Boarding');
-                    updateFlapText(flapContainer, `GO TO GATE ${gate}`);
+                    // FIX 2: Use textContent here too
+                    flapContainer.textContent = `GO TO GATE ${gate}`;
                 }
             } else {
                 cell.setAttribute('data-status', normalStatus);
-                updateFlapText(flapContainer, normalStatus.toUpperCase());
+                // FIX 3: Use textContent here too
+                flapContainer.textContent = normalStatus.toUpperCase();
             }
         });
     }, 5000); 
@@ -213,11 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = airlineMapping[prefix] || prefix;
             
             // --- LOGO LOGIC (3-Step Fallback) ---
-            // 1. Local File
             const localLogo = `/static/logos/${code}.png`;
-            // 2. Primary API (Kiwi)
             const kiwiLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
-            // 3. Backup API (Kayak)
             const kayakLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
 
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
@@ -300,10 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(row);
             }
 
-            // ... (Rest of the update function remains identical) ...
-            // Just copy the content from your existing file for the updates below this point
-            // (callsign, dest, aircraft, gate, status updates)
-            
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             const destFlap = document.getElementById(`${rowId}-dest`);
             destFlap.setAttribute('data-code', destIcao);
@@ -341,7 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             statusCell.setAttribute('data-status', displayColorClass);
-            updateFlapText(statusFlaps, displayStatus.toUpperCase());
+            
+            // --- FIX 4: THE BIG CHANGE ---
+            // Use standard textContent for the Status column only.
+            // This prevents "Space Collapsing" caused by the flap spans + CSS gap:0
+            statusFlaps.textContent = displayStatus.toUpperCase();
         });
 
         existingRows.forEach(row => {
@@ -352,6 +352,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFlapText(container, newText) {
         if (!container) return;
         newText = String(newText || "");
+        
+        // Safety check: Don't use flap logic on the status column if we accidentally called it
+        if (container.id && container.id.endsWith('status')) {
+            container.textContent = newText;
+            return;
+        }
+
         const currentChildren = container.children;
         const maxLen = Math.max(currentChildren.length, newText.length);
         for (let i = 0; i < maxLen; i++) {
