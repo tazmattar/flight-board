@@ -184,82 +184,85 @@ html, body {
 } 
 
 /* =========================================
-   SOLID STATUS BADGES (The "Realism" Update)
+   6. SOLID STATUS BADGES (corrected)
    ========================================= */
-   
-/* 1. Reset the Flap Container for Status Column */
-/* Turns the row of tiles into a single solid block */
+
+/* 1. Base Style for Status Badge */
 .col-status .flap-container {
-    gap: 0;                   /* Remove gaps between letters */
-    width: 100%;              /* Fill the cell width */
-    display: flex;            /* Use flex to center text */
-    justify-content: center;  /* Center text horizontally */
-    align-items: center;      /* Center text vertically */
-    padding: 4px 0;           /* Add vertical padding for the "Badge" look */
-    border-radius: 4px;       /* Slight rounded corners like the real board */
+    gap: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px 0;
+    border-radius: 4px;
     font-weight: 700;
     text-transform: uppercase;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5); /* Subtle depth */
-    
-    /* Default Transition for color changes */
-    transition: background-color 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    /* Default: Transparent background, White text */
+    background-color: transparent;
+    color: #ffffff; 
 }
 
-/* 2. Remove the "Tile" look from individual letters inside Status */
+/* 2. Remove tile styling from letters */
 .col-status .flap-char {
-    background: transparent !important; /* No black tiles */
-    color: inherit !important;          /* Use the badge's text color */
-    min-width: auto;                    /* Let letters sit naturally */
-    height: auto;
-    line-height: inherit;
+    background: transparent !important;
+    color: inherit !important;
+    min-width: auto;
     border-radius: 0;
 }
 
 /* --- STATUS COLOR MAPPING --- */
 
-/* GREEN: Boarding, Go to Gate, Departing */
-/* Used for positive, immediate actions */
+/* GREEN: Positive Actions (Boarding, Departing, Go to Gate) */
+/* White Text on Green */
 .col-status[data-status="Boarding"] .flap-container,
 .col-status[data-status="Departing"] .flap-container,
 .col-status[data-status*="GO TO"] .flap-container {
-    background-color: #00b000; /* Vivid Airport Green */
-    color: #000000;            /* Black text for high contrast */
+    background-color: #00b000; 
+    color: #ffffff !important; 
 }
 
-/* RED: Delayed, Cancelled, Closed */
-/* Used for negative or final states */
-.col-status[data-status*="Delayed"] .flap-container,
-.col-status[data-status="Cancelled"] .flap-container,
-.col-status[data-status="CLOSED"] .flap-container {
-    background-color: #d60000; /* Alert Red */
-    color: #ffffff;            /* White text */
-}
-
-/* AMBER/ORANGE: Check-in, Taxiing, Wait, Landed */
-/* Used for transitional states */
+/* YELLOW / AMBER: Ground Ops & Waiting (Check-in, Taxi, At Gate) */
+/* Black Text on Yellow (High Contrast) */
 .col-status[data-status="Check-in"] .flap-container,
 .col-status[data-status="Taxiing"] .flap-container,
 .col-status[data-status="Wait"] .flap-container,
 .col-status[data-status="Landing"] .flap-container,
-.col-status[data-status="Landed"] .flap-container {
-    background-color: #ffaa00; /* Deep Amber */
-    color: #000000;            /* Black text */
-}
-
-/* BLUE: Approaching / En Route / Scheduled */
-/* Neutral states (optional, falls back to default if not defined) */
-.col-status[data-status="Approaching"] .flap-container,
-.col-status[data-status="En Route"] .flap-container,
+.col-status[data-status="Landed"] .flap-container,
+.col-status[data-status="At Gate"] .flap-container,
 .col-status[data-status="Scheduled"] .flap-container {
-    color: var(--fids-yellow); /* Keep text yellow */
-    /* Background stays transparent/dark by default */
+    background-color: #ffcc00; 
+    color: #000000 !important; 
 }
 
-/* FLASHING ANIMATION for "Wait" or Urgent items */
+/* BLUE: Technical / Ground Movement (Pushback) */
+/* White Text on Blue */
+.col-status[data-status="Pushback"] .flap-container,
+.col-status[data-status="Approaching"] .flap-container {
+    background-color: #0055b8; /* Bright Ops Blue */
+    color: #ffffff !important;
+}
+
+/* RED: Critical / Negative (Delayed, Closed, Cancelled) */
+/* White Text on Red */
+.col-status[data-status*="Delayed"] .flap-container,
+.col-status[data-status="Cancelled"] .flap-container,
+.col-status[data-status="CLOSED"] .flap-container {
+    background-color: #d60000; 
+    color: #ffffff !important; 
+}
+
+/* En Route - Keep simple text (No block) or add style if preferred */
+.col-status[data-status="En Route"] .flap-container {
+    color: #b3d9ff !important; /* Light blue text, no background */
+    box-shadow: none;
+}
+
+/* Animation for "Wait" / "Landing" */
 .status-wait .flap-container {
     animation: badge-pulse 2s infinite;
 }
-
 @keyframes badge-pulse {
     0% { opacity: 1; }
     50% { opacity: 0.6; }
