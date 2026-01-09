@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Added 'FDX': 'FX' and others to ensure cargo mapping works
     const airlineMapping = { 
         'SWS': 'LX', 
-        'EZY': 'U2', 
+        'EZY': 'U2',
+        'EJU': 'U2',  // EasyJet Europe
         'EZS': 'DS', 
         'BEL': 'SN', 
         'GWI': '4U', 
