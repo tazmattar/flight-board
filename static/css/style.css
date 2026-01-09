@@ -186,7 +186,7 @@ html, body {
 /* =========================================
    SOLID STATUS BADGES (The "Realism" Update)
    ========================================= */
-
+   
 /* 1. Reset the Flap Container for Status Column */
 /* Turns the row of tiles into a single solid block */
 .col-status .flap-container {
