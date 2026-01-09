@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'BEL': 'SN', 
         'GWI': '4U', 
         'EDW': 'WK',
+        'ITY': 'AZ',  // ITA Airways
         'FDX': 'FX',  // FedEx
         'UPS': '5X',  // UPS
         'GEC': 'LH',  // Lufthansa Cargo (often uses LH logo)
