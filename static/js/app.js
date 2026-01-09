@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 flapContainer.textContent = normalStatus.toUpperCase();
             }
         });
-    }, 5000); 
+    }, 3000); 
 
     // --- RENDER ENGINE ---
     function renderSection(type) {
