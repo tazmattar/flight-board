@@ -155,25 +155,31 @@ html, body {
     height: var(--row-height);
 }
 
-/* 5. FLAP ANIMATION (Standard Columns) */
-/* Keeps the mechanical look for Flight, Destination, etc. */
+/* =========================================
+   5. TEXT ANIMATION & STYLING
+   ========================================= */
+
+/* Standard Flap Container (Flight, Dest, Time, etc.) */
 .flap-container { 
     display: inline-flex; 
-    gap: 1px; 
+    gap: 0; /* No gaps, let the font handle spacing */
 }
 
+/* THE FIX: Plain Text Style (No Tiles) */
 .flap-char {
     display: inline-block;
-    min-width: 0.6em; 
-    height: 1.4em;
-    background: #181818; 
-    color: #eee;
-    text-align: center; 
-    line-height: 1.4em;
-    border-radius: 2px;
+    min-width: auto;        /* Allow natural font width */
+    height: auto;
+    background: transparent; /* Transparent background! */
+    color: inherit;         /* Inherit color (allows Amber/Blue/White text) */
+    text-align: left; 
+    line-height: inherit;
+    border-radius: 0;
     font-weight: 700;
+    padding: 0;
 }
 
+/* Keep the flip animation - looks like a digital ticker now */
 .flap-char.flipping { animation: flip-char 0.4s ease-in-out; }
 
 @keyframes flip-char {
@@ -184,12 +190,11 @@ html, body {
 } 
 
 /* =========================================
-   6. SOLID STATUS BADGES (corrected)
+   6. SOLID STATUS BADGES
    ========================================= */
 
-/* 1. Base Style for Status Badge */
+/* Base Style for Status Badge */
 .col-status .flap-container {
-    gap: 0;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -199,23 +204,22 @@ html, body {
     font-weight: 700;
     text-transform: uppercase;
     box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    
     /* Default: Transparent background, White text */
     background-color: transparent;
     color: #ffffff; 
 }
 
-/* 2. Remove tile styling from letters */
+/* Ensure status letters behave */
 .col-status .flap-char {
     background: transparent !important;
     color: inherit !important;
     min-width: auto;
-    border-radius: 0;
 }
 
 /* --- STATUS COLOR MAPPING --- */
 
-/* GREEN: Positive Actions (Boarding, Departing, Go to Gate) */
-/* White Text on Green */
+/* GREEN: Positive Actions */
 .col-status[data-status="Boarding"] .flap-container,
 .col-status[data-status="Departing"] .flap-container,
 .col-status[data-status*="GO TO"] .flap-container {
@@ -223,8 +227,7 @@ html, body {
     color: #ffffff !important; 
 }
 
-/* YELLOW / AMBER: Ground Ops & Waiting (Check-in, Taxi, At Gate) */
-/* Black Text on Yellow (High Contrast) */
+/* YELLOW / AMBER: Waiting & Ground Ops */
 .col-status[data-status="Check-in"] .flap-container,
 .col-status[data-status="Taxiing"] .flap-container,
 .col-status[data-status="Wait"] .flap-container,
@@ -233,19 +236,17 @@ html, body {
 .col-status[data-status="At Gate"] .flap-container,
 .col-status[data-status="Scheduled"] .flap-container {
     background-color: #ffcc00; 
-    color: #000000 !important; 
+    color: #000000 !important; /* Black text on Yellow */
 }
 
-/* BLUE: Technical / Ground Movement (Pushback) */
-/* White Text on Blue */
+/* BLUE: Technical / Ground Movement */
 .col-status[data-status="Pushback"] .flap-container,
 .col-status[data-status="Approaching"] .flap-container {
-    background-color: #0055b8; /* Bright Ops Blue */
+    background-color: #0055b8; 
     color: #ffffff !important;
 }
 
-/* RED: Critical / Negative (Delayed, Closed, Cancelled) */
-/* White Text on Red */
+/* RED: Critical / Negative */
 .col-status[data-status*="Delayed"] .flap-container,
 .col-status[data-status="Cancelled"] .flap-container,
 .col-status[data-status="CLOSED"] .flap-container {
@@ -253,13 +254,14 @@ html, body {
     color: #ffffff !important; 
 }
 
-/* En Route - Keep simple text (No block) or add style if preferred */
+/* En Route - Keep simple text (No block) */
 .col-status[data-status="En Route"] .flap-container {
-    color: #b3d9ff !important; /* Light blue text, no background */
+    color: #b3d9ff !important; 
     box-shadow: none;
+    background-color: transparent;
 }
 
-/* Animation for "Wait" / "Landing" */
+/* Animation */
 .status-wait .flap-container {
     animation: badge-pulse 2s infinite;
 }
@@ -268,6 +270,12 @@ html, body {
     50% { opacity: 0.6; }
     100% { opacity: 1; }
 }
+
+/* =========================================
+   7. FOOTER & THEMES (Keep existing)
+   ========================================= */
+/* ... (Make sure your footer and themes block follows this) ... */
+/* If you copy-pasted the previous full file, just paste this OVER the "5. FLAP ANIMATION" and "6. SOLID STATUS BADGES" sections. */
 
 /* 6. FOOTER (Fixed) */
 .fids-footer {
