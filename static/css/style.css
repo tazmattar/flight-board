@@ -156,22 +156,21 @@ html, body {
 }
 
 /* =========================================
-   5. TEXT ANIMATION & STYLING
+   5. TEXT STYLING (Standard Columns)
    ========================================= */
+/* Plain text style (No black tiles) for Flight, Dest, Time */
 
-/* Standard Flap Container (Flight, Dest, Time, etc.) */
 .flap-container { 
     display: inline-flex; 
-    gap: 0; /* No gaps, let the font handle spacing */
+    gap: 0; 
 }
 
-/* THE FIX: Plain Text Style (No Tiles) */
 .flap-char {
     display: inline-block;
-    min-width: auto;        /* Allow natural font width */
+    min-width: auto;         /* Natural width */
     height: auto;
-    background: transparent; /* Transparent background! */
-    color: inherit;         /* Inherit color (allows Amber/Blue/White text) */
+    background: transparent; /* No background */
+    color: inherit;          /* Inherit text color (White/Blue/Amber) */
     text-align: left; 
     line-height: inherit;
     border-radius: 0;
@@ -179,7 +178,7 @@ html, body {
     padding: 0;
 }
 
-/* Keep the flip animation - looks like a digital ticker now */
+/* Keep the flip animation for effect */
 .flap-char.flipping { animation: flip-char 0.4s ease-in-out; }
 
 @keyframes flip-char {
@@ -190,37 +189,50 @@ html, body {
 } 
 
 /* =========================================
-   6. SOLID STATUS BADGES
+   6. SOLID STATUS BADGES (Full Row Fill)
    ========================================= */
 
-/* Base Style for Status Badge */
+/* 1. Target the Table Cell (TD) to remove padding */
+/* This forces the cell to be a container for the colored block */
+.flight-table td.col-status {
+    padding: 0 !important;      /* Zero padding is crucial */
+    height: 100%;               /* Force full height */
+    vertical-align: middle;
+    border-bottom: 1px solid #000; /* Optional: Separator line */
+}
+
+/* 2. The Badge Container */
+/* This is the colored block itself */
 .col-status .flap-container {
     width: 100%;
-    height: 100%;            /* Ensure it fills the cell height if needed */
+    height: 100%;               /* Stretch to fill the cell */
+    min-height: var(--row-height); /* Guarantee it matches the row height */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0;              /* Removed padding */
-    border-radius: 0;        /* Sharp corners */
+    margin: 0;
+    padding: 0;                 /* No internal padding */
+    border-radius: 0;           /* Square corners */
     font-weight: 700;
     text-transform: uppercase;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: none;
     
-    /* Default: Transparent background, White text */
+    /* Default */
     background-color: transparent;
     color: #ffffff; 
 }
 
-/* Ensure status letters behave */
+/* 3. Text inside the status block */
 .col-status .flap-char {
     background: transparent !important;
     color: inherit !important;
     min-width: auto;
+    padding: 0 5px; /* Safety padding for text */
 }
 
 /* --- STATUS COLOR MAPPING --- */
 
-/* GREEN: Positive Actions */
+/* GREEN (White Text) */
 .col-status[data-status="Boarding"] .flap-container,
 .col-status[data-status="Departing"] .flap-container,
 .col-status[data-status*="GO TO"] .flap-container {
@@ -228,7 +240,7 @@ html, body {
     color: #ffffff !important; 
 }
 
-/* YELLOW / AMBER: Waiting & Ground Ops */
+/* YELLOW (Black Text) */
 .col-status[data-status="Check-in"] .flap-container,
 .col-status[data-status="Taxiing"] .flap-container,
 .col-status[data-status="Wait"] .flap-container,
@@ -237,17 +249,17 @@ html, body {
 .col-status[data-status="At Gate"] .flap-container,
 .col-status[data-status="Scheduled"] .flap-container {
     background-color: #ffcc00; 
-    color: #000000 !important; /* Black text on Yellow */
+    color: #000000 !important; 
 }
 
-/* BLUE: Technical / Ground Movement */
+/* BLUE (White Text) */
 .col-status[data-status="Pushback"] .flap-container,
 .col-status[data-status="Approaching"] .flap-container {
     background-color: #0055b8; 
     color: #ffffff !important;
 }
 
-/* RED: Critical / Negative */
+/* RED (White Text) */
 .col-status[data-status*="Delayed"] .flap-container,
 .col-status[data-status="Cancelled"] .flap-container,
 .col-status[data-status="CLOSED"] .flap-container {
@@ -255,14 +267,13 @@ html, body {
     color: #ffffff !important; 
 }
 
-/* En Route - Keep simple text (No block) */
+/* En Route (Keep transparent) */
 .col-status[data-status="En Route"] .flap-container {
     color: #b3d9ff !important; 
-    box-shadow: none;
     background-color: transparent;
 }
 
-/* Animation */
+/* Pulse Animation */
 .status-wait .flap-container {
     animation: badge-pulse 2s infinite;
 }
