@@ -233,11 +233,18 @@ html, body {
 /* --- STATUS COLOR MAPPING --- */
 
 /* GREEN (White Text) */
+/* Now strictly for Boarding/Departing */
 .col-status[data-status="Boarding"] .flap-container,
-.col-status[data-status="Departing"] .flap-container,
-.col-status[data-status*="GO TO"] .flap-container {
+.col-status[data-status="Departing"] .flap-container {
     background-color: #00b000; 
     color: #ffffff !important; 
+}
+
+/* PINK (White Text) - NEW ALERT COLOR */
+/* Specific for "GO TO GATE" to create urgency */
+.col-status[data-status*="GO TO"] .flap-container {
+    background-color: #e6007e; /* Vivid Airport Pink/Magenta */
+    color: #ffffff !important;
 }
 
 /* YELLOW (Black Text) */
