@@ -171,20 +171,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showingDelayPhase) {
                 if (hasDelay) {
                     cell.setAttribute('data-status', 'Delayed');
-                    // FIX 1: Use textContent here too
                     flapContainer.textContent = delayText.toUpperCase();
                 } else if (isBoarding) {
-                    cell.setAttribute('data-status', 'Boarding');
-                    // FIX 2: Use textContent here too
+                    // FIX: Set status to 'GO TO GATE' so the Pink CSS works
+                    cell.setAttribute('data-status', 'GO TO GATE'); 
                     flapContainer.textContent = `GO TO GATE ${gate}`;
                 }
             } else {
+                // Revert to Normal
                 cell.setAttribute('data-status', normalStatus);
-                // FIX 3: Use textContent here too
                 flapContainer.textContent = normalStatus.toUpperCase();
             }
         });
-    }, 3000); 
+    }, 3000);
 
     // --- RENDER ENGINE ---
     function renderSection(type) {
@@ -336,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayColorClass = 'Delayed';
                 } else if (isBoarding) {
                     displayStatus = `GO TO GATE ${gate}`;
-                    displayColorClass = 'Boarding';
+                    displayColorClass = 'GO TO GATE';
                 }
             }
             statusCell.setAttribute('data-status', displayColorClass);
