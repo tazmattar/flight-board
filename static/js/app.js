@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'UPS': '5X',  // UPS
         'GEC': 'LH',  // Lufthansa Cargo (often uses LH logo)
         'BCS': 'QY'   // DHL
+        'SAZ': 'REGA'   // Swiss Air Ambulance
     };
     const airportMapping = {}; 
 
