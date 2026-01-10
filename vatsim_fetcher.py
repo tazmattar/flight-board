@@ -61,8 +61,9 @@ class VatsimFetcher:
     def fetch_flights(self):
         results = {}
         for code in self.airports:
+            # REMOVED 'enroute': [] from this dictionary
             results[code] = {
-                'departures': [], 'arrivals': [], 'enroute': [],
+                'departures': [], 'arrivals': [],
                 'metar': 'Unavailable', 'controllers': [],
                 'airport_name': self.airports[code]['name']
             }
@@ -110,13 +111,12 @@ class VatsimFetcher:
                 airport_data['departures'].append(flight_info)
             elif status == 'Departing' and dist_km < self.cleanup_dist_dep:
                 airport_data['departures'].append(flight_info)
-            elif status == 'En Route' and dist_km < self.cleanup_dist_dep:
-                airport_data['enroute'].append(flight_info)
+            # REMOVED the 'elif status == En Route' block here
+            
         elif direction == 'ARR':
             if status in ['Landed', 'Landing', 'Approaching']:
                 airport_data['arrivals'].append(flight_info)
-            elif dist_km < self.radar_range_arr:
-                airport_data['enroute'].append(flight_info)
+            # REMOVED the 'elif dist_km < radar_range' block here (which captured En Route)
 
     def calculate_times(self, deptime, enroute_time, direction):
         display_time = "--:--"

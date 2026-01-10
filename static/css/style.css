@@ -239,11 +239,7 @@ html, body {
     color: #ffffff !important; 
 }
 
-/* En Route (Keep transparent) */
-.col-status[data-status="En Route"] .flap-container {
-    color: #b3d9ff !important; 
-    background-color: transparent;
-}
+/* Removed En Route styling block entirely */
 
 /* FLASHING GATE STATUS (WAIT) */
 .flap-container.status-wait {
