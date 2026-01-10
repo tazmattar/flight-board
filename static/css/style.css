@@ -424,3 +424,19 @@ body.theme-lfsb .fids-footer {
     background-color: var(--euro-dark);
     border-top: 4px solid #ffffff;
 }
+
+/* --- COUNTRY FLAGS (Footer) --- */
+.country-flags {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.country-flags img {
+    height: 24px;       /* Subtle icon size */
+    width: auto;
+    border-radius: 2px; /* Soft corners */
+    opacity: 0.85;      /* Slightly dimmed for subtlety */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Depth */
+}

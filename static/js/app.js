@@ -80,15 +80,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadDatabases();
 
-    // Helper to switch themes
+    // --- THEME & FLAGS ENGINE ---
     function updateTheme(airportCode) {
+        // 1. Remove old theme classes
         document.body.classList.remove('theme-lsgg', 'theme-lfsb'); 
         
+        // 2. Add new theme class
         if (airportCode === 'LSGG') {
             document.body.classList.add('theme-lsgg');
         } 
         else if (airportCode === 'LFSB') {
             document.body.classList.add('theme-lfsb');
+        }
+
+        // 3. Update Flags (The New Feature)
+        const flagContainer = document.getElementById('flagContainer');
+        if (!flagContainer) return;
+
+        // Switzerland Flag (Always present)
+        const swissFlag = '<img src="https://flagcdn.com/h40/ch.png" alt="Switzerland" title="Switzerland">';
+        // France Flag (For Binational Airports)
+        const frenchFlag = '<img src="https://flagcdn.com/h40/fr.png" alt="France" title="France">';
+
+        if (airportCode === 'LSZH') {
+            // Zurich: Switzerland Only
+            flagContainer.innerHTML = swissFlag;
+        } else {
+            // Geneva & Basel: Switzerland + France
+            flagContainer.innerHTML = swissFlag + frenchFlag;
         }
     }
 
