@@ -18,22 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Dynamic Data Sources ---
-    // Added 'FDX': 'FX' and others to ensure cargo mapping works
     const airlineMapping = { 
-        'SWS': 'LX', 
-        'EZY': 'U2',
-        'EJU': 'U2',  // EasyJet Europe
-        'EZS': 'DS', 
-        'BEL': 'SN', 
-        'GWI': '4U', 
-        'EDW': 'WK',
-        'ITY': 'AZ',  // ITA Airways
-        'FDX': 'FX',  // FedEx
-        'UPS': '5X',  // UPS
-        'GEC': 'LH',  // Lufthansa Cargo (often uses LH logo)
-        'BCS': 'QY',   // DHL
-        'SAZ': 'REGA'   // Swiss Air Ambulance
-        
+        'SWS': 'LX', 'EZY': 'U2', 'EJU': 'U2', 'EZS': 'DS', 'BEL': 'SN', 
+        'GWI': '4U', 'EDW': 'WK', 'ITY': 'AZ', 'FDX': 'FX', 'UPS': '5X', 
+        'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA'
     };
     const airportMapping = {}; 
 
@@ -82,10 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- THEME & FLAGS ENGINE ---
     function updateTheme(airportCode) {
-        // 1. Remove old theme classes
         document.body.classList.remove('theme-lsgg', 'theme-lfsb'); 
         
-        // 2. Add new theme class
         if (airportCode === 'LSGG') {
             document.body.classList.add('theme-lsgg');
         } 
@@ -93,25 +79,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('theme-lfsb');
         }
 
-        // 3. Update Flags (The New Feature)
         const flagContainer = document.getElementById('flagContainer');
         if (!flagContainer) return;
 
-        // Switzerland Flag (Always present)
         const swissFlag = '<img src="https://flagcdn.com/h40/ch.png" alt="Switzerland" title="Switzerland">';
-        // France Flag (For Binational Airports)
         const frenchFlag = '<img src="https://flagcdn.com/h40/fr.png" alt="France" title="France">';
 
         if (airportCode === 'LSZH') {
-            // Zurich: Switzerland Only
             flagContainer.innerHTML = swissFlag;
         } else {
-            // Geneva & Basel: Switzerland + France
             flagContainer.innerHTML = swissFlag + frenchFlag;
         }
     }
 
-    // Initialize theme on load
     updateTheme(currentAirport);
 
     // --- Core Logic ---
@@ -120,9 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.airportSelect.addEventListener('change', (e) => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
-        
-        updateTheme(currentAirport); // Apply Theme Switch
-
+        updateTheme(currentAirport); 
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
@@ -146,19 +124,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- AUTO-SCROLL ENGINE ---
     function initAutoScroll() {
         const scrollContainers = document.querySelectorAll('.table-scroll-area');
-        
         scrollContainers.forEach(container => {
             if (container.dataset.scrollInterval) return;
-
             const intervalId = setInterval(() => {
                 const maxScroll = container.scrollHeight - container.clientHeight;
                 const currentScroll = Math.ceil(container.scrollTop);
-
                 if (maxScroll <= 0) {
                     if (currentScroll > 0) container.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
-
                 if (currentScroll >= maxScroll - 5) { 
                     container.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
@@ -166,11 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.scrollTo({ top: nextScroll, behavior: 'smooth' });
                 }
             }, 8000); 
-
             container.dataset.scrollInterval = intervalId;
         });
     }
-    
     initAutoScroll();
 
     // --- STATUS FLIP ENGINE ---
@@ -182,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const flapContainer = cell.querySelector('.flap-container');
             const normalStatus = cell.getAttribute('data-status-normal'); 
             const delayText = cell.getAttribute('data-status-delay');     
-            
             const hasDelay = cell.getAttribute('data-has-delay') === 'true';
             const isBoarding = cell.getAttribute('data-is-boarding') === 'true';
             const gate = cell.getAttribute('data-gate');
@@ -190,16 +161,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showingDelayPhase) {
                 if (hasDelay) {
                     cell.setAttribute('data-status', 'Delayed');
-                    flapContainer.textContent = delayText.toUpperCase();
+                    updateFlapText(flapContainer, delayText.toUpperCase());
                 } else if (isBoarding) {
-                    // FIX: Set status to 'GO TO GATE' so the Pink CSS works
                     cell.setAttribute('data-status', 'GO TO GATE'); 
-                    flapContainer.textContent = `GO TO GATE ${gate}`;
+                    updateFlapText(flapContainer, `GO TO GATE ${gate}`);
                 }
             } else {
-                // Revert to Normal
                 cell.setAttribute('data-status', normalStatus);
-                flapContainer.textContent = normalStatus.toUpperCase();
+                updateFlapText(flapContainer, normalStatus.toUpperCase());
             }
         });
     }, 3000);
@@ -207,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RENDER ENGINE ---
     function renderSection(type) {
         let list, container, indicator;
-
         if (type === 'dep') {
             list = rawFlightData.departures || [];
             container = elements.departureList;
@@ -219,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { return; }
 
         if (indicator) indicator.style.display = 'none';
-        
         updateTableSmart(list, container, type === 'dep' ? 'Departures' : 'Arrivals');
     }
 
@@ -230,13 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
         flights.forEach(flight => {
             const rowId = `row-${flight.callsign}`;
             seenIds.add(rowId);
-            
             let row = document.getElementById(rowId);
             
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             
-            // --- LOGO LOGIC (3-Step Fallback) ---
             const localLogo = `/static/logos/${code}.png`;
             const kiwiLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
             const kayakLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
@@ -270,48 +235,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 row = document.createElement('tr');
                 row.id = rowId;
                 
-                // DEPARTURES HTML
+                const commonCells = `
+                    <td>
+                        <div class="flight-cell">
+                            <img src="${localLogo}" class="airline-logo" style="filter: none;" 
+                                 onerror="if (this.src.includes('static/logos')) { this.src = '${kiwiLogo}'; }
+                                          else if (this.src.includes('kiwi.com')) { this.src = '${kayakLogo}'; }
+                                          else { this.style.display='none'; }">
+                            <div class="flap-container" id="${rowId}-callsign"></div>
+                        </div>
+                    </td>
+                    <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
+                    <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                `;
+
                 if (type === 'Departures') {
                     row.innerHTML = `
-                        <td>
-                            <div class="flight-cell">
-                                <img src="${localLogo}" 
-                                     class="airline-logo" 
-                                     style="filter: none;" 
-                                     onerror="
-                                        if (this.src.includes('static/logos')) { this.src = '${kiwiLogo}'; }
-                                        else if (this.src.includes('kiwi.com')) { this.src = '${kayakLogo}'; }
-                                        else { this.style.display='none'; }
-                                     ">
-                                <div class="flap-container" id="${rowId}-callsign"></div>
-                            </div>
-                        </td>
-                        <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
-                        <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                        ${commonCells}
                         <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-checkin"></div></td>
                         <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
-                } 
-                // ARRIVALS HTML
-                else {
+                } else {
                     row.innerHTML = `
-                        <td>
-                            <div class="flight-cell">
-                                <img src="${localLogo}" 
-                                     class="airline-logo" 
-                                     style="filter: none;" 
-                                     onerror="
-                                        if (this.src.includes('static/logos')) { this.src = '${kiwiLogo}'; }
-                                        else if (this.src.includes('kiwi.com')) { this.src = '${kayakLogo}'; }
-                                        else { this.style.display='none'; }
-                                     ">
-                                <div class="flap-container" id="${rowId}-callsign"></div>
-                            </div>
-                        </td>
-                        <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
-                        <td><div class="flap-container" id="${rowId}-ac"></div></td>
+                        ${commonCells}
                         <td></td> 
                         <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
@@ -322,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
+            
             const destFlap = document.getElementById(`${rowId}-dest`);
             destFlap.setAttribute('data-code', destIcao);
             destFlap.setAttribute('data-name', destName);
@@ -358,11 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             statusCell.setAttribute('data-status', displayColorClass);
-            
-            // --- FIX 4: THE BIG CHANGE ---
-            // Use standard textContent for the Status column only.
-            // This prevents "Space Collapsing" caused by the flap spans + CSS gap:0
-            statusFlaps.textContent = displayStatus.toUpperCase();
+            updateFlapText(statusFlaps, displayStatus.toUpperCase());
         });
 
         existingRows.forEach(row => {
@@ -370,39 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }   
 
+    // --- UPDATED: Plain text rendering (No split-flap spans) ---
     function updateFlapText(container, newText) {
-        if (!container) return;
-        newText = String(newText || "");
-        
-        // Safety check: Don't use flap logic on the status column if we accidentally called it
-        if (container.id && container.id.endsWith('status')) {
-            container.textContent = newText;
-            return;
+        if (container) {
+            container.textContent = String(newText || "");
         }
-
-        const currentChildren = container.children;
-        const maxLen = Math.max(currentChildren.length, newText.length);
-        for (let i = 0; i < maxLen; i++) {
-            const newChar = newText[i] || "";
-            let span = currentChildren[i];
-            if (!span) {
-                span = document.createElement('span');
-                span.className = 'flap-char';
-                span.textContent = newChar;
-                container.appendChild(span);
-                triggerFlip(span);
-            } else {
-                if (span.textContent !== newChar) triggerFlip(span, newChar);
-            }
-        }
-        while (container.children.length > newText.length) container.removeChild(container.lastChild);
-    }
-
-    function triggerFlip(element, newChar) {
-        element.classList.remove('flipping');
-        void element.offsetWidth;
-        element.classList.add('flipping');
-        if (newChar !== undefined) setTimeout(() => { element.textContent = newChar; }, 200); 
     }
 
     function updateClock() {

@@ -158,92 +158,57 @@ html, body {
 /* =========================================
    5. TEXT STYLING (Standard Columns)
    ========================================= */
-/* Plain text style (No black tiles) for Flight, Dest, Time */
+/* Plain text style - CLEANED UP */
 
 .flap-container { 
-    display: inline-flex; 
-    gap: 0; 
+    /* Removed inline-flex and gap:0 to prevent bunching */
+    font-weight: 700; /* Ensure text remains bold like the tiles were */
 }
 
-.flap-char {
-    display: inline-block;
-    min-width: auto;         /* Natural width */
-    height: auto;
-    background: transparent; /* No background */
-    color: inherit;          /* Inherit text color (White/Blue/Amber) */
-    text-align: left; 
-    line-height: inherit;
-    border-radius: 0;
-    font-weight: 700;
-    padding: 0;
-}
-
-/* Keep the flip animation for effect */
-.flap-char.flipping { animation: flip-char 0.4s ease-in-out; }
-
-@keyframes flip-char {
-    0% { transform: rotateX(0deg); opacity: 1; }
-    50% { transform: rotateX(90deg); opacity: 0; }
-    51% { transform: rotateX(-90deg); opacity: 0; }
-    100% { transform: rotateX(0deg); opacity: 1; }
-} 
+/* Removed .flap-char and animations completely for clean look */
 
 /* =========================================
    6. SOLID STATUS BADGES (Full Row Fill)
    ========================================= */
 
 /* 1. Target the Table Cell (TD) to remove padding */
-/* This forces the cell to be a container for the colored block */
 .flight-table td.col-status {
-    padding: 0 !important;      /* Zero padding is crucial */
-    height: 100%;               /* Force full height */
+    padding: 0 !important;      
+    height: 100%;               
     vertical-align: middle;
-    border-bottom: 1px solid #000; /* Optional: Separator line */
+    border-bottom: 1px solid #000; 
 }
 
 /* 2. The Badge Container */
-/* This is the colored block itself */
 .col-status .flap-container {
     width: 100%;
-    height: 100%;               /* Stretch to fill the cell */
-    min-height: var(--row-height); /* Guarantee it matches the row height */
+    height: 100%;               
+    min-height: var(--row-height); 
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
-    padding: 0;                 /* No internal padding */
-    border-radius: 0;           /* Square corners */
+    padding: 0;                 
+    border-radius: 0;           
     font-weight: 700;
     text-transform: uppercase;
     box-shadow: none;
-    
-    /* Default */
     background-color: transparent;
     color: #ffffff; 
-}
-
-/* 3. Text inside the status block */
-.col-status .flap-char {
-    background: transparent !important;
-    color: inherit !important;
-    min-width: auto;
-    padding: 0 5px; /* Safety padding for text */
 }
 
 /* --- STATUS COLOR MAPPING --- */
 
 /* GREEN (White Text) */
-/* Now strictly for Boarding/Departing */
 .col-status[data-status="Boarding"] .flap-container,
 .col-status[data-status="Departing"] .flap-container {
     background-color: #00b000; 
     color: #ffffff !important; 
 }
 
-/* PINK (White Text) - NEW ALERT COLOR */
-/* Specific for "GO TO GATE" to create urgency */
+/* PINK (White Text) */
 .col-status[data-status*="GO TO"] .flap-container {
-    background-color: #e6007e; /* Vivid Airport Pink/Magenta */
+    background-color: #e6007e; 
     color: #ffffff !important;
 }
 
@@ -281,11 +246,9 @@ html, body {
 }
 
 /* FLASHING GATE STATUS (WAIT) */
-/* Targets the Gate column when it says "WAIT" */
 .flap-container.status-wait {
-    color: var(--fids-amber) !important; /* Restore Orange Color */
+    color: var(--fids-amber) !important; 
     animation: badge-pulse 2s infinite;
-    font-weight: 700;
 }
 
 @keyframes badge-pulse {
@@ -295,10 +258,8 @@ html, body {
 }
 
 /* =========================================
-   7. FOOTER & THEMES (Keep existing)
+   7. FOOTER & THEMES
    ========================================= */
-/* ... (Make sure your footer and themes block follows this) ... */
-/* If you copy-pasted the previous full file, just paste this OVER the "5. FLAP ANIMATION" and "6. SOLID STATUS BADGES" sections. */
 
 /* 6. FOOTER (Fixed) */
 .fids-footer {
@@ -380,7 +341,6 @@ body.theme-lfsb {
 }
 
 /* 1. Header & Selector */
-/* Override the default white header with the Euro Blue */
 body.theme-lfsb .fids-header { 
     background-color: var(--euro-blue); 
     border-bottom: none; 
@@ -412,10 +372,8 @@ body.theme-lfsb .flight-table th {
     border-bottom: 1px solid rgba(255,255,255,0.5);
 }
 
-/* 5. Flap Characters - THE FIX */
-/* Changed background from var(--euro-dark) to transparent */
-body.theme-lfsb .flap-char {
-    background: transparent; 
+/* 5. Flap Characters - Text Only */
+body.theme-lfsb .flap-container {
     color: #ffffff;
 }
 
