@@ -1,104 +1,102 @@
-**VATSIM Flight Board - Swiss Radar Edition**
+# VATSIM Flight Board - Swiss Radar Edition
 
-A professional, real-time Flight Information Display System (FIDS) for VATSIM, designed to mimic modern airport displays. Currently configured for major Swiss airports (Zurich, Geneva, Basel).
+A professional, real-time Flight Information Display System (FIDS) designed for VATSIM operations. This application replicates the visual style and functionality of modern airport information screens found at major Swiss airports (Zurich, Geneva, Basel).
 
-🚀 **Features**
+It is optimized for use on dedicated display monitors in both portrait and landscape orientations.
 
-**Core Functionality**
-- Multi-Airport Support: Live switching between LSZH (Zurich), LSGG (Geneva), and LFSB (Basel) via a dropdown menu.
-- Real-Time Updates: Auto-refreshes flight data every 60 seconds using WebSockets (Socket.IO).
-- Live VATSIM Data: Pulls pilots, flight plans, and online ATC controllers directly from the VATSIM Data API.
+## Features
 
-**"Smart" Logic**
-- Intelligent Status Detection: Automatically determines if a flight is Boarding, Taxiing, Departing, En Route, or Landing based on physics (altitude/speed) and geospatial location.
-- Smart Delay Calculation:
-  - Calculates delays based on filed departure time vs. current time.
-  - Auto-Correction: Detects "stale" flight plans (e.g., pilot reused a plan from yesterday) and hides unrealistic delays (>5 hours).
-  - Fresh Flight Detection: Ignores delays if the pilot logged on after their scheduled time.
-- Geospatial Filtering:
-  - Departures: Automatically removed from the board once they leave the terminal airspace (>80 km).
-  - Arrivals: Only appear when they enter realistic radar range (<1000 km).
-  - Return Flight Fix: Prevents aircraft at destination airports from appearing as "Boarding" at the origin.
+### Core Functionality
+* **Multi-Airport Support:** Seamless switching between LSZH (Zurich), LSGG (Geneva), and LFSB (Basel) via the header dropdown.
+* **Real-Time Data:** Automatically fetches and refreshes pilot, flight plan, and controller data from the VATSIM Public Data API (v3) every 60 seconds.
+* **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
+* **Responsive Layout:**
+    * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
+    * **Portrait Mode:** Automatically stacks tables vertically for optimal use on vertical monitors.
+* **Auto-Scroll Engine:** Smart scrolling logic detects overflow. If the list of flights exceeds the screen height, it automatically scrolls to show hidden flights, then loops back to the top.
 
-🎨 **UI/UX Design**
-- "Midnight Radar" Theme: Dark mode aesthetic with high-contrast text for readability.
-- Dynamic Airline Logos: Fetches airline logos automatically using an open-source ICAO-to-IATA database (no API key required).
-- Visual Alerts:
-  - Flashing Red Badges for delayed flights.
-  - Neon Status Badges for different flight phases.
-- ATC Presence: Shows active controllers (Tower, Ground, Approach) with their frequencies.
-- METAR Integration: Displays live weather reports for the selected airport.
+### Intelligent Logic
+* **Status Detection:** Automatically determines flight phases (Boarding, Taxiing, Departing, En Route, Landing) based on transponder codes, ground speed, and altitude.
+* **Smart Delay Calculation:** Compares scheduled departure times against current UTC time to generate accurate delay warnings.
+* **Geospatial Filtering:**
+    * **Departures:** Visible while at the gate and until they leave the immediate terminal airspace (>80 km).
+    * **Arrivals:** Appear when within realistic radar range (<15,000 km) and persist until parked.
+* **Gate Logic:**
+    * Dynamically assigns gates based on coordinate proximity to a defined stand database.
+    * Automatically switches gate status to "CLOSED" once the aircraft pushes back.
 
-🛠️ **Tech Stack**
-- Backend: Python, Flask, Flask-SocketIO
-- Task Scheduling: APScheduler (background fetches)
-- Frontend: HTML5, CSS3 (Grid/Flexbox), JavaScript (ES6+)
-- Data: VATSIM Public Data API (v3)
+### Visual Design & Theming
+* **Dynamic Theming:** The interface automatically adapts its color scheme to match the real-world branding of the selected airport:
+    * **LSZH (Zurich):** High-contrast White/Black header with Yellow accents.
+    * **LSGG (Geneva):** Specific "Geneva Blue" headers with White text.
+    * **LFSB (Basel):** Immersive "EuroAirport Blue" background with transparent panels.
+* **Hybrid Display Style:**
+    * **Flight Data:** Rendered as clean, high-visibility text.
+    * **Status Column:** Rendered as solid, edge-to-edge colored blocks (Green for Boarding, Pink for Go to Gate, Red for Delays) for instant readability from a distance.
+* **Logo Handling:** Implements a robust 3-tier fallback system for airline logos:
+    1.  **Local Storage:** Prioritizes locally stored images (critical for cargo/special ops like FedEx or Rega).
+    2.  **Kiwi.com API:** Primary source for commercial passenger airlines.
+    3.  **Kayak API:** Backup source for obscure carriers.
 
-📦 **Installation**
+## Technical Stack
 
-**Prerequisites**
-- Python 3.8+
-- pip
+* **Backend:** Python 3.8+, Flask, Flask-SocketIO
+* **Scheduler:** APScheduler (Background data fetching)
+* **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript (ES6+)
+* **Data Source:** VATSIM Data API v3
 
-**Setup**
+## Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/vatsim-flight-board.git
-cd vatsim-flight-board
-```
+### Prerequisites
+* Python 3.8 or higher
+* pip (Python package installer)
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-(If requirements.txt is missing, install manually: `pip install flask flask-socketio requests apscheduler eventlet`)
+### Setup
 
-3. Run the application:
-```bash
-python app.py
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/yourusername/vatsim-flight-board.git](https://github.com/yourusername/vatsim-flight-board.git)
+    cd vatsim-flight-board
+    ```
 
-4. Access the board:
-Open your browser to `http://localhost:5000`
+2.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *If requirements.txt is missing:*
+    ```bash
+    pip install flask flask-socketio requests apscheduler eventlet python-dotenv
+    ```
 
-⚙️ **Configuration**
+3.  **Run the application:**
+    ```bash
+    python app.py
+    ```
 
-Adding New Airports
+4.  **Access the board:**
+    Open a web browser and navigate to `http://localhost:5000`
 
-To add more airports, edit `vatsim_fetcher.py`. Add the airport ICAO, name, and coordinates to the `self.airports` dictionary:
+## Configuration
 
-```python
-self.airports = {
-    'LSZH': {'name': 'Zurich Airport', 'lat': 47.4647, 'lon': 8.5492},
-    'EGLL': {'name': 'London Heathrow', 'lat': 51.47, 'lon': -0.4543}, # Example
-    # ...
-}
-```
+### Adding Logos manually
+To ensure cargo or special operators (e.g., FedEx, Rega) have logos:
+1.  Save the logo as a PNG file (e.g., `FX.png` for FedEx).
+2.  Place the file in `static/logos/`.
+3.  Ensure the ICAO-to-IATA mapping exists in `static/js/app.js` under `airlineMapping`.
 
-Don't forget to update the dropdown menu in `templates/index.html` to match.
+### Adding New Airports
+1.  Open `vatsim_fetcher.py`.
+2.  Add the airport ICAO, coordinates, and ceiling limit to the `self.airports` dictionary.
+3.  Update `templates/index.html` to add the airport to the dropdown menu.
+4.  (Optional) Add specific stands to `static/stands.json` for accurate gate detection.
+5.  (Optional) Add a custom CSS theme in `static/css/style.css`.
 
-📂 **Project Structure**
-
-```
-├── app.py                 # Main Flask application & Socket.IO server
-├── vatsim_fetcher.py      # Logic for fetching, parsing, and filtering VATSIM data
-├── config.py              # Configuration settings
-├── templates/
-│   └── index.html         # Main dashboard (HTML structure)
-└── static/
-    ├── css/
-    │   └── style.css      # Dark theme & animations
-    └── js/
-        └── app.js         # Frontend logic (WebSockets, dynamic logos)
-```
-
-📝 **License**
+## License
 
 This project is open-source and available under the MIT License.
 
-🤝 **Acknowledgements**
-- Data Source: VATSIM (https://vatsim.net/)
-- Airline Logos: Kiwi.com (https://kiwi.com) & Airline Codes Dataset (https://github.com/npow/airline-codes)
-- Fonts: Inter & JetBrains Mono (Google Fonts)
+## Acknowledgements
+
+* **Data:** VATSIM Network
+* **Logos:** Kiwi.com, Kayak, and airline-codes database
+* **Fonts:** Roboto Condensed and JetBrains Mono via Google Fonts
