@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     initAutoScroll();
 
-    // --- STATUS FLIP ENGINE ---
+    // --- STATUS FLIP ENGINE (Now with clean CSS fade) ---
     setInterval(() => {
         showingDelayPhase = !showingDelayPhase;
         const cyclingCells = document.querySelectorAll('.col-status[data-has-delay="true"], .col-status[data-is-boarding="true"]');
@@ -158,18 +158,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const isBoarding = cell.getAttribute('data-is-boarding') === 'true';
             const gate = cell.getAttribute('data-gate');
 
+            let newText, newColorClass;
+
             if (showingDelayPhase) {
                 if (hasDelay) {
-                    cell.setAttribute('data-status', 'Delayed');
-                    // USE SPECIAL ANIMATED UPDATER FOR STATUS
-                    updateStatusFlap(flapContainer, delayText.toUpperCase());
+                    newText = delayText.toUpperCase();
+                    newColorClass = 'Delayed';
                 } else if (isBoarding) {
-                    cell.setAttribute('data-status', 'GO TO GATE'); 
-                    updateStatusFlap(flapContainer, `GO TO GATE ${gate}`);
+                    newText = `GO TO GATE ${gate}`;
+                    newColorClass = 'GO TO GATE';
                 }
             } else {
-                cell.setAttribute('data-status', normalStatus);
-                updateStatusFlap(flapContainer, normalStatus.toUpperCase());
+                newText = normalStatus.toUpperCase();
+                newColorClass = normalStatus;
+            }
+
+            // Only update if text actually changes
+            if (flapContainer.textContent !== newText) {
+                updateStatusWithFade(flapContainer, cell, newText, newColorClass);
             }
         });
     }, 3000);
@@ -307,10 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayColorClass = 'GO TO GATE';
                 }
             }
-            statusCell.setAttribute('data-status', displayColorClass);
             
-            // USE SPECIAL ANIMATED UPDATER FOR STATUS
-            updateStatusFlap(statusFlaps, displayStatus.toUpperCase());
+            // Use fade animation for status updates
+            if (statusFlaps.textContent !== displayStatus.toUpperCase()) {
+                updateStatusWithFade(statusFlaps, statusCell, displayStatus.toUpperCase(), displayColorClass);
+            } else {
+                statusCell.setAttribute('data-status', displayColorClass);
+            }
         });
 
         existingRows.forEach(row => {
@@ -318,62 +327,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }   
 
-    // --- STANDARD: Plain text rendering (No bunching) ---
+    // --- STANDARD: Plain text rendering (No animation) ---
     function updateFlapText(container, newText) {
         if (container) {
             container.textContent = String(newText || "");
         }
     }
 
-    // --- SPECIAL: Animated Split-Flap rendering (Status Only) ---
-    function updateStatusFlap(container, newText) {
+    // --- SPECIAL: Smooth opacity fade for status changes ---
+    function updateStatusWithFade(container, statusCell, newText, newColorClass) {
         if (!container) return;
-        newText = String(newText || "");
         
-        // Safety: If switching from plain text to spans, clear first
-        if (container.children.length === 0 && container.textContent.trim() !== "") {
-            container.textContent = "";
-        }
-
-        const currentChildren = container.children;
-        const maxLen = Math.max(currentChildren.length, newText.length);
-
-        for (let i = 0; i < maxLen; i++) {
-            const newChar = newText[i] || "";
-            let span = currentChildren[i];
-
-            if (!span) {
-                span = document.createElement('span');
-                span.className = 'flap-char';
-                span.textContent = newChar;
-                // Preserve spaces in the split-flap layout
-                if (newChar === ' ') span.style.whiteSpace = 'pre';
-                container.appendChild(span);
-                triggerFlip(span);
-            } else {
-                if (span.textContent !== newChar) {
-                    triggerFlip(span, newChar);
-                }
-            }
-        }
+        // Trigger fade out
+        container.classList.add('status-updating');
         
-        while (container.children.length > newText.length) {
-            container.removeChild(container.lastChild);
-        }
-    }
-
-    function triggerFlip(element, newChar) {
-        element.classList.remove('flipping');
-        void element.offsetWidth;
-        element.classList.add('flipping');
-        if (newChar !== undefined) {
-            // Slight delay to swap text mid-flip
-            setTimeout(() => { 
-                element.textContent = newChar; 
-                if (newChar === ' ') element.style.whiteSpace = 'pre';
-                else element.style.whiteSpace = 'normal';
-            }, 200); 
-        }
+        // After fade out completes, update text and color, then fade back in
+        setTimeout(() => {
+            container.textContent = newText;
+            statusCell.setAttribute('data-status', newColorClass);
+            container.classList.remove('status-updating');
+        }, 175); // Half of the 350ms transition duration
     }
 
     function updateClock() {
