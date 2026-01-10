@@ -196,6 +196,13 @@ html, body {
     box-shadow: none;
     background-color: transparent;
     color: #ffffff; 
+
+    /* Force a compositing layer to avoid sub-pixel seams in some browsers */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform, opacity, background-color;
 }
 
 /* STATUS COLORS */
@@ -257,6 +264,11 @@ html, body {
     min-width: 12px;
     backface-visibility: hidden;
     font-weight: 700;
+
+    /* help reduce visual artifacts during the flip animation */
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
 }
 
 .col-status .flap-char.flipping {
