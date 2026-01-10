@@ -177,19 +177,6 @@ html, body {
     box-sizing: border-box;
     border-left: none;
     border-right: none;
-    position: relative;
-}
-
-/* Use ::before to create a full-height background that covers sub-pixel seams */
-.flight-table td.col-status::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: -1;
 }
 
 /* Target the Container: Flexbox to center text and FILL the cell */
@@ -208,62 +195,52 @@ html, body {
     text-transform: uppercase;
     box-shadow: none;
     background-color: transparent;
-    color: #ffffff;
-    line-height: 1;
+    color: #ffffff; 
+
+    /* Force a compositing layer to avoid sub-pixel seams in some browsers */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform, opacity, background-color;
 }
 
 /* STATUS COLORS */
-.col-status[data-status="Boarding"]::before,
 .col-status[data-status="Boarding"] .flap-container,
-.col-status[data-status="Departing"]::before,
 .col-status[data-status="Departing"] .flap-container {
     background-color: #00b000; 
     color: #ffffff !important; 
 }
 
-.col-status[data-status*="GO TO"]::before,
 .col-status[data-status*="GO TO"] .flap-container {
     background-color: #e6007e; 
     color: #ffffff !important;
 }
 
-.col-status[data-status="Check-in"]::before,
 .col-status[data-status="Check-in"] .flap-container,
-.col-status[data-status="Taxiing"]::before,
 .col-status[data-status="Taxiing"] .flap-container,
-.col-status[data-status="Wait"]::before,
 .col-status[data-status="Wait"] .flap-container,
-.col-status[data-status="Landing"]::before,
 .col-status[data-status="Landing"] .flap-container,
-.col-status[data-status="Landed"]::before,
 .col-status[data-status="Landed"] .flap-container,
-.col-status[data-status="At Gate"]::before,
 .col-status[data-status="At Gate"] .flap-container,
-.col-status[data-status="Scheduled"]::before,
 .col-status[data-status="Scheduled"] .flap-container {
     background-color: #ffcc00; 
     color: #000000 !important; 
 }
 
-.col-status[data-status="Pushback"]::before,
 .col-status[data-status="Pushback"] .flap-container,
-.col-status[data-status="Approaching"]::before,
 .col-status[data-status="Approaching"] .flap-container {
     background-color: #0055b8; 
     color: #ffffff !important;
 }
 
-.col-status[data-status*="Delayed"]::before,
 .col-status[data-status*="Delayed"] .flap-container,
-.col-status[data-status="Cancelled"]::before,
 .col-status[data-status="Cancelled"] .flap-container,
-.col-status[data-status="CLOSED"]::before,
 .col-status[data-status="CLOSED"] .flap-container {
     background-color: #d60000; 
     color: #ffffff !important; 
 }
 
-.col-status[data-status="En Route"]::before,
 .col-status[data-status="En Route"] .flap-container {
     color: #b3d9ff !important; 
     background-color: transparent;
@@ -279,6 +256,25 @@ html, body {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1; }
+}
+
+/* --- ANIMATED STATUS FLAPS (Specific to Status Col) --- */
+.col-status .flap-char {
+    display: inline-block;
+    min-width: 12px;
+    backface-visibility: hidden;
+    font-weight: 700;
+}
+
+.col-status .flap-char.flipping {
+    animation: flip-char 0.4s ease-in-out;
+}
+
+@keyframes flip-char {
+    0% { transform: rotateX(0deg); opacity: 1; }
+    50% { transform: rotateX(90deg); opacity: 0; }
+    51% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
 }
 
 /* =========================================

@@ -330,9 +330,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) return;
         newText = String(newText || "");
         
-        // Use plain textContent to avoid inline-block baseline seams in Firefox
-        // This eliminates the dark line issue in Zen browser
-        container.textContent = newText;
+        // Safety: If switching from plain text to spans, clear first
+        if (container.children.length === 0 && container.textContent.trim() !== "") {
+            container.textContent = "";
+        }
+
+        const currentChildren = container.children;
+        const maxLen = Math.max(currentChildren.length, newText.length);
+
+        for (let i = 0; i < maxLen; i++) {
+            const newChar = newText[i] || "";
+            let span = currentChildren[i];
+
+            if (!span) {
+                span = document.createElement('span');
+                span.className = 'flap-char';
+                span.textContent = newChar;
+                // Preserve spaces in the split-flap layout
+                if (newChar === ' ') span.style.whiteSpace = 'pre';
+                container.appendChild(span);
+                triggerFlip(span);
+            } else {
+                if (span.textContent !== newChar) {
+                    triggerFlip(span, newChar);
+                }
+            }
+        }
+        
+        while (container.children.length > newText.length) {
+            container.removeChild(container.lastChild);
+        }
+    }
+
+    function triggerFlip(element, newChar) {
+        element.classList.remove('flipping');
+        void element.offsetWidth;
+        element.classList.add('flipping');
+        if (newChar !== undefined) {
+            // Slight delay to swap text mid-flip
+            setTimeout(() => { 
+                element.textContent = newChar; 
+                if (newChar === ' ') element.style.whiteSpace = 'pre';
+                else element.style.whiteSpace = 'normal';
+            }, 200); 
+        }
     }
 
     function updateClock() {
