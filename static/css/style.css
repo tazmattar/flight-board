@@ -208,20 +208,8 @@ html, body {
     text-transform: uppercase;
     box-shadow: none;
     background-color: transparent;
-    color: #ffffff; 
-
-    /* Force a compositing layer to avoid sub-pixel seams in some browsers */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    will-change: transform, opacity, background-color;
-
-    /* Eliminate baseline spacing in Firefox/Zen */
+    color: #ffffff;
     line-height: 1;
-    font-size: 0;
-    text-rendering: geometricPrecision;
-    -webkit-text-rendering: geometricPrecision;
 }
 
 /* STATUS COLORS */
@@ -291,32 +279,6 @@ html, body {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1; }
-}
-
-/* --- ANIMATED STATUS FLAPS (Specific to Status Col) --- */
-.col-status .flap-char {
-    display: inline-block;
-    min-width: 12px;
-    backface-visibility: hidden;
-    font-weight: 700;
-    font-size: var(--font-size-cell);  /* Reset font-size since container is 0 */
-    line-height: 1;
-
-    /* help reduce visual artifacts during the flip animation */
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    will-change: transform, opacity;
-}
-
-.col-status .flap-char.flipping {
-    animation: flip-char 0.4s ease-in-out;
-}
-
-@keyframes flip-char {
-    0% { transform: rotateX(0deg); opacity: 1; }
-    50% { transform: rotateX(90deg); opacity: 0; }
-    51% { transform: rotateX(-90deg); opacity: 0; }
-    100% { transform: rotateX(0deg); opacity: 1; }
 }
 
 /* =========================================
