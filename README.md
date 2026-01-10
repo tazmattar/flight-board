@@ -8,7 +8,7 @@ It is optimized for use on dedicated display monitors in both portrait and lands
 
 ### Core Functionality
 * **Multi-Airport Support:** Seamless switching between LSZH (Zurich), LSGG (Geneva), and LFSB (Basel) via the header dropdown.
-* **Real-Time Data:** Automatically fetches and refreshes pilot, flight plan, and controller data from the VATSIM Public Data API (v3) every 60 seconds.
+* **Real-Time Data:** Automatically fetches and refreshes pilot, flight plan data from the VATSIM Public Data API (v3) every 60 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
 * **Responsive Layout:**
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
