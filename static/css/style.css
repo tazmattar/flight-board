@@ -176,6 +176,7 @@ html, body {
     padding: 0 !important;      
     height: 100%;               
     vertical-align: middle;
+    /* This color matches the standard row border (#222), creating a seamless look */
     border-bottom: 1px solid #222; 
 }
 
@@ -193,6 +194,8 @@ html, body {
     font-weight: 700;
     text-transform: uppercase;
     box-shadow: none;
+    
+    /* Default */
     background-color: transparent;
     color: #ffffff; 
 }
