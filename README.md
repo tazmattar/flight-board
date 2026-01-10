@@ -38,6 +38,17 @@ It is optimized for use on dedicated display monitors in both portrait and lands
     2.  **Kiwi.com API:** Primary source for commercial passenger airlines.
     3.  **Kayak API:** Backup source for obscure carriers.
 
+## Screenshots
+
+### Zurich (LSZH) - Classic Style
+![Zurich Board](screenshots/LSZH.png)
+
+### Geneva (LSGG) - Blue Header Theme
+![Geneva Board](screenshots/LSGG.png)
+
+### Basel (LFSB) - EuroAirport Blue Theme
+![Basel Board](screenshots/LFSB.png)
+
 ## Technical Stack
 
 * **Backend:** Python 3.8+, Flask, Flask-SocketIO
