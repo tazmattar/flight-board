@@ -41,11 +41,10 @@ html, body {
 }
 
 /* 2. HEADER (Fixed) */
-/* DEFAULT: ZURICH STYLE (White Bar, Black Text) */
 .fids-header {
     background: #ffffff; /* Solid White */
     padding: 15px 30px; 
-    border-bottom: 4px solid #000000; /* Strong contrast border */
+    border-bottom: 4px solid #000000; 
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -55,14 +54,14 @@ html, body {
 
 .airport-selector select {
     background: transparent; 
-    color: #000000; /* Black Text */
+    color: #000000; 
     border: none;
     font-family: var(--font-ui); font-size: 2.5rem; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
 }
 .clock-container {
     font-size: 2.5rem; font-weight: 700; 
-    color: #000000; /* Black Text */
+    color: #000000; 
     letter-spacing: 2px;
 }
 
@@ -107,7 +106,7 @@ html, body {
     font-size: 1.5rem; 
     font-weight: 700; 
     text-transform: uppercase;
-    color: var(--fids-yellow); /* Yellow for Zurich "Pop" */
+    color: var(--fids-yellow); 
     padding: 15px;
     background: #111;
     border-bottom: 2px solid var(--border-dim);
@@ -136,7 +135,7 @@ html, body {
     position: sticky; top: 0; 
     background: #151515; z-index: 2;
     text-align: left; text-transform: uppercase; 
-    color: #ffffff; /* White Headers */
+    color: #ffffff; 
     font-size: var(--font-size-header); padding: 12px 10px; 
     font-weight: 400; letter-spacing: 1px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -155,32 +154,24 @@ html, body {
     height: var(--row-height);
 }
 
-/* =========================================
-   5. TEXT STYLING (Standard Columns)
-   ========================================= */
-/* Plain text style - CLEANED UP */
-
+/* 5. TEXT STYLING (Standard Columns) */
 .flap-container { 
-    /* Removed inline-flex and gap:0 to prevent bunching */
-    font-weight: 700; /* Ensure text remains bold like the tiles were */
+    font-weight: 700; 
 }
-
-/* Removed .flap-char and animations completely for clean look */
 
 /* =========================================
    6. SOLID STATUS BADGES (Full Row Fill)
    ========================================= */
 
-/* 1. Target the Table Cell (TD) to remove padding */
+/* Target the Cell: Remove padding and match border color */
 .flight-table td.col-status {
     padding: 0 !important;      
     height: 100%;               
     vertical-align: middle;
-    /* This color matches the standard row border (#222), creating a seamless look */
-    border-bottom: 1px solid #222; 
+    border-bottom: 1px solid #222; /* Correct border color */
 }
 
-/* 2. The Badge Container */
+/* Target the Container: Flexbox to center text and FILL the cell */
 .col-status .flap-container {
     width: 100%;
     height: 100%;               
@@ -194,28 +185,22 @@ html, body {
     font-weight: 700;
     text-transform: uppercase;
     box-shadow: none;
-    
-    /* Default */
     background-color: transparent;
     color: #ffffff; 
 }
 
-/* --- STATUS COLOR MAPPING --- */
-
-/* GREEN (White Text) */
+/* STATUS COLORS */
 .col-status[data-status="Boarding"] .flap-container,
 .col-status[data-status="Departing"] .flap-container {
     background-color: #00b000; 
     color: #ffffff !important; 
 }
 
-/* PINK (White Text) */
 .col-status[data-status*="GO TO"] .flap-container {
     background-color: #e6007e; 
     color: #ffffff !important;
 }
 
-/* YELLOW (Black Text) */
 .col-status[data-status="Check-in"] .flap-container,
 .col-status[data-status="Taxiing"] .flap-container,
 .col-status[data-status="Wait"] .flap-container,
@@ -227,14 +212,12 @@ html, body {
     color: #000000 !important; 
 }
 
-/* BLUE (White Text) */
 .col-status[data-status="Pushback"] .flap-container,
 .col-status[data-status="Approaching"] .flap-container {
     background-color: #0055b8; 
     color: #ffffff !important;
 }
 
-/* RED (White Text) */
 .col-status[data-status*="Delayed"] .flap-container,
 .col-status[data-status="Cancelled"] .flap-container,
 .col-status[data-status="CLOSED"] .flap-container {
@@ -242,9 +225,12 @@ html, body {
     color: #ffffff !important; 
 }
 
-/* Removed En Route styling block entirely */
+.col-status[data-status="En Route"] .flap-container {
+    color: #b3d9ff !important; 
+    background-color: transparent;
+}
 
-/* FLASHING GATE STATUS (WAIT) */
+/* FLASHING GATE STATUS */
 .flap-container.status-wait {
     color: var(--fids-amber) !important; 
     animation: badge-pulse 2s infinite;
@@ -256,11 +242,29 @@ html, body {
     100% { opacity: 1; }
 }
 
+/* --- ANIMATED STATUS FLAPS (Specific to Status Col) --- */
+.col-status .flap-char {
+    display: inline-block;
+    min-width: 12px;
+    backface-visibility: hidden;
+    font-weight: 700;
+}
+
+.col-status .flap-char.flipping {
+    animation: flip-char 0.4s ease-in-out;
+}
+
+@keyframes flip-char {
+    0% { transform: rotateX(0deg); opacity: 1; }
+    50% { transform: rotateX(90deg); opacity: 0; }
+    51% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+}
+
 /* =========================================
    7. FOOTER & THEMES
    ========================================= */
 
-/* 6. FOOTER (Fixed) */
 .fids-footer {
     background-color: #000; 
     border-top: 4px solid white;
@@ -285,10 +289,7 @@ html, body {
 .airline-logo { height: 20px; width: auto; filter: grayscale(100%) brightness(200%); }
 .flight-cell { display: flex; align-items: center; gap: 10px; }
 
-/* =========================================
-   7. ORIENTATION MEDIA QUERIES
-   ========================================= */
-
+/* MEDIA QUERIES */
 @media (orientation: portrait) {
     .split-top-row { flex-direction: column; }
     .airport-selector select { font-size: 2rem; }
@@ -314,105 +315,41 @@ html, body {
     .flight-table th:nth-child(7) { width: 22%; }
 }
 
-/* =========================================
-   AIRPORT THEMES
-   ========================================= */
-
-/* --- GENEVA (LSGG) THEME --- */
+/* THEMES */
 body.theme-lsgg { --geneva-blue: #0055b8; }
 body.theme-lsgg .fids-header { background-color: var(--geneva-blue); border-bottom: 1px solid rgba(255,255,255,0.3); }
 body.theme-lsgg .airport-selector select, body.theme-lsgg .clock-container { color: #ffffff !important; background: transparent; }
 body.theme-lsgg .section-divider { background-color: var(--geneva-blue); color: #ffffff; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.3); }
 body.theme-lsgg .flight-table th { color: #dbeeff; }
 
-/* --- BASEL (LFSB) THEME --- */
 body.theme-lfsb {
     --euro-blue: #0060a9; 
     --euro-dark: #00457a;
-    
-    /* Global Overrides */
     --bg-black: var(--euro-blue); 
     --text-dim: #b3d9ff; 
     --border-dim: rgba(255,255,255,0.3);
-    
     --fids-green: #ffffff; 
     --fids-yellow: #ffffff;
 }
 
-/* 1. Header & Selector */
-body.theme-lfsb .fids-header { 
-    background-color: var(--euro-blue); 
-    border-bottom: none; 
-}
-body.theme-lfsb .airport-selector select, 
-body.theme-lfsb .clock-container { 
-    color: #ffffff !important; 
-    background: transparent; 
-}
+body.theme-lfsb .fids-header { background-color: var(--euro-blue); border-bottom: none; }
+body.theme-lfsb .airport-selector select, body.theme-lfsb .clock-container { color: #ffffff !important; background: transparent; }
+body.theme-lfsb .section-divider { background-color: transparent; color: #ffffff; border-bottom: 2px solid #ffffff; }
+body.theme-lfsb .split-panel { background: transparent; border: none; box-shadow: none; }
+body.theme-lfsb .flight-table th { background-color: var(--euro-blue); color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.5); }
+body.theme-lfsb .flap-container { color: #ffffff; }
+body.theme-lfsb .fids-footer { background-color: var(--euro-dark); border-top: 4px solid #ffffff; }
 
-/* 2. Section Dividers */
-body.theme-lfsb .section-divider {
-    background-color: transparent;
-    color: #ffffff;
-    border-bottom: 2px solid #ffffff;
-}
-
-/* 3. Panel Containers */
-body.theme-lfsb .split-panel {
-    background: transparent;
-    border: none; 
-    box-shadow: none;
-}
-
-/* 4. Table Headers */
-body.theme-lfsb .flight-table th {
-    background-color: var(--euro-blue);
-    color: #ffffff;
-    border-bottom: 1px solid rgba(255,255,255,0.5);
-}
-
-/* 5. Flap Characters - Text Only */
-body.theme-lfsb .flap-container {
-    color: #ffffff;
-}
-
-/* 6. Footer */
-body.theme-lfsb .fids-footer {
-    background-color: var(--euro-dark);
-    border-top: 4px solid #ffffff;
-}
-
-/* --- COUNTRY FLAGS (Footer) --- */
 .country-flags {
     display: flex;
     gap: 12px;
     align-items: center;
     margin-right: 20px;
 }
-
 .country-flags img {
-    height: 24px;       /* Subtle icon size */
+    height: 24px;
     width: auto;
-    border-radius: 2px; /* Soft corners */
-    opacity: 0.85;      /* Slightly dimmed for subtlety */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Depth */
-}
-
-/* --- ANIMATED STATUS FLAPS (Specific to Status Col) --- */
-.col-status .flap-char {
-    display: inline-block;
-    min-width: 12px; /* Prevent collapse on narrow chars */
-    backface-visibility: hidden;
-    font-weight: 700;
-}
-
-.col-status .flap-char.flipping {
-    animation: flip-char 0.4s ease-in-out;
-}
-
-@keyframes flip-char {
-    0% { transform: rotateX(0deg); opacity: 1; }
-    50% { transform: rotateX(90deg); opacity: 0; }
-    51% { transform: rotateX(-90deg); opacity: 0; }
-    100% { transform: rotateX(0deg); opacity: 1; }
+    border-radius: 2px;
+    opacity: 0.85;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
