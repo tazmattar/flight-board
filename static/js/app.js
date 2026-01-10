@@ -161,14 +161,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showingDelayPhase) {
                 if (hasDelay) {
                     cell.setAttribute('data-status', 'Delayed');
-                    updateFlapText(flapContainer, delayText.toUpperCase());
+                    // USE SPECIAL ANIMATED UPDATER FOR STATUS
+                    updateStatusFlap(flapContainer, delayText.toUpperCase());
                 } else if (isBoarding) {
                     cell.setAttribute('data-status', 'GO TO GATE'); 
-                    updateFlapText(flapContainer, `GO TO GATE ${gate}`);
+                    updateStatusFlap(flapContainer, `GO TO GATE ${gate}`);
                 }
             } else {
                 cell.setAttribute('data-status', normalStatus);
-                updateFlapText(flapContainer, normalStatus.toUpperCase());
+                updateStatusFlap(flapContainer, normalStatus.toUpperCase());
             }
         });
     }, 3000);
@@ -307,7 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             statusCell.setAttribute('data-status', displayColorClass);
-            updateFlapText(statusFlaps, displayStatus.toUpperCase());
+            
+            // USE SPECIAL ANIMATED UPDATER FOR STATUS
+            updateStatusFlap(statusFlaps, displayStatus.toUpperCase());
         });
 
         existingRows.forEach(row => {
@@ -315,10 +318,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }   
 
-    // --- UPDATED: Plain text rendering (No split-flap spans) ---
+    // --- STANDARD: Plain text rendering (No bunching) ---
     function updateFlapText(container, newText) {
         if (container) {
             container.textContent = String(newText || "");
+        }
+    }
+
+    // --- SPECIAL: Animated Split-Flap rendering (Status Only) ---
+    function updateStatusFlap(container, newText) {
+        if (!container) return;
+        newText = String(newText || "");
+        
+        // Safety: If switching from plain text to spans, clear first
+        if (container.children.length === 0 && container.textContent.trim() !== "") {
+            container.textContent = "";
+        }
+
+        const currentChildren = container.children;
+        const maxLen = Math.max(currentChildren.length, newText.length);
+
+        for (let i = 0; i < maxLen; i++) {
+            const newChar = newText[i] || "";
+            let span = currentChildren[i];
+
+            if (!span) {
+                span = document.createElement('span');
+                span.className = 'flap-char';
+                span.textContent = newChar;
+                // Preserve spaces in the split-flap layout
+                if (newChar === ' ') span.style.whiteSpace = 'pre';
+                container.appendChild(span);
+                triggerFlip(span);
+            } else {
+                if (span.textContent !== newChar) {
+                    triggerFlip(span, newChar);
+                }
+            }
+        }
+        
+        while (container.children.length > newText.length) {
+            container.removeChild(container.lastChild);
+        }
+    }
+
+    function triggerFlip(element, newChar) {
+        element.classList.remove('flipping');
+        void element.offsetWidth;
+        element.classList.add('flipping');
+        if (newChar !== undefined) {
+            // Slight delay to swap text mid-flip
+            setTimeout(() => { 
+                element.textContent = newChar; 
+                if (newChar === ' ') element.style.whiteSpace = 'pre';
+                else element.style.whiteSpace = 'normal';
+            }, 200); 
         }
     }
 

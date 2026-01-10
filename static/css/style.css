@@ -394,3 +394,22 @@ body.theme-lfsb .fids-footer {
     opacity: 0.85;      /* Slightly dimmed for subtlety */
     box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Depth */
 }
+
+/* --- ANIMATED STATUS FLAPS (Specific to Status Col) --- */
+.col-status .flap-char {
+    display: inline-block;
+    min-width: 12px; /* Prevent collapse on narrow chars */
+    backface-visibility: hidden;
+    font-weight: 700;
+}
+
+.col-status .flap-char.flipping {
+    animation: flip-char 0.4s ease-in-out;
+}
+
+@keyframes flip-char {
+    0% { transform: rotateX(0deg); opacity: 1; }
+    50% { transform: rotateX(90deg); opacity: 0; }
+    51% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+}
