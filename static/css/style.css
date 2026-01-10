@@ -280,13 +280,17 @@ html, body {
     background-color: transparent;
 }
 
-/* Pulse Animation */
-.status-wait .flap-container {
+/* FLASHING GATE STATUS (WAIT) */
+/* Targets the Gate column when it says "WAIT" */
+.flap-container.status-wait {
+    color: var(--fids-amber) !important; /* Restore Orange Color */
     animation: badge-pulse 2s infinite;
+    font-weight: 700;
 }
+
 @keyframes badge-pulse {
     0% { opacity: 1; }
-    50% { opacity: 0.6; }
+    50% { opacity: 0.5; }
     100% { opacity: 1; }
 }
 
