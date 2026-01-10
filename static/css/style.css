@@ -216,6 +216,12 @@ html, body {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     will-change: transform, opacity, background-color;
+
+    /* Eliminate baseline spacing in Firefox/Zen */
+    line-height: 1;
+    font-size: 0;
+    text-rendering: geometricPrecision;
+    -webkit-text-rendering: geometricPrecision;
 }
 
 /* STATUS COLORS */
@@ -293,6 +299,8 @@ html, body {
     min-width: 12px;
     backface-visibility: hidden;
     font-weight: 700;
+    font-size: var(--font-size-cell);  /* Reset font-size since container is 0 */
+    line-height: 1;
 
     /* help reduce visual artifacts during the flip animation */
     -webkit-transform-style: preserve-3d;
