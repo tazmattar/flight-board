@@ -131,6 +131,11 @@ html, body {
     table-layout: fixed; 
 }
 
+/* ensure there are no unexpected gaps from collapsed borders */
+.flight-table { border-spacing: 0; }
+
+.flight-table th, .flight-table td { border-left: none; border-right: none; }
+
 .flight-table th {
     position: sticky; top: 0; 
     background: #151515; z-index: 2;
@@ -169,6 +174,9 @@ html, body {
     height: 100%;               
     vertical-align: middle;
     border-bottom: 1px solid #222; /* Correct border color */
+    box-sizing: border-box;
+    border-left: none;
+    border-right: none;
 }
 
 /* Target the Container: Flexbox to center text and FILL the cell */
@@ -180,7 +188,8 @@ html, body {
     justify-content: center;
     align-items: center;
     margin: 0;
-    padding: 0;                 
+    padding: 0;
+    box-sizing: border-box;     
     border-radius: 0;           
     font-weight: 700;
     text-transform: uppercase;
