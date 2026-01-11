@@ -12,10 +12,17 @@ body.theme-lsgg .fids-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-body.theme-lsgg .airport-selector select,
+/* 1. Main Header Elements (Select Box + Clock) - WHITE TEXT */
+body.theme-lsgg .airport-selector select, 
 body.theme-lsgg .clock-container {
     color: #ffffff !important;
     background: transparent;
+}
+
+/* 2. The Dropdown Options (The list that opens) - BLACK TEXT */
+body.theme-lsgg .airport-selector select option {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 body.theme-lsgg .section-divider {
