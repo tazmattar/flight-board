@@ -259,8 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (type === 'Departures') {
                     row.innerHTML = `
                         ${commonCells}
-                        <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-checkin"></div></td>
-                        <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-gate"></div></td> 
+                        <td><div class="flap-container" id="${rowId}-checkin"></div></td>
+                        <td><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
@@ -288,12 +288,28 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
             
             const checkinFlap = document.getElementById(`${rowId}-checkin`);
-            if (checkinFlap) updateFlapText(checkinFlap, flight.checkin || ""); 
+            if (checkinFlap) {
+                updateFlapText(checkinFlap, flight.checkin || "");
+                if (flight.checkin === 'CLOSED') {
+                    checkinFlap.classList.add('gate-closed');
+                } else {
+                    checkinFlap.classList.remove('gate-closed');
+                }
+            } 
 
             const gateContainer = document.getElementById(`${rowId}-gate`);
             updateFlapText(gateContainer, gate);
-            if (isGateWaiting) gateContainer.classList.add('status-wait');
-            else gateContainer.classList.remove('status-wait');
+            if (isGateWaiting) {
+                gateContainer.classList.add('status-wait');
+                gateContainer.classList.remove('gate-closed');
+            } else {
+                gateContainer.classList.remove('status-wait');
+                if (gate === 'CLOSED') {
+                    gateContainer.classList.add('gate-closed');
+                } else {
+                    gateContainer.classList.remove('gate-closed');
+                }
+            }
             
             const statusCell = row.querySelector('.col-status');
             const statusFlaps = document.getElementById(`${rowId}-status`);

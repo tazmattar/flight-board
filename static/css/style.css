@@ -267,6 +267,11 @@ html, body {
     opacity: 0;
 }
 
+/* Amber color for CLOSED status in gate/checkin columns */
+.flap-container.gate-closed {
+    color: var(--fids-amber) !important;
+}
+
 /* =========================================
    7. FOOTER & THEMES
    ========================================= */
