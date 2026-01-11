@@ -1,0 +1,69 @@
+/* =============================================
+   BASEL (LFSB) THEME - EUROAIRPORT
+   Immersive EuroAirport Blue Background
+   ============================================= */
+
+body.theme-lfsb {
+    --euro-blue: #0060a9;
+    --euro-dark: #00457a;
+    --bg-black: var(--euro-blue);
+    --text-dim: #b3d9ff;
+    --border-dim: rgba(255, 255, 255, 0.3);
+    --fids-green: #ffffff;
+    --fids-yellow: #ffffff;
+}
+
+body.theme-lfsb .fids-header {
+    background-color: var(--euro-blue);
+    border-bottom: none;
+}
+
+body.theme-lfsb .airport-selector select,
+body.theme-lfsb .clock-container {
+    color: #ffffff !important;
+    background: transparent;
+}
+
+body.theme-lfsb .section-divider {
+    background-color: transparent;
+    color: #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+body.theme-lfsb .split-panel {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+body.theme-lfsb .flight-table th {
+    background-color: var(--euro-blue);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+body.theme-lfsb .flight-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.theme-lfsb .flap-container {
+    color: #ffffff;
+}
+
+body.theme-lfsb .fids-footer {
+    background-color: var(--euro-dark);
+    border-top: 4px solid #ffffff;
+}
+
+body.theme-lfsb .footer-group .main-label {
+    color: #ffffff;
+}
+
+body.theme-lfsb .gate-icon-box {
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+body.theme-lfsb .huge-arrow {
+    color: #ffffff;
+}

@@ -1,0 +1,50 @@
+/* =============================================
+   GENEVA (LSGG) THEME
+   Geneva Blue Header with White Text
+   ============================================= */
+
+body.theme-lsgg {
+    --geneva-blue: #0055b8;
+}
+
+body.theme-lsgg .fids-header {
+    background-color: var(--geneva-blue);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+body.theme-lsgg .airport-selector select,
+body.theme-lsgg .clock-container {
+    color: #ffffff !important;
+    background: transparent;
+}
+
+body.theme-lsgg .section-divider {
+    background-color: var(--geneva-blue);
+    color: #ffffff;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+body.theme-lsgg .flight-table th {
+    background: #003d82;
+    color: #dbeeff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.theme-lsgg .fids-footer {
+    background-color: var(--geneva-blue);
+    border-top: 4px solid #ffffff;
+}
+
+body.theme-lsgg .footer-group .main-label {
+    color: #ffffff;
+}
+
+body.theme-lsgg .gate-icon-box {
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+body.theme-lsgg .huge-arrow {
+    color: #ffffff;
+}

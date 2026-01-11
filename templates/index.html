@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimFixr Flight Board</title>
+    <title>VATSIM Flight Board</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
+    <!-- Core styles (layout, tables, animations) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Dynamic theme loaded by JavaScript -->
+    <link id="airportTheme" rel="stylesheet" href="{{ url_for('static', filename='css/themes/lszh.css') }}">
+    
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
@@ -90,41 +95,41 @@
 </div>
 </div>
 
-            <footer class="fids-footer">
-        <div class="footer-group left">
-            <div id="flagContainer" class="country-flags"></div>
+<footer class="fids-footer">
+    <div class="footer-group left">
+        <div id="flagContainer" class="country-flags"></div>
+    </div>
+    
+    <div class="footer-group center-left">
+        <span class="material-icons huge-arrow">arrow_upward</span>
+        <div class="gate-icon-box">
+            <span class="material-icons">flight_takeoff</span>
+            <span id="gateLabel">Gates</span>
+        </div>
+    </div>
+
+    <div class="footer-group center">
+        <div class="main-label">
+            <span class="de" id="arrivalsLabel1">Ankunft</span>
+            <span class="en" id="arrivalsLabel2">Arrivals</span>
         </div>
         
-        <div class="footer-group center-left">
-            <span class="material-icons huge-arrow">arrow_upward</span>
-            <div class="gate-icon-box">
-                <span class="material-icons">flight_takeoff</span>
-                <span id="gateLabel">Gates</span>
-            </div>
-        </div>
+        <div class="footer-divider"></div>
 
-        <div class="footer-group center">
-            <div class="main-label">
-                <span class="de" id="arrivalsLabel1">Ankunft</span>
-                <span class="en" id="arrivalsLabel2">Arrivals</span>
-            </div>
-            
-            <div class="footer-divider"></div>
-
-            <div class="main-label">
-                <span class="de" id="departuresLabel1">Abflug</span>
-                <span class="en" id="departuresLabel2">Departures</span>
-            </div>
+        <div class="main-label">
+            <span class="de" id="departuresLabel1">Abflug</span>
+            <span class="en" id="departuresLabel2">Departures</span>
         </div>
+    </div>
 
-        <div class="footer-group right">
-            <div class="security-time">
-                <span class="label" id="securityLabel">Actual waiting time<br>at security control</span>
-                <span class="time">9 <small>minutes</small></span>
-            </div>
-            <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+    <div class="footer-group right">
+        <div class="security-time">
+            <span class="label" id="securityLabel">Actual waiting time<br>at security control</span>
+            <span class="time">9 <small>minutes</small></span>
         </div>
-    </footer>
+        <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+    </div>
+</footer>
 
     <div id="metar" style="display:none;"></div>
     <div id="controllers" style="display:none;"></div>
