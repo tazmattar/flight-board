@@ -1,6 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
 
+    // --- SOCKET LISTENER ---
+    
+    // Automatically join the current airport when connected
+    socket.on('connect', () => {
+        console.log('Connected via WebSockets. Joining:', currentAirport);
+        socket.emit('join_airport', { airport: currentAirport });
+    });
+
+    socket.on('flight_update', (data) => {
+        // ... existing code ...
+    });
+
     // --- STATE MANAGEMENT ---
     let currentAirport = 'LSZH';
     let rawFlightData = { departures: [], arrivals: [] };
