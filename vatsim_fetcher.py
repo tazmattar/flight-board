@@ -12,7 +12,8 @@ class VatsimFetcher:
         self.airports = {
             'LSZH': { 'name': 'Zurich Airport', 'lat': 47.4647, 'lon': 8.5492, 'ceiling': 6000 },
             'LSGG': { 'name': 'Geneva Airport', 'lat': 46.2370, 'lon': 6.1091, 'ceiling': 8000 },
-            'LFSB': { 'name': 'EuroAirport Basel', 'lat': 47.5900, 'lon': 7.5290, 'ceiling': 5000 }
+            'LFSB': { 'name': 'EuroAirport Basel', 'lat': 47.5900, 'lon': 7.5290, 'ceiling': 5000 },
+            'EGLL': { 'name': 'London Heathrow', 'lat': 51.4700, 'lon': -0.4543, 'ceiling': 7000 }
         }
         
         self.stands = self.load_stands()
@@ -61,7 +62,6 @@ class VatsimFetcher:
     def fetch_flights(self):
         results = {}
         for code in self.airports:
-            # REMOVED 'enroute': [] from this dictionary
             results[code] = {
                 'departures': [], 'arrivals': [],
                 'metar': 'Unavailable', 'controllers': [],
@@ -214,6 +214,33 @@ class VatsimFetcher:
             # Swiss Sector
             desk = (seed % 40) + 1       # Desks 01-40
             return f"{desk:02d}"
+        
+        # --- HEATHROW (EGLL) ---
+        elif airport_code == 'EGLL':
+            # Terminal 5 - British Airways & oneworld
+            if airline in ['BAW', 'SHT', 'IBE', 'AAL', 'AER', 'EIN']:
+                desk = (seed % 40) + 501  # Desks 501-540
+                return f"T5-{desk}"
+            
+            # Terminal 3 - Star Alliance & Middle East
+            if airline in ['DLH', 'SWR', 'AUA', 'SAS', 'UAL', 'ACA', 'SIA', 
+                        'THA', 'ANA', 'UAE', 'QFA', 'VIR', 'DAL', 'LOT']:
+                desk = (seed % 30) + 301  # Desks 301-330
+                return f"T3-{desk}"
+            
+            # Terminal 4 - SkyTeam & Independents
+            if airline in ['KLM', 'AFR', 'CES', 'KQA', 'ETD', 'MAS', 'RAM']:
+                desk = (seed % 25) + 401  # Desks 401-425
+                return f"T4-{desk}"
+            
+            # Terminal 2 - Star Alliance overflow & others
+            if airline in ['BEL', 'TAP', 'AIC', 'LH', 'AUA']:
+                desk = (seed % 20) + 201  # Desks 201-220
+                return f"T2-{desk}"
+            
+            # Default to Terminal 2 for unknown carriers
+            desk = (seed % 20) + 221  # Desks 221-240
+            return f"T2-{desk}"
             
         return ""
 

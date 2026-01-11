@@ -78,16 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (airportCode === 'LFSB') {
             document.body.classList.add('theme-lfsb');
         }
+        // EGLL uses default theme (same as LSZH)
 
         const flagContainer = document.getElementById('flagContainer');
         if (!flagContainer) return;
 
         const swissFlag = '<img src="https://flagcdn.com/h40/ch.png" alt="Switzerland" title="Switzerland">';
         const frenchFlag = '<img src="https://flagcdn.com/h40/fr.png" alt="France" title="France">';
+        const ukFlag = '<img src="https://flagcdn.com/h40/gb.png" alt="United Kingdom" title="United Kingdom">';
 
         if (airportCode === 'LSZH') {
             flagContainer.innerHTML = swissFlag;
+        } else if (airportCode === 'EGLL') {
+            flagContainer.innerHTML = ukFlag;
         } else {
+            // LSGG and LFSB get both flags
             flagContainer.innerHTML = swissFlag + frenchFlag;
         }
     }
