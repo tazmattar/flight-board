@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- THEME & FLAGS ENGINE ---
     function updateTheme(airportCode) {
-        document.body.classList.remove('theme-lsgg', 'theme-lfsb'); 
+        document.body.classList.remove('theme-lsgg', 'theme-lfsb', 'theme-egll'); 
         
         if (airportCode === 'LSGG') {
             document.body.classList.add('theme-lsgg');
@@ -78,7 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (airportCode === 'LFSB') {
             document.body.classList.add('theme-lfsb');
         }
-        // EGLL uses default theme (same as LSZH)
+        else if (airportCode === 'EGLL') {
+            document.body.classList.add('theme-egll');
+        }
 
         const flagContainer = document.getElementById('flagContainer');
         if (!flagContainer) return;
@@ -117,6 +119,42 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (document.exitFullscreen) document.exitFullscreen();
         });
     }
+
+    function updateFooterText(airportCode) {
+    if (airportCode === 'EGLL') {
+        // English only for Heathrow
+        document.getElementById('gateLabel').textContent = 'Gates';
+        document.getElementById('arrivalsLabel1').textContent = 'Arrivals';
+        document.getElementById('arrivalsLabel2').style.display = 'none';
+        document.getElementById('departuresLabel1').textContent = 'Departures';
+        document.getElementById('departuresLabel2').style.display = 'none';
+        document.getElementById('securityLabel').innerHTML = 'Estimated waiting time<br>at security';
+    } else {
+        // Swiss airports - German/English
+        document.getElementById('gateLabel').textContent = 'Gates';
+        document.getElementById('arrivalsLabel1').textContent = 'Ankunft';
+        document.getElementById('arrivalsLabel2').style.display = 'block';
+        document.getElementById('arrivalsLabel2').textContent = 'Arrivals';
+        document.getElementById('departuresLabel1').textContent = 'Abflug';
+        document.getElementById('departuresLabel2').style.display = 'block';
+        document.getElementById('departuresLabel2').textContent = 'Departures';
+        document.getElementById('securityLabel').innerHTML = 'Actual waiting time<br>at security control';
+    }
+}
+
+    elements.airportSelect.addEventListener('change', (e) => {
+        socket.emit('leave_airport', { airport: currentAirport });
+        currentAirport = e.target.value;
+        updateTheme(currentAirport);
+        updateFooterText(currentAirport);  // Add this line
+        socket.emit('join_airport', { airport: currentAirport });
+        elements.departureList.innerHTML = '';
+        elements.arrivalList.innerHTML = '';
+    });
+
+    // Also call on initial load
+    updateTheme(currentAirport);
+    updateFooterText(currentAirport);  // Add this line
 
     // --- SOCKET LISTENER ---
     socket.on('flight_update', (data) => {

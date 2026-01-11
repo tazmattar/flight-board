@@ -90,41 +90,41 @@
 </div>
 </div>
 
-        <footer class="fids-footer">
-            <div class="footer-group left">
-                <div id="flagContainer" class="country-flags"></div>
+            <footer class="fids-footer">
+        <div class="footer-group left">
+            <div id="flagContainer" class="country-flags"></div>
+        </div>
+        
+        <div class="footer-group center-left">
+            <span class="material-icons huge-arrow">arrow_upward</span>
+            <div class="gate-icon-box">
+                <span class="material-icons">flight_takeoff</span>
+                <span id="gateLabel">Gates</span>
+            </div>
+        </div>
+
+        <div class="footer-group center">
+            <div class="main-label">
+                <span class="de" id="arrivalsLabel1">Ankunft</span>
+                <span class="en" id="arrivalsLabel2">Arrivals</span>
             </div>
             
-            <div class="footer-group center-left">
-                <span class="material-icons huge-arrow">arrow_upward</span>
-                <div class="gate-icon-box">
-                    <span class="material-icons">flight_takeoff</span>
-                    <span>Gates</span>
-                </div>
-            </div>
+            <div class="footer-divider"></div>
 
-            <div class="footer-group center">
-                <div class="main-label">
-                    <span class="de">Ankunft</span>
-                    <span class="en">Arrivals</span>
-                </div>
-                
-                <div class="footer-divider"></div>
-
-                <div class="main-label">
-                    <span class="de">Abflug</span>
-                    <span class="en">Departures</span>
-                </div>
+            <div class="main-label">
+                <span class="de" id="departuresLabel1">Abflug</span>
+                <span class="en" id="departuresLabel2">Departures</span>
             </div>
+        </div>
 
-            <div class="footer-group right">
-                <div class="security-time">
-                    <span class="label">Actual waiting time<br>at security control</span>
-                    <span class="time">9 <small>minutes</small></span>
-                </div>
-                <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+        <div class="footer-group right">
+            <div class="security-time">
+                <span class="label" id="securityLabel">Actual waiting time<br>at security control</span>
+                <span class="time">9 <small>minutes</small></span>
             </div>
-        </footer>
+            <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+        </div>
+    </footer>
 
     <div id="metar" style="display:none;"></div>
     <div id="controllers" style="display:none;"></div>
