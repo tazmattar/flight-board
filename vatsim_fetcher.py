@@ -264,9 +264,15 @@ class VatsimFetcher:
 
         # 6. GATE DISPLAY LOGIC
         gate_display = gate or 'TBA'
-        # If departing and moving (Pushback, Taxiing, etc), force CLOSED
-        if direction == 'DEP' and raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']:
-            gate_display = 'CLOSED'
+
+        if direction == 'DEP':
+            # If still in Check-in phase, hide the gate assignment
+            if raw_status == 'Check-in':
+                gate_display = 'TBA'
+            # If moving (Pushback, Taxiing, etc), force CLOSED
+            elif raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']:
+                gate_display = 'CLOSED'
+            # Otherwise (Boarding status), show the actual gate
 
         # 7. STATUS OVERRIDE ("At Gate")
         display_status = raw_status
