@@ -247,7 +247,8 @@ html, body {
 }
 
 /* FLASHING GATE STATUS */
-.flap-container.status-wait {
+.flap-container.status-wait,
+.flap-container.gate-closed {
     color: var(--fids-amber) !important; 
     animation: badge-pulse 2s infinite;
 }
@@ -267,10 +268,6 @@ html, body {
     opacity: 0;
 }
 
-/* Amber color for CLOSED status in gate/checkin columns */
-.flap-container.gate-closed {
-    color: var(--fids-amber) !important;
-}
 
 /* =========================================
    7. FOOTER & THEMES
