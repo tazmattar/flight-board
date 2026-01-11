@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.innerHTML = `
                         ${commonCells}
                         <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-checkin"></div></td>
-                        <td><div class="flap-container" id="${rowId}-gate"></div></td> 
+                        <td style="color: var(--fids-amber);"><div class="flap-container" id="${rowId}-gate"></div></td> 
                         <td><div class="flap-container" id="${rowId}-time"></div></td>
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
