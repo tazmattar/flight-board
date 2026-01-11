@@ -206,8 +206,7 @@ html, body {
 }
 
 /* STATUS COLORS */
-.col-status[data-status="Boarding"] .flap-container,
-.col-status[data-status="Departing"] .flap-container {
+.col-status[data-status="Boarding"] .flap-container {
     background-color: #00b000; 
     color: #ffffff !important; 
 }
@@ -229,6 +228,7 @@ html, body {
 }
 
 .col-status[data-status="Pushback"] .flap-container,
+.col-status[data-status="Departing"] .flap-container,
 .col-status[data-status="Approaching"] .flap-container {
     background-color: #0055b8; 
     color: #ffffff !important;
