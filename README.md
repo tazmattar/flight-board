@@ -1,4 +1,4 @@
-# VATSIM Flight Board - Swiss Radar Edition
+# VATSIM Flight Information Display System
 
 A professional, real-time Flight Information Display System (FIDS) designed for VATSIM operations. This application replicates the visual style and functionality of modern airport information screens found at major Swiss airports (Zurich, Geneva, Basel).
 
