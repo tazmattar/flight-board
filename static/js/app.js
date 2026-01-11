@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // REPLACE YOUR EXISTING AIRPORT SELECT HANDLER WITH THIS:
+    // --- AIRPORT SWITCHER ---
     elements.airportSelect.addEventListener('change', (e) => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
@@ -147,9 +147,26 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.arrivalList.innerHTML = '';
     });
 
-    // MAKE SURE THESE ARE CALLED ON INITIAL LOAD (should be after updateClock() setup):
+    // Initial theme and footer setup
     updateTheme(currentAirport);
     updateFooterText(currentAirport);
+
+    // --- FULLSCREEN TOGGLE ---
+    if (elements.fsBtn) {
+        elements.fsBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                // Enter Fullscreen
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                // Exit Fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+    }
 
     // --- SOCKET LISTENER ---
     socket.on('flight_update', (data) => {
