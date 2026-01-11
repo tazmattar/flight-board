@@ -1,8 +1,8 @@
 # VATSIM Flight Information Display System
 
-A professional, real-time Flight Information Display System (FIDS) designed for VATSIM operations. This application replicates the visual style and functionality of modern airport information screens found at major Swiss airports (Zurich, Geneva, Basel).
+A professional, real-time Flight Information Display System (FIDS) designed for VATSIM operations. This application replicates the visual style and functionality of modern airport information screens found at major airports (currently Zurich, Geneva, Basel).
 
-It is optimized for use on dedicated display monitors in both portrait and landscape orientations.
+It is optimised for use on dedicated display monitors in both portrait and landscape orientations.
 
 ## Features
 
