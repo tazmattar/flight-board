@@ -195,8 +195,7 @@ html, body {
 }
 
 /* STATUS COLORS */
-.col-status[data-status="Boarding"] .flap-container,
-.col-status[data-status="Departing"] .flap-container {
+.col-status[data-status="Boarding"] .flap-container {
     background-color: #00b000; 
     color: #ffffff !important; 
 }
@@ -218,6 +217,7 @@ html, body {
 }
 
 .col-status[data-status="Pushback"] .flap-container,
+.col-status[data-status="Departing"] .flap-container,
 .col-status[data-status="Approaching"] .flap-container {
     background-color: #0055b8; 
     color: #ffffff !important;
@@ -236,7 +236,8 @@ html, body {
 }
 
 /* FLASHING GATE STATUS */
-.flap-container.status-wait {
+.flap-container.status-wait,
+.flap-container.gate-closed {
     color: var(--fids-amber) !important; 
     animation: badge-pulse 2s infinite;
 }
@@ -316,7 +317,7 @@ html, body {
     margin-right: 20px;
 }
 .country-flags img {
-    height: 24px;
+    height: 28px;
     width: auto;
     border-radius: 2px;
     opacity: 0.85;
