@@ -393,6 +393,11 @@ body.theme-egll .footer-group .main-label .en {
     display: none; /* Hide English subtitle for EGLL */
 }
 
+/* Yellow destination/origin text */
+body.theme-egll .flap-dest {
+    color: var(--heathrow-yellow) !important;
+}
+
 body.theme-egll .gate-icon-box {
     border-color: var(--heathrow-yellow);
     color: var(--heathrow-yellow);
