@@ -9,7 +9,6 @@ body.theme-kjfk {
     --jfk-black: #000000;
 }
 
-/* Keep using JetBrains Mono - it's already loaded and fits the columns */
 body.theme-kjfk {
     --font-data: 'B612', monospace;
 }

@@ -1,0 +1,68 @@
+/* =============================================
+   DEFAULT/GENERIC THEME
+   For dynamic airports without specific themes
+   Clean, professional look with high contrast
+   ============================================= */
+
+body.theme-default .fids-header {
+    background: #ffffff;
+    border-bottom: 4px solid #000000;
+}
+
+body.theme-default .airport-selector select,
+body.theme-default .clock-container,
+body.theme-default .add-airport-btn {
+    color: #000000 !important;
+    background: transparent;
+}
+
+body.theme-default .airport-selector select option {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.theme-default .section-divider {
+    background: #111;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
+}
+
+body.theme-default .flight-table th {
+    background: #151515;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
+}
+
+body.theme-default .flight-table td {
+    border-bottom: 1px solid #222;
+}
+
+body.theme-default .flap-container {
+    color: #ffffff;
+}
+
+body.theme-default .fids-footer {
+    background-color: #000;
+    border-top: 4px solid white;
+}
+
+body.theme-default .footer-group .main-label {
+    color: #ffffff;
+}
+
+body.theme-default .gate-icon-box {
+    border-color: white;
+    color: white;
+}
+
+body.theme-default .huge-arrow {
+    color: white;
+}
+
+body.theme-default .security-time .label {
+    color: #cccccc;
+}
+
+body.theme-default .security-time .time {
+    color: #ffffff;
+}

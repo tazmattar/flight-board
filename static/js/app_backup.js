@@ -39,111 +39,110 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadDatabases() {
         try {
-    const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
-    if (response.ok) {
-        const data = await response.json();
-        const manualRenames = {
-            "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
-            "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
-            "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
-            "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
-            "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
-            "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
-            "LIBG": "Taranto-Grottaglie"
-        };
+            const response = await fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json');
+            if (response.ok) {
+                const data = await response.json();
+                data.forEach(a => {
+                    if (a.icao && a.iata && a.active === 'Y' && !airlineMapping[a.icao]) {
+                        airlineMapping[a.icao] = a.iata;
+                    }
+                });
+            }
+        } catch (e) { console.warn('Airline DB failed', e); }
 
-        for (const [icao, details] of Object.entries(data)) {
-            let displayName;
-            if (manualRenames[icao]) displayName = manualRenames[icao];
-            else if (details.city) displayName = details.city;
-            else displayName = details.name;
-
-            // Store BOTH name and country code
-            airportMapping[icao] = {
-                name: displayName
-                    .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
-                    .replace(/\s+/g, ' ')
-                    .trim(),
-                country_code: details.country || ''
+        try {
+        const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
+        if (response.ok) {
+            const data = await response.json();
+            const manualRenames = {
+                "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
+                "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
+                "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
+                "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
+                "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
+                "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
+                "LIBG": "Taranto-Grottaglie"
             };
+
+            for (const [icao, details] of Object.entries(data)) {
+                let displayName;
+                if (manualRenames[icao]) displayName = manualRenames[icao];
+                else if (details.city) displayName = details.city;
+                else displayName = details.name;
+
+                // Store both name AND country code
+                airportMapping[icao] = {
+                    name: displayName
+                        .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim(),
+                    country_code: details.country  // This is the ISO 2-letter code
+                };
+            }
         }
-    }
-} catch (e) { console.warn('Airport DB failed', e); }
+    } catch (e) { console.warn('Airport DB failed', e); }
 }
     loadDatabases();
 
+        // --- THEME & FLAGS ENGINE ---
     function updateTheme(airportCode) {
-    // Remove all existing theme classes
-    document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk', 'theme-default');
-    
-    // Theme mapping for configured airports
-    const themeMap = {
-        'LSZH': {
-            css: '/static/css/themes/lszh.css',
-            class: null  // LSZH uses default styling, no class needed
-        },
-        'LSGG': {
-            css: '/static/css/themes/lsgg.css',
-            class: 'theme-lsgg'
-        },
-        'LFSB': {
-            css: '/static/css/themes/lfsb.css',
-            class: 'theme-lfsb'
-        },
-        'EGLL': {
-            css: '/static/css/themes/egll.css',
-            class: 'theme-egll'
-        },
-        'KJFK': {
-            css: '/static/css/themes/kjfk.css',
-            class: 'theme-kjfk'
+        // Remove all theme classes
+        document.body.classList.remove('theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk');
+        
+        // Add specific theme class
+        if (airportCode === 'LSGG') {
+            document.body.classList.add('theme-lsgg');
+        } else if (airportCode === 'LFSB') {
+            document.body.classList.add('theme-lfsb');
+        } else if (airportCode === 'EGLL') {
+            document.body.classList.add('theme-egll');
+        } else if (airportCode === 'KJFK') {
+            document.body.classList.add('theme-kjfk');
         }
-    };
-    
-    const themeLink = document.getElementById('airportTheme');
-    
-    // Check if this is a configured airport with a specific theme
-    if (themeMap[airportCode]) {
-        const theme = themeMap[airportCode];
-        themeLink.href = theme.css;
-        if (theme.class) {
-            document.body.classList.add(theme.class);
+        // LSZH uses default (no class added)
+        
+        // Load theme-specific CSS dynamically
+        const themeLink = document.getElementById('airportTheme');
+        const themeMap = {
+            'LSZH': '/static/css/themes/lszh.css',
+            'LSGG': '/static/css/themes/lsgg.css',
+            'LFSB': '/static/css/themes/lfsb.css',
+            'EGLL': '/static/css/themes/egll.css',
+            'KJFK': '/static/css/themes/kjfk.css',
+        };
+        
+        if (themeMap[airportCode]) {
+            themeLink.href = themeMap[airportCode];
         }
-    } else {
-        // Dynamic airport - use default theme
-        themeLink.href = '/static/css/themes/default.css';
-        document.body.classList.add('theme-default');
-    }
-    
-    // Update flags (works for both configured and dynamic airports)
-    updateFlags(airportCode);
-}
-    function updateFlags(airportCode) {
-    const flagContainer = document.getElementById('flagContainer');
-    if (!flagContainer) return;
-    
-    // Manual overrides for multi-country airports
-    const manualFlags = {
-        'LSGG': ['ch', 'fr'],  // Geneva: Swiss + French
-        'LFSB': ['ch', 'fr']   // Basel: Swiss + French
-    };
-    
-    if (manualFlags[airportCode]) {
-        // Multi-country airport
-        flagContainer.innerHTML = manualFlags[airportCode]
-            .map(country => `<img src="https://flagcdn.com/h40/${country}.png" alt="${country}" title="${country}">`)
-            .join('');
-    } else {
-        // Single country - get from airport database
-        const countryCode = airportMapping[airportCode]?.country_code;
-        if (countryCode) {
-            flagContainer.innerHTML = `<img src="https://flagcdn.com/h40/${countryCode.toLowerCase()}.png" alt="${countryCode}" title="${countryCode}">`;
+        
+        // Update flags
+        const flagContainer = document.getElementById('flagContainer');
+        if (!flagContainer) return;
+
+        // Manual overrides for multi-country airports
+        const flagOverrides = {
+            'LSGG': ['ch', 'fr'],  // Geneva - Swiss/French
+            'LFSB': ['ch', 'fr']   // Basel - Swiss/French (EuroAirport)
+        };
+
+        // Check for manual override first
+        if (flagOverrides[airportCode]) {
+            flagContainer.innerHTML = flagOverrides[airportCode]
+                .map(code => `<img src="https://flagcdn.com/h40/${code}.png" alt="${code.toUpperCase()}" title="${code.toUpperCase()}">`)
+                .join('');
         } else {
-            // No flag data available
-            flagContainer.innerHTML = '';
+            // Use the airport database we're already loading
+            const airportData = airportMapping[airportCode];
+            
+            if (airportData && airportData.country_code) {
+                const countryCode = airportData.country_code.toLowerCase();
+                flagContainer.innerHTML = `<img src="https://flagcdn.com/h40/${countryCode}.png" alt="${airportData.country_code}" title="${airportData.country_code}">`;
+            } else {
+                // Fallback - hide flag if unknown
+                flagContainer.innerHTML = '';
+            }
         }
     }
-}
 
     function updateFooterText(airportCode) {
         if (airportCode === 'EGLL', 'KJFK') {
@@ -365,10 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
             
             const destFlap = document.getElementById(`${rowId}-dest`);
-            const destDisplayName = airportMapping[destIcao]?.name || destIcao;
             destFlap.setAttribute('data-code', destIcao);
-            destFlap.setAttribute('data-name', destDisplayName);
-            if (showAirportNames && destDisplayName) updateFlapText(destFlap,    destDisplayName.toUpperCase());
+            destFlap.setAttribute('data-name', destName);
+            if (showAirportNames && destName) updateFlapText(destFlap, destName.toUpperCase());
             else updateFlapText(destFlap, destIcao);
 
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
@@ -464,146 +462,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         showAirportNames = !showAirportNames;
         const destFlaps = document.querySelectorAll('.flap-dest');
-    destFlaps.forEach(flap => {
-        const code = flap.getAttribute('data-code');
-        const name = flap.getAttribute('data-name');
-        if (showAirportNames && name && name !== 'undefined' && name !== code) {
-            updateFlapText(flap, name.toUpperCase());
-        } else {
-            updateFlapText(flap, code);
-        }
-    });
-
-    }, 4000);
-    
-    // ====== AIRPORT SEARCH MODAL ======
-        const modal = document.getElementById('airportSearchModal');
-        const addBtn = document.getElementById('addAirportBtn');
-        const closeBtn = document.getElementsByClassName('close')[0];
-        const searchBtn = document.getElementById('searchAirportBtn');
-        const searchInput = document.getElementById('airportSearchInput');
-        const searchResult = document.getElementById('searchResult');
-        const airportSelect = document.getElementById('airportSelect');
-
-        // Open modal
-        if (addBtn) {
-            addBtn.onclick = function() {
-                modal.style.display = 'block';
-                searchInput.value = '';
-                searchResult.textContent = '';
-                searchResult.className = '';
-                searchResult.style.display = 'none';
-                searchInput.focus();
-            }
-        }
-
-        // Close modal with X button
-        if (closeBtn) {
-            closeBtn.onclick = function() {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Search button click
-        if (searchBtn) {
-            searchBtn.onclick = async function() {
-                const icao = searchInput.value.toUpperCase().trim();
-                
-                if (icao.length !== 4) {
-                    searchResult.textContent = 'Please enter a 4-letter ICAO code';
-                    searchResult.className = 'error';
-                    searchResult.style.display = 'block';
-                    return;
-                }
-                
-                // Show loading state
-                searchResult.textContent = 'Searching...';
-                searchResult.className = '';
-                searchResult.style.display = 'block';
-                searchBtn.disabled = true;
-                searchBtn.textContent = 'Searching...';
-                
-                try {
-                    const response = await fetch('/api/search_airport', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ icao: icao })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        searchResult.textContent = `✓ ${data.name} (${icao}) added!`;
-                        searchResult.className = 'success';
-                        searchResult.style.display = 'block';
-                        
-                        // Add to dropdown if not already there
-                        const exists = Array.from(airportSelect.options).some(opt => opt.value === icao);
-                        if (!exists) {
-                            const option = document.createElement('option');
-                            option.value = icao;
-                            option.textContent = `${data.name} - ${icao}`;
-                            airportSelect.appendChild(option);
-                        }
-                        
-                        // Switch to the new airport
-                        airportSelect.value = icao;
-                        
-                        // Trigger airport switch
-                        socket.emit('leave_airport', { airport: currentAirport });
-                        currentAirport = icao;
-                        updateTheme(currentAirport);
-                        updateFooterText(currentAirport);
-                        socket.emit('join_airport', { airport: currentAirport });
-                        
-                        // Clear the board while loading
-                        elements.departureList.innerHTML = '';
-                        elements.arrivalList.innerHTML = '';
-                        
-                        // Close modal after delay
-                        setTimeout(() => {
-                            modal.style.display = 'none';
-                        }, 1500);
-                        
-                    } else {
-                        searchResult.textContent = data.error || 'Airport not found';
-                        searchResult.className = 'error';
-                        searchResult.style.display = 'block';
-                    }
-                } catch (error) {
-                    searchResult.textContent = 'Network error. Please try again.';
-                    searchResult.className = 'error';
-                    searchResult.style.display = 'block';
-                    console.error('Search error:', error);
-                } finally {
-                    // Reset button
-                    searchBtn.disabled = false;
-                    searchBtn.textContent = 'Search';
-                }
-            }
-        }
-
-        // Enter key to search
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchBtn.click();
-                }
-            });
-            
-            // Auto-uppercase and limit to 4 chars
-            searchInput.addEventListener('input', function(e) {
-                this.value = this.value.toUpperCase().slice(0, 4);
-            });
-        }
-
+        destFlaps.forEach(flap => {
+            const code = flap.getAttribute('data-code');
+            const name = flap.getAttribute('data-name');
+            if (showAirportNames && name && name !== 'undefined') updateFlapText(flap, name.toUpperCase());
+            else updateFlapText(flap, code);
+        });
+    }, 4000); 
 });

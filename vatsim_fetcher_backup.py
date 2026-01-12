@@ -5,92 +5,33 @@ import json
 import os
 from datetime import datetime, timedelta
 
-# UKCP Stand API Integration (optional - won't break if not installed)
-try:
-    from ukcp_stand_fetcher import UKCPStandFetcher
-    UKCP_AVAILABLE = True
-except ImportError:
-    UKCP_AVAILABLE = False
-    print("UKCP Stand Fetcher not available - install ukcp_stand_fetcher.py for UK airport stand integration")
-
 class VatsimFetcher:
     def __init__(self):
         self.vatsim_url = 'https://data.vatsim.net/v3/vatsim-data.json'
         
-        # Load airport database on init for dynamic airport support
-        print("Loading airport database...")
-        self.airport_db = self.load_airport_database()
-        print(f"Loaded {len(self.airport_db)} airports from database")
-        
-        # Pre-configured airports with custom settings (full support)
-        self.configured_airports = {
-            'LSZH': { 'name': 'Zurich Airport', 'ceiling': 6000, 'has_stands': True },
-            'LSGG': { 'name': 'Geneva Airport', 'ceiling': 8000, 'has_stands': True },
-            'LFSB': { 'name': 'EuroAirport Basel', 'ceiling': 5000, 'has_stands': True },
-            'EGLL': { 'name': 'London Heathrow', 'ceiling': 7000, 'has_stands': True },
-            'KJFK': { 'name': 'New York JFK', 'ceiling': 5000, 'has_stands': True }
+        self.airports = {
+            'LSZH': { 'name': 'Zurich Airport', 'lat': 47.4647, 'lon': 8.5492, 'ceiling': 6000 },
+            'LSGG': { 'name': 'Geneva Airport', 'lat': 46.2370, 'lon': 6.1091, 'ceiling': 8000 },
+            'LFSB': { 'name': 'EuroAirport Basel', 'lat': 47.5900, 'lon': 7.5290, 'ceiling': 5000 },
+            'EGLL': { 'name': 'London Heathrow', 'lat': 51.4700, 'lon': -0.4543, 'ceiling': 7000 },
+            'KJFK': { 'name': 'New York JFK', 'lat': 40.6397, 'lon': -73.7788, 'ceiling': 5000 }
         }
         
         self.stands = self.load_stands()
         self.cleanup_dist_dep = 80
+        
+        # --- FIX 1: INCREASED RANGE TO GLOBAL COVERAGE ---
         self.radar_range_arr = 15000 
+        # -------------------------------------------------
+        
         self.ground_range = 15
-        
-        # Initialize UKCP Stand Fetcher if available
-        if UKCP_AVAILABLE:
-            self.ukcp_fetcher = UKCPStandFetcher()
-            print("UKCP Stand API integration enabled for UK airports")
-        else:
-            self.ukcp_fetcher = None
-    
-    def load_airport_database(self):
-        """Load the mwgg airports database for coordinate lookup"""
-        try:
-            response = requests.get('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json', timeout=10)
-            if response.ok:
-                return response.json()
-        except Exception as e:
-            print(f"Failed to load airport database: {e}")
-        return {}
-    
-    def get_airport_info(self, icao):
-        """Get airport info - configured airports or from database"""
-        icao = icao.upper()
-        
-        # Check if it's a pre-configured airport with custom settings
-        if icao in self.configured_airports:
-            config = self.configured_airports[icao]
-            # Get coordinates from database, fallback to config
-            db_data = self.airport_db.get(icao, {})
-            return {
-                'name': config.get('name', icao),
-                'lat': db_data.get('lat'),
-                'lon': db_data.get('lon'),
-                'ceiling': config.get('ceiling', 6000),
-                'has_stands': config.get('has_stands', False),
-                'country': db_data.get('country', '')
-            }
-        
-        # Otherwise pull from database (dynamic airport)
-        if icao in self.airport_db:
-            data = self.airport_db[icao]
-            return {
-                'name': data.get('name', icao),
-                'lat': data.get('lat'),
-                'lon': data.get('lon'),
-                'ceiling': 6000,  # Default ceiling
-                'has_stands': False,  # No stand data for dynamic airports
-                'country': data.get('country', '')
-            }
-        
-        return None
     
     def load_stands(self):
         try:
             stands_path = os.path.join('static', 'stands.json')
             if not os.path.exists(stands_path): stands_path = 'stands.json'
             with open(stands_path, 'r') as f: return json.load(f)
-        except: return {}
+        except: return {'LSZH': [], 'LSGG': [], 'LFSB': [], 'EGLL': [], 'KJFK': []}
     
     def calculate_distance_m(self, lat1, lon1, lat2, lon2):
         if None in [lat1, lon1, lat2, lon2]: return 999999
@@ -102,27 +43,11 @@ class VatsimFetcher:
         c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
         return R*c
 
-    def find_stand(self, pilot_lat, pilot_lon, airport_code, groundspeed, altitude, callsign=None):
-        """
-        Find stand assignment with priority:
-        1. UKCP API (UK airports only) - real controller assignments
-        2. Geofencing (configured airports) - coordinate-based
-        3. None (dynamic airports) - no stand data
-        """
-        # Priority 1: Try UKCP API for UK airports (if available)
-        if self.ukcp_fetcher and callsign and self.ukcp_fetcher.is_uk_airport(airport_code):
-            ukcp_stand = self.ukcp_fetcher.get_stand_for_flight(callsign, airport_code)
-            if ukcp_stand:
-                return ukcp_stand
-        
-        # Priority 2: Fall back to geofencing for configured airports with stand data
+    def find_stand(self, pilot_lat, pilot_lon, airport_code, groundspeed, altitude):
         if groundspeed > 5 or altitude > 10000: return None
         if pilot_lat is None or pilot_lon is None: return None
         
         airport_stands = self.stands.get(airport_code, [])
-        if not airport_stands:
-            return None  # No stand data available for this airport
-            
         closest_stand = None
         min_distance = float('inf')
         
@@ -136,22 +61,13 @@ class VatsimFetcher:
         return closest_stand
 
     def fetch_flights(self):
-        """Fetch flights for ALL configured airports"""
         results = {}
-        
-        # Build results structure for all configured airports
-        for code in self.configured_airports:
-            info = self.get_airport_info(code)
-            if info and info['lat'] is not None and info['lon'] is not None:
-                results[code] = {
-                    'departures': [], 
-                    'arrivals': [],
-                    'metar': 'Unavailable', 
-                    'controllers': [],
-                    'airport_name': info['name'],
-                    'has_stands': info.get('has_stands', False),
-                    'country': info.get('country', '')
-                }
+        for code in self.airports:
+            results[code] = {
+                'departures': [], 'arrivals': [],
+                'metar': 'Unavailable', 'controllers': [],
+                'airport_name': self.airports[code]['name']
+            }
 
         try:
             response = requests.get(self.vatsim_url, timeout=10)
@@ -163,19 +79,18 @@ class VatsimFetcher:
                 if not fp: continue
                 
                 dep, arr = fp.get('departure'), fp.get('arrival')
-                
-                if dep in results:
-                    info = self.get_airport_info(dep)
-                    self.process_flight(pilot, dep, 'DEP', results[dep], info)
-                if arr in results:
-                    info = self.get_airport_info(arr)
-                    self.process_flight(pilot, arr, 'ARR', results[arr], info)
+                if dep in self.airports:
+                    self.process_flight(pilot, dep, 'DEP', results[dep])
+                if arr in self.airports:
+                    self.process_flight(pilot, arr, 'ARR', results[arr])
 
-            for code in results:
-                # Sort flights
+            for code in self.airports:
+                # Sort Departures by Time
                 results[code]['departures'].sort(key=lambda x: x.get('time_display', ''))
+
+                # Sort Arrivals by Time
                 results[code]['arrivals'].sort(key=lambda x: x.get('time_display', ''))
-                
+
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
@@ -185,69 +100,11 @@ class VatsimFetcher:
             traceback.print_exc()
             return results
 
-    def fetch_single_airport(self, airport_code):
-        """Fetch flights for a single airport (used for dynamic airports)"""
-        airport_code = airport_code.upper()
-        info = self.get_airport_info(airport_code)
+    def process_flight(self, pilot, airport_code, direction, airport_data):
+        ac = self.airports[airport_code]
+        dist_km = self.calculate_distance_m(pilot['latitude'], pilot['longitude'], ac['lat'], ac['lon']) / 1000.0
         
-        if not info or info['lat'] is None or info['lon'] is None:
-            return None
-        
-        result = {
-            'departures': [], 
-            'arrivals': [],
-            'metar': 'Unavailable', 
-            'controllers': [],
-            'airport_name': info['name'],
-            'has_stands': info.get('has_stands', False),
-            'country': info.get('country', '')
-        }
-
-        try:
-            response = requests.get(self.vatsim_url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            
-            for pilot in data.get('pilots', []):
-                fp = pilot.get('flight_plan')
-                if not fp: continue
-                
-                dep, arr = fp.get('departure'), fp.get('arrival')
-                
-                if dep == airport_code:
-                    self.process_flight(pilot, airport_code, 'DEP', result, info)
-                if arr == airport_code:
-                    self.process_flight(pilot, airport_code, 'ARR', result, info)
-
-            # Sort flights
-            result['departures'].sort(key=lambda x: x.get('time_display', ''))
-            result['arrivals'].sort(key=lambda x: x.get('time_display', ''))
-            
-            result['metar'] = self.get_metar(airport_code)
-            result['controllers'] = self.get_controllers(data.get('controllers', []), airport_code)
-            
-            return {airport_code: result}
-        except Exception as e:
-            print(f"Error fetching {airport_code}: {e}")
-            traceback.print_exc()
-            return None
-
-    def process_flight(self, pilot, airport_code, direction, airport_data, airport_info):
-        dist_km = self.calculate_distance_m(
-            pilot['latitude'], 
-            pilot['longitude'], 
-            airport_info['lat'], 
-            airport_info['lon']
-        ) / 1000.0
-        
-        flight_info = self.format_flight(
-            pilot, 
-            direction, 
-            airport_info['ceiling'], 
-            airport_code, 
-            dist_km,
-            airport_info.get('has_stands', False)
-        )
+        flight_info = self.format_flight(pilot, direction, ac['ceiling'], airport_code, dist_km)
         status = flight_info['status_raw']
         
         if direction == 'DEP':
@@ -255,10 +112,12 @@ class VatsimFetcher:
                 airport_data['departures'].append(flight_info)
             elif status == 'Departing' and dist_km < self.cleanup_dist_dep:
                 airport_data['departures'].append(flight_info)
+            # REMOVED the 'elif status == En Route' block here
             
         elif direction == 'ARR':
             if status in ['Landed', 'Landing', 'Approaching']:
                 airport_data['arrivals'].append(flight_info)
+            # REMOVED the 'elif dist_km < radar_range' block here (which captured En Route)
 
     def calculate_times(self, deptime, enroute_time, direction):
         display_time = "--:--"
@@ -308,14 +167,16 @@ class VatsimFetcher:
             print(f"Delay calc error: {e}")
             return 0
 
+    # --- MULTI-AIRPORT CHECK-IN LOGIC ---
     def get_checkin_area(self, callsign, airport_code):
-        """Get check-in desk/row assignment"""
         if not callsign: return ""
         
+        # 1. Deterministic "Random" Desk
         seed = sum(ord(c) for c in callsign) 
+        
         airline = callsign[:3].upper()
         
-        # Use configured logic for pre-configured airports
+        # --- ZURICH (LSZH) ---
         if airport_code == 'LSZH':
             if airline in ['SWR', 'EDW', 'DLH', 'AUA', 'BEL', 'CTN', 'AEE', 'DLA']: 
                 return "1" 
@@ -323,107 +184,142 @@ class VatsimFetcher:
                 return "3"
             return "2"
 
+        # --- GENEVA (LSGG) ---
         elif airport_code == 'LSGG':
+            # Terminal 2 (Winter Charters)
             if airline in ['EXS', 'TOM', 'TRA', 'JAI']:
-                desk = (seed % 10) + 80
+                desk = (seed % 10) + 80  # Desks 80-89
                 return f"T2-{desk}"
+            
+            # French Sector (Air France)
             if airline == 'AFR': 
-                desk = (seed % 8) + 70
+                desk = (seed % 8) + 70   # Desks 70-77
                 return f"F{desk}"
+                
+            # Main Terminal - Star Alliance
             if airline in ['SWR', 'LX', 'EDW', 'DLH', 'UAE', 'ETD', 'QTR']:
-                desk = (seed % 15) + 1
+                desk = (seed % 15) + 1   # Desks 01-15
                 return f"{desk:02d}"
-            desk = (seed % 30) + 20
+            
+            # Main Terminal - Others
+            desk = (seed % 30) + 20      # Desks 20-49
             return f"{desk:02d}"
 
+        # --- BASEL (LFSB) ---
         elif airport_code == 'LFSB':
+            # French Sector
             if airline in ['AFR', 'WZZ', 'RYR', 'ENT']: 
-                desk = (seed % 15) + 60
+                desk = (seed % 15) + 60  # Desks 60-74
                 return f"F{desk}"
-            desk = (seed % 40) + 1
+            
+            # Swiss Sector
+            desk = (seed % 40) + 1       # Desks 01-40
             return f"{desk:02d}"
         
+        # --- HEATHROW (EGLL) ---
         elif airport_code == 'EGLL':
+            # Terminal 5 - British Airways & oneworld
             if airline in ['BAW', 'SHT', 'IBE', 'AAL', 'AER', 'EIN']:
-                desk = (seed % 40) + 501
+                desk = (seed % 40) + 501  # Desks 501-540
                 return f"{desk}"
+            
+            # Terminal 3 - Star Alliance & Middle East
             if airline in ['DLH', 'SWR', 'AUA', 'SAS', 'UAL', 'ACA', 'SIA', 
                         'THA', 'ANA', 'UAE', 'QFA', 'VIR', 'DAL', 'LOT']:
-                desk = (seed % 30) + 301
+                desk = (seed % 30) + 301  # Desks 301-330
                 return f"{desk}"
+            
+            # Terminal 4 - SkyTeam & Independents
             if airline in ['KLM', 'AFR', 'CES', 'KQA', 'ETD', 'MAS', 'RAM']:
-                desk = (seed % 25) + 401
+                desk = (seed % 25) + 401  # Desks 401-425
                 return f"{desk}"
+            
+            # Terminal 2 - Star Alliance overflow & others
             if airline in ['BEL', 'TAP', 'AIC', 'LH', 'AUA']:
-                desk = (seed % 20) + 201
+                desk = (seed % 20) + 201  # Desks 201-220
                 return f"{desk}"
-            desk = (seed % 20) + 221
+            
+            # Default to Terminal 2 for unknown carriers
+            desk = (seed % 20) + 221  # Desks 221-240
             return f"{desk}"
         
+        # --- JFK (KJFK) --- 
         elif airport_code == 'KJFK':
+            seed = sum(ord(c) for c in callsign)
+            airline = callsign[:3].upper()
+            
+            # --- TERMINAL 1: Star Alliance mix, European long-haul ---
             if airline in ['DLH', 'LH', 'SWR', 'LX', 'AUA', 'OS', 'BEL', 'SN', 
                         'AFR', 'AF', 'KLM', 'KL', 'JAL', 'JL', 'KAL', 'KE']:
-                row = ((seed % 8) + 1)
+                row = ((seed % 8) + 1)  # Rows 1-8
                 return f"T1-{row}"
+            
+            # --- TERMINAL 4: Delta hub + SkyTeam + Middle East + International ---
             if airline in ['DAL', 'DL', 'AFR', 'AF', 'KLM', 'KL', 'AZA', 'AZ',
                         'CES', 'MU', 'KQA', 'KQ', 'SVA', 'SV', 'ETD', 'EY',
-                        'VIR', 'VS', 'UAL', 'UA']:
+                        'VIR', 'VS', 'UAL', 'UA']:  # Virgin & some Star also in T4
+                # Known anchors: Row 6 = VS/KQ, Row 1/1A exist
                 if airline in ['VIR', 'VS', 'KQA', 'KQ']:
-                    return f"T4-6"
+                    return f"T4-6"  # Confirmed
                 else:
                     rows = ['1', '1A', '2', '3', '4', '5', '6', '7']
                     return f"T4-{rows[seed % len(rows)]}"
-            if airline in ['JBU', 'B6', 'EIN', 'EI', 'SYX', 'SY']:
-                row = ((seed % 4) + 1)
+            
+            # --- TERMINAL 5: JetBlue base ---
+            if airline in ['JBU', 'B6', 'EIN', 'EI', 'SYX', 'SY']:  # Aer Lingus, Sun Country
+                row = ((seed % 4) + 1)  # Small pool, rows 1-4 (fictional but plausible)
                 return f"T5-{row}"
+            
+            # --- TERMINAL 7: Star/non-alliance mix ---
             if airline in ['BAW', 'BA', 'IBE', 'IB', 'ASA', 'AS', 'EWG', 'EW',
-                        'ICE', 'FI', 'UAE', 'EK']:
+                        'ICE', 'FI', 'UAE', 'EK']:  # Mix of carriers
+                # Known: Row C (Eurowings), Row 2 (historical Qatar), Row 6 exists
                 if airline in ['EWG', 'EW']:
-                    return f"T7-C"
+                    return f"T7-C"  # Confirmed
                 else:
                     rows = ['2', '3', '4', '5', '6', 'C']
                     return f"T7-{rows[seed % len(rows)]}"
+            
+            # --- TERMINAL 8: American hub + oneworld ---
             if airline in ['AAL', 'AA', 'BAW', 'BA', 'QTR', 'QR', 'CPA', 'CX',
                         'JAL', 'JL', 'FJI', 'FJ']:
+                # Known: Row 5 = Qatar
                 if airline in ['QTR', 'QR']:
-                    return f"T8-5"
+                    return f"T8-5"  # Confirmed
                 else:
                     rows = ['1', '2', '3', '4', '5', '6']
                     return f"T8-{rows[seed % len(rows)]}"
+            
+            # Default fallback (unknown carrier → T4 as largest/most diverse)
             row = ((seed % 7) + 1)
             return f"T4-{row}"
-        
-        # Generic check-in for unconfigured/dynamic airports
-        desk = (seed % 20) + 1
-        return f"{desk:02d}"
+        return ""
 
-    def format_flight(self, pilot, direction, ceiling, airport_code, dist_km, has_stands):
+    def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
         fp = pilot.get('flight_plan', {})
-        callsign = pilot.get('callsign', 'N/A')
         
         # 1. CHECK-IN ASSIGNMENT (Initial Calculation)
         checkin_area = None
         if direction == 'DEP':
-            checkin_area = self.get_checkin_area(callsign, airport_code)
+            checkin_area = self.get_checkin_area(pilot.get('callsign'), airport_code)
 
-        # 2. FIND GATE (UKCP for UK airports, geofencing for configured, None for dynamic)
-        gate = None
-        if has_stands:
-            gate = self.find_stand(
-                pilot['latitude'], 
-                pilot['longitude'], 
-                airport_code, 
-                pilot['groundspeed'], 
-                pilot['altitude'],
-                callsign  # Pass callsign for UKCP API lookup
-            )
+        # 2. FIND GATE
+        gate = self.find_stand(
+            pilot['latitude'], 
+            pilot['longitude'], 
+            airport_code, 
+            pilot['groundspeed'], 
+            pilot['altitude']
+        )
 
         # 3. DETERMINE STATUS
         raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
         
-        # --- OVERWRITE CHECK-IN IF BOARDING OR LATER ---
+        # --- NEW LOGIC: OVERWRITE CHECK-IN IF BOARDING OR LATER ---
+        # If status is Boarding, Pushback, Taxiing, etc., Check-in is CLOSED
         if direction == 'DEP' and raw_status != 'Check-in':
             checkin_area = 'CLOSED'
+        # ----------------------------------------------------------
 
         # 4. CALCULATE TIME
         time_display = self.calculate_times(fp.get('deptime'), fp.get('enroute_time'), direction)
@@ -448,10 +344,13 @@ class VatsimFetcher:
         gate_display = gate or 'TBA'
 
         if direction == 'DEP':
+            # If still in Check-in phase, hide the gate assignment
             if raw_status == 'Check-in':
                 gate_display = 'TBA'
+            # If moving (Pushback, Taxiing, etc), force CLOSED
             elif raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']:
                 gate_display = 'CLOSED'
+            # Otherwise (Boarding status), show the actual gate
 
         # 7. STATUS OVERRIDE ("At Gate")
         display_status = raw_status
@@ -459,7 +358,7 @@ class VatsimFetcher:
             display_status = 'At Gate'
 
         return {
-            'callsign': callsign,
+            'callsign': pilot.get('callsign', 'N/A'),
             'aircraft': fp.get('aircraft_short', 'N/A'),
             'origin': fp.get('departure', 'N/A'),
             'destination': fp.get('arrival', 'N/A'),
