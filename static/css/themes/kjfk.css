@@ -11,7 +11,7 @@ body.theme-kjfk {
 
 /* Keep using JetBrains Mono - it's already loaded and fits the columns */
 body.theme-kjfk {
-    --font-data: 'JetBrains Mono', monospace;
+    --font-data: 'B612', monospace;
 }
 
 body.theme-kjfk .fids-header {
