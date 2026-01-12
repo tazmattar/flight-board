@@ -60,6 +60,7 @@ class VatsimFetcher:
         # Check if it's a pre-configured airport with custom settings
         if icao in self.configured_airports:
             config = self.configured_airports[icao]
+            # Get coordinates from database, fallback to config
             db_data = self.airport_db.get(icao, {})
             return {
                 'name': config.get('name', icao),
@@ -74,9 +75,7 @@ class VatsimFetcher:
         if icao in self.airport_db:
             data = self.airport_db[icao]
             
-            # --- FIX: Check if this is a UK airport supported by UKCP ---
-            # If it is, we set has_stands to True so find_stand() gets called.
-            # find_stand() will then prioritize the UKCP API result.
+            # --- FIX 1: Enable UKCP lookup for searched airports ---
             is_ukcp_supported = False
             if self.ukcp_fetcher and self.ukcp_fetcher.is_uk_airport(icao):
                 is_ukcp_supported = True
@@ -86,7 +85,7 @@ class VatsimFetcher:
                 'lat': data.get('lat'),
                 'lon': data.get('lon'),
                 'ceiling': 6000,
-                'has_stands': is_ukcp_supported, # Set to True for UK airports
+                'has_stands': is_ukcp_supported, # Set True so format_flight calls find_stand
                 'country': data.get('country', '')
             }
         
@@ -247,6 +246,7 @@ class VatsimFetcher:
             airport_info['lon']
         ) / 1000.0
         
+        # --- PASS AIRPORT CODE TO FORMAT FLIGHT ---
         flight_info = self.format_flight(
             pilot, 
             direction, 
@@ -425,8 +425,8 @@ class VatsimFetcher:
                 callsign  # Pass callsign for UKCP API lookup
             )
 
-        # 3. DETERMINE STATUS
-        raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate)
+        # 3. DETERMINE STATUS (Pass airport_code to check for local stands)
+        raw_status = self.determine_status(pilot, direction, ceiling, dist_km, gate, airport_code)
         
         # --- OVERWRITE CHECK-IN IF BOARDING OR LATER ---
         if direction == 'DEP' and raw_status != 'Check-in':
@@ -483,7 +483,7 @@ class VatsimFetcher:
         }
 
 
-    def determine_status(self, pilot, direction, ceiling, dist_km, gate_found):
+    def determine_status(self, pilot, direction, ceiling, dist_km, gate_found, airport_code):
         alt = pilot['altitude']
         gs = pilot['groundspeed']
         
@@ -500,15 +500,28 @@ class VatsimFetcher:
                         pass 
 
                 if gs < 1:
+                    # STOPPED
                     if gate_found:
-                        if minutes_online < 5: 
-                            return 'Check-in'
-                        else: 
-                            return 'Boarding'
-                    else: 
-                        return 'Taxiing'
+                        # At a KNOWN gate (either from UKCP or local JSON)
+                        if minutes_online < 5: return 'Check-in'
+                        else: return 'Boarding'
+                    else:
+                        # Stopped but NO gate found
+                        # --- HYBRID LOGIC FIX ---
+                        # Check if we SHOULD have found a gate (do we have local stands?)
+                        has_local_stands = len(self.stands.get(airport_code, [])) > 0
+                        
+                        if has_local_stands:
+                            # We have stands, but you aren't at one. You are holding short.
+                            return 'Taxiing'
+                        else:
+                            # We don't know where the gates are (Searched/Dynamic).
+                            # Assume you are parked.
+                            if minutes_online < 5: return 'Check-in'
+                            else: return 'Boarding'
                     
                 if gs < 5: 
+                    # MOVING SLOWLY (Pushback or slow taxi)
                     if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'}:
                         return 'Pushback'
                     else:
