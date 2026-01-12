@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('theme-egll');
         } else if (airportCode === 'KJFK') {
             document.body.classList.add('theme-kjfk');
-        
+        }
         // LSZH uses default (no class added)
         
         // Load theme-specific CSS dynamically
