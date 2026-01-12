@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from apscheduler.schedulers.background import BackgroundScheduler
 from vatsim_fetcher import VatsimFetcher
+from airport_languages import AirportLanguages
 from config import Config
 import atexit
 
@@ -36,6 +37,11 @@ update_flights()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/api/translations')
+def get_translations():
+    """Serve all language translations to the frontend"""
+    return jsonify(AirportLanguages.get_all_translations())
 
 @app.route('/api/search_airport', methods=['POST'])
 def search_airport():

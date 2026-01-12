@@ -10,7 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('flight_update', (data) => {
-        // ... existing code ...
+        console.log('Flight update received:', data);
+        rawFlightData = data;
+        elements.airportName.textContent = data.airport_name || currentAirport;
+        
+        // Update footer text with country information
+        updateFooterText(currentAirport, data.country);
+        
+        renderFlightBoard(data.departures, 'departure');
+        renderFlightBoard(data.arrivals, 'arrival');
     });
 
     // --- STATE MANAGEMENT ---
@@ -152,9 +160,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateFooterText(airportCode) {
-        if (airportCode === 'EGLL', 'KJFK', 'EGKK') {
-            // English only for Heathrow and JFK
+    function updateFooterText(airportCode, country) {
+        // This function will be replaced by language_handler.js
+        // Temporary fallback until language_handler.js is loaded
+        const englishAirports = ['EGLL', 'KJFK', 'EGKK'];
+        
+        if (englishAirports.includes(airportCode)) {
+            // English only
             document.getElementById('gateLabel').textContent = 'Gates';
             document.getElementById('arrivalsLabel1').textContent = 'Arrivals';
             document.getElementById('arrivalsLabel2').style.display = 'none';
@@ -162,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('departuresLabel2').style.display = 'none';
             document.getElementById('securityLabel').innerHTML = 'Estimated waiting time<br>at security';
         } else {
-            // Swiss airports - German/English
+            // Bilingual (German/English as default)
             document.getElementById('gateLabel').textContent = 'Gates';
             document.getElementById('arrivalsLabel1').textContent = 'Ankunft';
             document.getElementById('arrivalsLabel2').style.display = 'block';
@@ -179,7 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('leave_airport', { airport: currentAirport });
         currentAirport = e.target.value;
         updateTheme(currentAirport);
-        updateFooterText(currentAirport);
+        // Country will be updated when flight_update arrives
+        updateFooterText(currentAirport, '');
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
@@ -187,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial theme and footer setup
     updateTheme(currentAirport);
-    updateFooterText(currentAirport);
+    updateFooterText(currentAirport, '');
 
     // --- FULLSCREEN TOGGLE ---
     if (elements.fsBtn) {
@@ -571,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     socket.emit('leave_airport', { airport: currentAirport });
                     currentAirport = icao;
                     updateTheme(currentAirport);
-                    updateFooterText(currentAirport);
+                    updateFooterText(currentAirport, data.country || '');
                     socket.emit('join_airport', { airport: currentAirport });
                     
                     // Clear the board while loading
