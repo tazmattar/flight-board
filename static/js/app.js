@@ -47,41 +47,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const airportMapping = {}; 
 
     async function loadDatabases() {
+        // This is the missing block that fixes your logos
         try {
-    const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
-    if (response.ok) {
-        const data = await response.json();
-        const manualRenames = {
-            "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
-            "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
-            "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
-            "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
-            "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
-            "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
-            "LIBG": "Taranto-Grottaglie"
-        };
+            const response = await fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json');
+            if (response.ok) {
+                const data = await response.json();
+                data.forEach(a => {
+                    if (a.icao && a.iata && a.active === 'Y' && !airlineMapping[a.icao]) {
+                        airlineMapping[a.icao] = a.iata;
+                    }
+                });
+            }
+        } catch (e) { console.warn('Airline DB failed', e); }
 
-        for (const [icao, details] of Object.entries(data)) {
-            let displayName;
-            if (manualRenames[icao]) displayName = manualRenames[icao];
-            else if (details.city) displayName = details.city;
-            else displayName = details.name;
+        // This is your existing airport logic
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
+            if (response.ok) {
+                const data = await response.json();
+                const manualRenames = {
+                    "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
+                    "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
+                    "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
+                    "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
+                    "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
+                    "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
+                    "LIBG": "Taranto-Grottaglie"
+                };
 
-            // Store BOTH name and country code
-            airportMapping[icao] = {
-                name: displayName
-                    .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
-                    .replace(/\s+/g, ' ')
-                    .trim(),
-                country_code: details.country || ''
-            };
-        }
+                for (const [icao, details] of Object.entries(data)) {
+                    let displayName;
+                    if (manualRenames[icao]) displayName = manualRenames[icao];
+                    else if (details.city) displayName = details.city;
+                    else displayName = details.name;
+
+                    // Store both name AND country code
+                    airportMapping[icao] = {
+                        name: displayName
+                            .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
+                            .replace(/\s+/g, ' ')
+                            .trim(),
+                        country_code: details.country  // This is the ISO 2-letter code
+                    };
+                }
+            }
+        } catch (e) { console.warn('Airport DB failed', e); }
     }
-} catch (e) { console.warn('Airport DB failed', e); }
-}
     loadDatabases();
-
-    // REPLACE YOUR ENTIRE updateTheme FUNCTION (lines 88-137) WITH THIS:
     
     function updateTheme(airportCode) {
         // Remove all existing theme classes
