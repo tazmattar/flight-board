@@ -161,31 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateFooterText(airportCode, country) {
-        // This function will be replaced by language_handler.js
-        // Temporary fallback until language_handler.js is loaded
-        const englishAirports = ['EGLL', 'KJFK', 'EGKK'];
-        
-        if (englishAirports.includes(airportCode)) {
-            // English only
-            document.getElementById('gateLabel').textContent = 'Gates';
-            document.getElementById('arrivalsLabel1').textContent = 'Arrivals';
-            document.getElementById('arrivalsLabel2').style.display = 'none';
-            document.getElementById('departuresLabel1').textContent = 'Departures';
-            document.getElementById('departuresLabel2').style.display = 'none';
-            document.getElementById('securityLabel').innerHTML = 'Estimated waiting time<br>at security';
-        } else {
-            // Bilingual (German/English as default)
-            document.getElementById('gateLabel').textContent = 'Gates';
-            document.getElementById('arrivalsLabel1').textContent = 'Ankunft';
-            document.getElementById('arrivalsLabel2').style.display = 'block';
-            document.getElementById('arrivalsLabel2').textContent = 'Arrivals';
-            document.getElementById('departuresLabel1').textContent = 'Abflug';
-            document.getElementById('departuresLabel2').style.display = 'block';
-            document.getElementById('departuresLabel2').textContent = 'Departures';
-            document.getElementById('securityLabel').innerHTML = 'Actual waiting time<br>at security control';
-        }
-    }
+    // updateFooterText is defined globally in language_handler.js
 
     // --- AIRPORT SWITCHER ---
     elements.airportSelect.addEventListener('change', (e) => {
