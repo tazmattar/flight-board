@@ -54,15 +54,16 @@ html, body {
     
     /* 1. The Glare: A subtle diagonal shine */
     background: linear-gradient(
-        125deg, 
-        rgba(255, 255, 255, 0.03) 0%, 
-        rgba(255, 255, 255, 0.01) 30%, 
-        rgba(0, 0, 0, 0.02) 50%, 
-        rgba(0, 0, 0, 0.05) 100%
+        135deg, 
+        rgba(255, 255, 255, 0.15) 0%,    /* Top-left highlight */
+        rgba(255, 255, 255, 0.05) 25%, 
+        rgba(255, 255, 255, 0.0) 50%,    /* Middle is clear */
+        rgba(0, 0, 0, 0.1) 80%,          /* Bottom-right shadow */
+        rgba(0, 0, 0, 0.2) 100%
     );
 
     /* 2. The Vignette: Darkens the corners slightly like a real monitor */
-    box-shadow: inset 0 0 80px rgba(0,0,0,0.3);
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.7);
 
     /* 3. Vital: Ensures you can still click buttons underneath */
     pointer-events: none; 
