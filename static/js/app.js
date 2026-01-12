@@ -200,21 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.handleLogoError = function(img) {
         // Track which attempt we're on (0=primary, 1=secondary, 2=tertiary, 3=failed)
         const attempt = parseInt(img.dataset.attempt || '0');
-        console.log(`[Logo Error] Attempt ${attempt} failed for src: ${img.src}`);
         
         if (attempt === 0) {
             // First failure: try secondary
             img.dataset.attempt = '1';
             img.src = img.dataset.secondary;
-            console.log(`[Logo Error] Trying secondary: ${img.src}`);
         } else if (attempt === 1) {
             // Second failure: try tertiary
             img.dataset.attempt = '2';
             img.src = img.dataset.tertiary;
-            console.log(`[Logo Error] Trying tertiary: ${img.src}`);
         } else {
             // All failed: hide the image
-            console.log(`[Logo Error] All sources failed, hiding image`);
             img.style.display = 'none';
         }
     };
@@ -324,8 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 secondaryLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
                 tertiaryLogo = `/static/logos/${code}.png`;
             }
-            
-            console.log(`[Logo] ${flight.callsign} (${code}): Primary=${primaryLogo}`);
 
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
             const destName = (airportMapping[destIcao]?.name) || destIcao;
@@ -363,10 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                  data-primary="${primaryLogo}"
                                  data-secondary="${secondaryLogo}"
                                  data-tertiary="${tertiaryLogo}"
-                                 class="airline-logo"
-                                 width="64"
-                                 height="64"
-                                 style="filter: none; min-width: 64px; min-height: 64px;" 
+                                 class="airline-logo" 
+                                 style="filter: none;" 
                                  onerror="handleLogoError(this)">
                             <div class="flap-container" id="${rowId}-callsign"></div>
                         </div>
