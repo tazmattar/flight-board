@@ -1,38 +1,34 @@
-from ukcp_stand_fetcher import UKCPStandFetcher
+import requests
 import json
 
-def test_ukcp():
-    print("--- STARTING UKCP API TEST ---")
-    fetcher = UKCPStandFetcher()
+def debug_raw():
+    url = 'https://ukcp.vatsim.uk/api/stand/assignment'
+    print(f"--- FETCHING RAW DATA FROM {url} ---")
     
-    print(f"Fetching from: {fetcher.api_url}")
-    
-    # Force a fetch
-    data = fetcher.fetch_stand_assignments()
-    
-    # 1. Check if we got ANY data
-    if not data:
-        print("❌ RESULT: No data returned (Empty Dictionary)")
-        print("Possible causes: API down, connection blocked, or no assignments exists network-wide.")
-        return
+    try:
+        r = requests.get(url, headers={'User-Agent': 'VATSIM-FlightBoard/1.0'})
+        data = r.json()
+        
+        print(f"Status Code: {r.status_code}")
+        print(f"Items found: {len(data)}")
+        
+        if len(data) > 0:
+            print("\n--- RAW JSON STRUCTURE (First Item) ---")
+            # Dump the first item exactly as the API sends it
+            print(json.dumps(data[0], indent=4))
+            
+            # Also check if there's a valid one with a stand further down
+            for item in data:
+                # print any item that looks like it has stand data
+                if item.get('stand') or item.get('code') or item.get('allocation'):
+                    print("\n--- ITEM WITH POTENTIAL STAND DATA ---")
+                    print(json.dumps(item, indent=4))
+                    break
+        else:
+            print("API returned an empty list.")
 
-    print(f"✅ RESULT: Successfully fetched {len(data)} assignments.")
-    
-    # 2. Look specifically for EGKK (Gatwick)
-    print("\n--- SEARCHING FOR EGKK ASSIGNMENTS ---")
-    egkk_found = False
-    for callsign, info in data.items():
-        if info['airport'] == 'EGKK':
-            egkk_found = True
-            print(f"✈️  {callsign}: Stand {info['stand']} (Type: {info['type']})")
-    
-    if not egkk_found:
-        print("⚠️  No assignments found specifically for EGKK right now.")
-    
-    # 3. Dump a sample of the raw data to check format
-    print("\n--- RAW DATA SAMPLE (First item) ---")
-    first_key = next(iter(data))
-    print(json.dumps({first_key: data[first_key]}, indent=2))
+    except Exception as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    test_ukcp()
+    debug_raw()
