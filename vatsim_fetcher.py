@@ -27,6 +27,7 @@ class VatsimFetcher:
             'LSGG': { 'name': 'Geneva Airport', 'ceiling': 8000, 'has_stands': True },
             'LFSB': { 'name': 'EuroAirport Basel', 'ceiling': 5000, 'has_stands': True },
             'EGLL': { 'name': 'London Heathrow', 'ceiling': 7000, 'has_stands': True },
+            'EGKK': { 'name': 'London Gatwick', 'ceiling': 7000, 'has_stands': True },
             'KJFK': { 'name': 'New York JFK', 'ceiling': 5000, 'has_stands': True }
         }
         

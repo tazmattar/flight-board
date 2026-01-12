@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function updateTheme(airportCode) {
         // Remove all existing theme classes
-        document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk', 'theme-default');
+        document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk', 'theme-default', 'theme-egkk');
         
         // Theme mapping for configured airports
         const themeMap = {
@@ -95,6 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'EGLL': {
                 css: '/static/css/themes/egll.css',
                 class: 'theme-egll'
+            },
+            'EGKK': {
+                css: '/static/css/themes/egkk.css',
+                class: 'theme-egkk'
             },
             'KJFK': {
                 css: '/static/css/themes/kjfk.css',
@@ -149,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateFooterText(airportCode) {
-        if (airportCode === 'EGLL', 'KJFK') {
+        if (airportCode === 'EGLL', 'KJFK', 'EGKK') {
             // English only for Heathrow and JFK
             document.getElementById('gateLabel').textContent = 'Gates';
             document.getElementById('arrivalsLabel1').textContent = 'Arrivals';
