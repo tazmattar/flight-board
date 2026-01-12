@@ -32,50 +32,12 @@ html, body {
     flex-direction: column;
 }
 
-/* static/css/style.css */
-
 .monitor-frame { 
     display: flex; 
     flex-direction: column; 
     height: 100%; 
     width: 100%; 
     overflow: hidden;
-    position: relative;
-}
-/* Overlay Effect for Monitor Realism */
-.monitor-frame::after {
-    content: " ";
-    display: block;
-    position: absolute;
-    top: 0; 
-    left: 0;
-    bottom: 0; 
-    right: 0;
-    pointer-events: none;
-    z-index: 100;
-    
-    background: 
-        /* Layer 1: Horizontal Scanlines (Black lines every 2 pixels) */
-        linear-gradient(
-            to bottom,
-            rgba(255, 255, 255, 0) 50%, 
-            rgba(0, 0, 0, 0.25) 50%
-        ),
-        /* Layer 2: Vertical RGB Phosphors (Tiny vertical strips of Red, Green, Blue) */
-        linear-gradient(
-            90deg,
-            rgba(255, 0, 0, 0.06),
-            rgba(0, 255, 0, 0.02),
-            rgba(0, 0, 255, 0.06)
-        );
-
-    /* Defines the size of the patterns above */
-    /* 100% width, 2px height (Scanlines) | 3px width, 100% height (RGB) */
-    background-size: 100% 2px, 3px 100%;
-
-    /* 2. THE VIGNETTE (Dark corners) */
-    /* This creates the curved glass feel */
-    box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
 }
 
 /* 2. HEADER (Fixed) */
