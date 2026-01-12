@@ -220,27 +220,27 @@ class VatsimFetcher:
             # Terminal 5 - British Airways & oneworld
             if airline in ['BAW', 'SHT', 'IBE', 'AAL', 'AER', 'EIN']:
                 desk = (seed % 40) + 501  # Desks 501-540
-                return f"T5-{desk}"
+                return f"{desk}"
             
             # Terminal 3 - Star Alliance & Middle East
             if airline in ['DLH', 'SWR', 'AUA', 'SAS', 'UAL', 'ACA', 'SIA', 
                         'THA', 'ANA', 'UAE', 'QFA', 'VIR', 'DAL', 'LOT']:
                 desk = (seed % 30) + 301  # Desks 301-330
-                return f"T3-{desk}"
+                return f"{desk}"
             
             # Terminal 4 - SkyTeam & Independents
             if airline in ['KLM', 'AFR', 'CES', 'KQA', 'ETD', 'MAS', 'RAM']:
                 desk = (seed % 25) + 401  # Desks 401-425
-                return f"T4-{desk}"
+                return f"{desk}"
             
             # Terminal 2 - Star Alliance overflow & others
             if airline in ['BEL', 'TAP', 'AIC', 'LH', 'AUA']:
                 desk = (seed % 20) + 201  # Desks 201-220
-                return f"T2-{desk}"
+                return f"{desk}"
             
             # Default to Terminal 2 for unknown carriers
             desk = (seed % 20) + 221  # Desks 221-240
-            return f"T2-{desk}"
+            return f"{desk}"
             
         return ""
 
