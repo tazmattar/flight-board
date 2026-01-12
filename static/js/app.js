@@ -51,33 +51,37 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.warn('Airline DB failed', e); }
 
         try {
-            const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
-            if (response.ok) {
-                const data = await response.json();
-                const manualRenames = {
-                    "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
-                    "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
-                    "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
-                    "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
-                    "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
-                    "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
-                    "LIBG": "Taranto-Grottaglie"
-                };
+        const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
+        if (response.ok) {
+            const data = await response.json();
+            const manualRenames = {
+                "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
+                "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
+                "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
+                "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
+                "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
+                "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
+                "LIBG": "Taranto-Grottaglie"
+            };
 
-                for (const [icao, details] of Object.entries(data)) {
-                    let displayName;
-                    if (manualRenames[icao]) displayName = manualRenames[icao];
-                    else if (details.city) displayName = details.city;
-                    else displayName = details.name;
+            for (const [icao, details] of Object.entries(data)) {
+                let displayName;
+                if (manualRenames[icao]) displayName = manualRenames[icao];
+                else if (details.city) displayName = details.city;
+                else displayName = details.name;
 
-                    airportMapping[icao] = displayName
+                // Store both name AND country code
+                airportMapping[icao] = {
+                    name: displayName
                         .replace(/\b(Airport|International|Intl|Field|Airfield)\b/g, '')
                         .replace(/\s+/g, ' ')
-                        .trim();
-                }
+                        .trim(),
+                    country_code: details.country  // This is the ISO 2-letter code
+                };
             }
-        } catch (e) { console.warn('Airport DB failed', e); }
-    }
+        }
+    } catch (e) { console.warn('Airport DB failed', e); }
+}
     loadDatabases();
 
         // --- THEME & FLAGS ENGINE ---
@@ -115,24 +119,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const flagContainer = document.getElementById('flagContainer');
         if (!flagContainer) return;
 
-        const swissFlag = '<img src="https://flagcdn.com/h40/ch.png" alt="Switzerland" title="Switzerland">';
-        const frenchFlag = '<img src="https://flagcdn.com/h40/fr.png" alt="France" title="France">';
-        const ukFlag = '<img src="https://flagcdn.com/h40/gb.png" alt="United Kingdom" title="United Kingdom">';
-        const usFlag = '<img src="https://flagcdn.com/h40/us.png" alt="United States" title="United States">';
+        // Manual overrides for multi-country airports
+        const flagOverrides = {
+            'LSGG': ['ch', 'fr'],  // Geneva - Swiss/French
+            'LFSB': ['ch', 'fr']   // Basel - Swiss/French (EuroAirport)
+        };
 
-        if (airportCode === 'LSZH') {
-            flagContainer.innerHTML = swissFlag;
-        } else if (airportCode === 'EGLL') {
-            flagContainer.innerHTML = ukFlag;
+        // Check for manual override first
+        if (flagOverrides[airportCode]) {
+            flagContainer.innerHTML = flagOverrides[airportCode]
+                .map(code => `<img src="https://flagcdn.com/h40/${code}.png" alt="${code.toUpperCase()}" title="${code.toUpperCase()}">`)
+                .join('');
         } else {
-            // LSGG and LFSB get both flags
-            flagContainer.innerHTML = swissFlag + frenchFlag;
+            // Use the airport database we're already loading
+            const airportData = airportMapping[airportCode];
+            
+            if (airportData && airportData.country_code) {
+                const countryCode = airportData.country_code.toLowerCase();
+                flagContainer.innerHTML = `<img src="https://flagcdn.com/h40/${countryCode}.png" alt="${airportData.country_code}" title="${airportData.country_code}">`;
+            } else {
+                // Fallback - hide flag if unknown
+                flagContainer.innerHTML = '';
+            }
         }
     }
 
     function updateFooterText(airportCode) {
-        if (airportCode === 'EGLL') {
-            // English only for Heathrow
+        if (airportCode === 'EGLL', 'KJFK') {
+            // English only for Heathrow and JFK
             document.getElementById('gateLabel').textContent = 'Gates';
             document.getElementById('arrivalsLabel1').textContent = 'Arrivals';
             document.getElementById('arrivalsLabel2').style.display = 'none';
@@ -285,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const kayakLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
 
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
-            const destName = airportMapping[destIcao] || destIcao;
+            const destName = (airportMapping[destIcao]?.name) || destIcao;
             const timeStr = flight.time_display || "--:--";
             
             let gate = flight.gate || 'TBA'; 
