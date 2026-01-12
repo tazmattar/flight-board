@@ -56,6 +56,12 @@ html, body {
     text-transform: uppercase; cursor: pointer; outline: none;
 }
 
+.airport-selector select option {
+    font-size: 16px;  
+    font-weight: normal; 
+    padding: 4px;
+}
+
 .clock-container {
     font-size: 2.5rem; font-weight: 700; 
     letter-spacing: 2px;
