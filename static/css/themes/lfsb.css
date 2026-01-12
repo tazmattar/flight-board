@@ -26,7 +26,7 @@ body.theme-lfsb .clock-container {
 
 /* Force dropdown options to be readable (Black text on White bg) */
 body.theme-lfsb .airport-selector select option {
-    background-color: #ffffff;
+    background-color: #a5a5a5;
     color: #000000;
 }
 

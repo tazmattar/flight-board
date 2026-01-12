@@ -21,7 +21,7 @@ body.theme-lsgg .clock-container {
 
 /* 2. The Dropdown Options (The list that opens) - BLACK TEXT */
 body.theme-lsgg .airport-selector select option {
-    background-color: #ffffff;
+    background-color: #a5a5a5;
     color: #000000;
 }
 

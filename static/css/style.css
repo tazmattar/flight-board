@@ -54,7 +54,6 @@ html, body {
     border: none;
     font-family: var(--font-ui); font-size: 2.5rem; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
-    background-color: #262626;
 }
 
 .airport-selector select option {
