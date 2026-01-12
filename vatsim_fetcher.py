@@ -60,7 +60,6 @@ class VatsimFetcher:
         # Check if it's a pre-configured airport with custom settings
         if icao in self.configured_airports:
             config = self.configured_airports[icao]
-            # Get coordinates from database, fallback to config
             db_data = self.airport_db.get(icao, {})
             return {
                 'name': config.get('name', icao),
@@ -74,12 +73,20 @@ class VatsimFetcher:
         # Otherwise pull from database (dynamic airport)
         if icao in self.airport_db:
             data = self.airport_db[icao]
+            
+            # --- FIX: Check if this is a UK airport supported by UKCP ---
+            # If it is, we set has_stands to True so find_stand() gets called.
+            # find_stand() will then prioritize the UKCP API result.
+            is_ukcp_supported = False
+            if self.ukcp_fetcher and self.ukcp_fetcher.is_uk_airport(icao):
+                is_ukcp_supported = True
+
             return {
                 'name': data.get('name', icao),
                 'lat': data.get('lat'),
                 'lon': data.get('lon'),
-                'ceiling': 6000,  # Default ceiling
-                'has_stands': False,  # No stand data for dynamic airports
+                'ceiling': 6000,
+                'has_stands': is_ukcp_supported, # Set to True for UK airports
                 'country': data.get('country', '')
             }
         
