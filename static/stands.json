@@ -712,6 +712,28 @@
     {"name": "573", "lat": 51.163128, "lon": -0.180589, "radius": 35, "type": "contact"},
     {"name": "574", "lat": 51.163172, "lon": -0.18095, "radius": 35, "type": "contact"}
   ],
+"EGLC": [
+    {"name": "3","lat": 51.504414,"lon": 0.048694,"radius": 35,"type": "contact"},
+    {"name": "4","lat": 51.504442,"lon": 0.048078,"radius": 35,"type": "contact"},
+    {"name": "5","lat": 51.504461,"lon": 0.047453,"radius": 35,"type": "contact"},
+    {"name": "6","lat": 51.504481,"lon": 0.046828,"radius": 35,"type": "contact"},
+    {"name": "7","lat": 51.5045,"lon": 0.0462,"radius": 35,"type": "contact"},
+    {"name": "8","lat": 51.504519,"lon": 0.045575,"radius": 35,"type": "contact"},
+    {"name": "9","lat": 51.504539,"lon": 0.04495,"radius": 35,"type": "contact"},
+    {"name": "10","lat": 51.504628,"lon": 0.044333,"radius": 35,"type": "contact"},
+    {"name": "12","lat": 51.50465,"lon": 0.043617,"radius": 35,"type": "contact"},
+    {"name": "13","lat": 51.504697,"lon": 0.043022,"radius": 35,"type": "contact"},
+    {"name": "14","lat": 51.504714,"lon": 0.042483,"radius": 35,"type": "contact"},
+    {"name": "15","lat": 51.505006,"lon": 0.040819,"radius": 35,"type": "contact"},
+    {"name": "21","lat": 51.504247,"lon": 0.050619,"radius": 35,"type": "contact"},
+    {"name": "22","lat": 51.504222,"lon": 0.0513,"radius": 35,"type": "contact"},
+    {"name": "23","lat": 51.504203,"lon": 0.051983,"radius": 35,"type": "contact"},
+    {"name": "24","lat": 51.504181,"lon": 0.052667,"radius": 35,"type": "contact"},
+    {"name": "25","lat": 51.504169,"lon": 0.053392,"radius": 35,"type": "contact"},
+    {"name": "26","lat": 51.504147,"lon": 0.054078,"radius": 35,"type": "contact"},
+    {"name": "27","lat": 51.504125,"lon": 0.054758,"radius": 35,"type": "contact"},
+    {"name": "28","lat": 51.504106,"lon": 0.055442,"radius": 35,"type": "contact"}
+],
 "KJFK": [
     {"name": "2", "lat": 40.643333, "lon": -73.781667, "radius": 35, "type": "contact"},
     {"name": "20", "lat": 40.641667, "lon": -73.785000, "radius": 35, "type": "contact"},
