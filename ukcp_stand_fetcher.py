@@ -55,7 +55,7 @@ class UKCPStandFetcher:
                     callsign = assignment.get('callsign')
                     if callsign:
                         self.cache[callsign] = {
-                            'stand': assignment.get('stand'),
+                            'stand': assignment.get('stand_id'),
                             'airport': assignment.get('airport'),
                             'type': assignment.get('type', 'arrival'),  # arrival or departure
                             'assigned_at': assignment.get('assigned_at'),
