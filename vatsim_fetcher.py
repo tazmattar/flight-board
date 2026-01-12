@@ -4,6 +4,7 @@ import traceback
 import json
 import os
 from datetime import datetime, timedelta
+from checkin_assignments import CheckinAssignments
 
 # UKCP Stand API Integration
 try:
@@ -36,6 +37,9 @@ class VatsimFetcher:
         
         # Load UKCP ID Mapping (ID -> Name based)
         self.ukcp_mapping = self.load_ukcp_map()
+        
+        # Initialize Check-in Assignment System
+        self.checkin_system = CheckinAssignments()
 
         self.cleanup_dist_dep = 80
         self.ground_range = 15
@@ -284,10 +288,11 @@ class VatsimFetcher:
         except: return 0
 
     def get_checkin_area(self, callsign, airport_code):
-        if not callsign: return ""
-        seed = sum(ord(c) for c in callsign) 
-        desk = (seed % 20) + 1
-        return f"{desk:02d}"
+        """
+        Get check-in desk assignment for a flight.
+        Delegates to the CheckinAssignments module for cleaner code organisation.
+        """
+        return self.checkin_system.get_checkin_desk(callsign, airport_code)
 
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km, has_stands):
         fp = pilot.get('flight_plan', {})
