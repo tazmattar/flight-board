@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const airlineMapping = { 
         'SWS': 'LX', 'EZY': 'U2', 'EJU': 'U2', 'EZS': 'DS', 'BEL': 'SN', 
         'GWI': '4U', 'EDW': 'WK', 'ITY': 'AZ', 'FDX': 'FX', 'UPS': '5X', 
-        'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA'
+        'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA', 'SHT': 'BA'
     };
     const airportMapping = {}; 
 
