@@ -11,14 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('flight_update', (data) => {
         console.log('Flight update received:', data);
+        console.log('Country from data:', data.country); // DEBUG
         rawFlightData = data;
-        elements.airportName.textContent = data.airport_name || currentAirport;
+        if (data.airport_name) elements.airportName.textContent = data.airport_name;
         
         // Update footer text with country information
         updateFooterText(currentAirport, data.country);
         
-        renderFlightBoard(data.departures, 'departure');
-        renderFlightBoard(data.arrivals, 'arrival');
+        renderSection('dep');
+        renderSection('arr');
     });
 
     // --- STATE MANAGEMENT ---
@@ -218,14 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // --- SOCKET LISTENER ---
-    socket.on('flight_update', (data) => {
-        if (data.airport_name) elements.airportName.textContent = data.airport_name;
-        rawFlightData = data;
-        renderSection('dep');
-        renderSection('arr');
-    });
 
     // --- AUTO-SCROLL ENGINE ---
     function initAutoScroll() {
