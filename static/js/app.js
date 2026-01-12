@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.airport_name) elements.airportName.textContent = data.airport_name;
         
         // Update footer text with country information
-        updateFooterText(currentAirport, data.country);
+        window.updateFooterText(currentAirport, data.country);
         
         renderSection('dep');
         renderSection('arr');
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAirport = e.target.value;
         updateTheme(currentAirport);
         // Country will be updated when flight_update arrives
-        updateFooterText(currentAirport, '');
+        window.updateFooterText(currentAirport, '');
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial theme and footer setup
     updateTheme(currentAirport);
-    updateFooterText(currentAirport, '');
+    window.updateFooterText(currentAirport, '');
 
     // --- FULLSCREEN TOGGLE ---
     if (elements.fsBtn) {
@@ -284,9 +284,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const prefix = flight.callsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             
-            const localLogo = `/static/logos/${code}.png`;
-            const kiwiLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
-            const kayakLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
+            // Define cargo/special operators that we have stored locally
+            const localOnlyAirlines = ['FX', 'FDX', 'UPS', '5X', 'REGA', 'SAZ'];
+            
+            // Determine logo source priority
+            let primaryLogo, secondaryLogo, tertiaryLogo;
+            
+            if (localOnlyAirlines.includes(code)) {
+                // Cargo/special operators: Try local first
+                primaryLogo = `/static/logos/${code}.png`;
+                secondaryLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
+                tertiaryLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
+            } else {
+                // Regular airlines: Try CDN first
+                primaryLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
+                secondaryLogo = `https://content.r9cdn.net/rimg/provider-logos/airlines/v/${code}.png`;
+                tertiaryLogo = `/static/logos/${code}.png`;
+            }
 
             const destIcao = (type === 'Arrivals') ? flight.origin : flight.destination;
             const destName = (airportMapping[destIcao]?.name) || destIcao;
@@ -320,9 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const commonCells = `
                     <td>
                         <div class="flight-cell">
-                            <img src="${localLogo}" class="airline-logo" style="filter: none;" 
-                                 onerror="if (this.src.includes('static/logos')) { this.src = '${kiwiLogo}'; }
-                                          else if (this.src.includes('kiwi.com')) { this.src = '${kayakLogo}'; }
+                            <img src="${primaryLogo}" class="airline-logo" style="filter: none;" 
+                                 onerror="if (this.src !== '${secondaryLogo}') { this.src = '${secondaryLogo}'; }
+                                          else if (this.src !== '${tertiaryLogo}') { this.src = '${tertiaryLogo}'; }
                                           else { this.style.display='none'; }">
                             <div class="flap-container" id="${rowId}-callsign"></div>
                         </div>
@@ -553,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     socket.emit('leave_airport', { airport: currentAirport });
                     currentAirport = icao;
                     updateTheme(currentAirport);
-                    updateFooterText(currentAirport, data.country || '');
+                    window.updateFooterText(currentAirport, data.country || '');
                     socket.emit('join_airport', { airport: currentAirport });
                     
                     // Clear the board while loading
