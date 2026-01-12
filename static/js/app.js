@@ -196,6 +196,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- LOGO FALLBACK HANDLER ---
+    window.handleLogoError = function(img) {
+        // Track which attempt we're on (0=primary, 1=secondary, 2=tertiary, 3=failed)
+        const attempt = parseInt(img.dataset.attempt || '0');
+        
+        if (attempt === 0) {
+            // First failure: try secondary
+            img.dataset.attempt = '1';
+            img.src = img.dataset.secondary;
+        } else if (attempt === 1) {
+            // Second failure: try tertiary
+            img.dataset.attempt = '2';
+            img.src = img.dataset.tertiary;
+        } else {
+            // All failed: hide the image
+            img.style.display = 'none';
+        }
+    };
+
     // --- AUTO-SCROLL ENGINE ---
     function initAutoScroll() {
         const scrollContainers = document.querySelectorAll('.table-scroll-area');
@@ -334,10 +353,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const commonCells = `
                     <td>
                         <div class="flight-cell">
-                            <img src="${primaryLogo}" class="airline-logo" style="filter: none;" 
-                                 onerror="if (this.src !== '${secondaryLogo}') { this.src = '${secondaryLogo}'; }
-                                          else if (this.src !== '${tertiaryLogo}') { this.src = '${tertiaryLogo}'; }
-                                          else { this.style.display='none'; }">
+                            <img src="${primaryLogo}" 
+                                 data-primary="${primaryLogo}"
+                                 data-secondary="${secondaryLogo}"
+                                 data-tertiary="${tertiaryLogo}"
+                                 class="airline-logo" 
+                                 style="filter: none;" 
+                                 onerror="handleLogoError(this)">
                             <div class="flap-container" id="${rowId}-callsign"></div>
                         </div>
                     </td>
