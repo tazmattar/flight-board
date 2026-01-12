@@ -1,0 +1,133 @@
+/* =============================================
+   JFK (KJFK) THEME
+   Classic Split-Flap Solari Yellow Display
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+body.theme-kjfk {
+    --jfk-yellow: #FFB612;
+    --jfk-dark: #1a1a1a;
+    --jfk-black: #000000;
+}
+
+/* Override font for entire board */
+body.theme-kjfk {
+    --font-data: 'Courier Prime', 'Courier New', monospace;
+    letter-spacing: 0.05em;
+}
+
+body.theme-kjfk .fids-header {
+    background-color: var(--jfk-black);
+    border-bottom: 4px solid var(--jfk-yellow);
+}
+
+body.theme-kjfk .airport-selector select,
+body.theme-kjfk .clock-container {
+    color: var(--jfk-yellow) !important;
+    background: transparent;
+    font-family: 'Courier Prime', monospace;
+    letter-spacing: 0.1em;
+}
+
+/* Force dropdown options to be readable */
+body.theme-kjfk .airport-selector select option {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.theme-kjfk .section-divider {
+    background-color: var(--jfk-black);
+    color: var(--jfk-yellow);
+    padding: 12px 20px;
+    border-bottom: 2px solid var(--jfk-yellow);
+    font-weight: 700;
+    font-family: 'Courier Prime', monospace;
+    letter-spacing: 0.15em;
+}
+
+body.theme-kjfk .flight-table th {
+    background: #0a0a0a;
+    color: var(--jfk-yellow);
+    border-bottom: 2px solid #333;
+    font-family: 'Courier Prime', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+/* All flight data text in yellow */
+body.theme-kjfk .flight-table td {
+    color: var(--jfk-yellow);
+    background-color: var(--jfk-black);
+    border-bottom: 1px solid #222;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+}
+
+body.theme-kjfk .flap-container {
+    color: var(--jfk-yellow) !important;
+    font-family: 'Courier Prime', monospace;
+    text-shadow: 0 0 8px rgba(255, 182, 18, 0.3);
+}
+
+/* Keep status column with normal color behavior */
+body.theme-kjfk .col-status .flap-container {
+    text-shadow: none;
+}
+
+/* Airline logos - increase brightness for yellow theme */
+body.theme-kjfk .airline-logo {
+    filter: brightness(1.8) saturate(0.7);
+}
+
+body.theme-kjfk .fids-footer {
+    background-color: var(--jfk-black);
+    border-top: 4px solid var(--jfk-yellow);
+}
+
+body.theme-kjfk .footer-group .main-label {
+    color: var(--jfk-yellow);
+    font-weight: 700;
+    font-family: 'Courier Prime', monospace;
+    letter-spacing: 0.1em;
+}
+
+body.theme-kjfk .footer-group .main-label .en {
+    color: var(--jfk-yellow);
+    opacity: 0.7;
+}
+
+body.theme-kjfk .gate-icon-box {
+    border-color: var(--jfk-yellow);
+    color: var(--jfk-yellow);
+}
+
+body.theme-kjfk .huge-arrow {
+    color: var(--jfk-yellow);
+}
+
+body.theme-kjfk .security-time .label {
+    color: var(--jfk-yellow);
+    opacity: 0.8;
+}
+
+body.theme-kjfk .security-time .time {
+    color: var(--jfk-yellow);
+    font-family: 'Courier Prime', monospace;
+}
+
+/* Split-flap mechanical effect (subtle) */
+body.theme-kjfk .flap-container {
+    position: relative;
+}
+
+body.theme-kjfk .flap-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 182, 18, 0.1);
+    pointer-events: none;
+}

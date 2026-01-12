@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- THEME & FLAGS ENGINE ---
     function updateTheme(airportCode) {
         // Remove all theme classes
-        document.body.classList.remove('theme-lsgg', 'theme-lfsb', 'theme-egll');
+        document.body.classList.remove('theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk');
         
         // Add specific theme class
         if (airportCode === 'LSGG') {
@@ -92,7 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('theme-lfsb');
         } else if (airportCode === 'EGLL') {
             document.body.classList.add('theme-egll');
-        }
+        } else if (airportCode === 'KJFK') {
+            document.body.classList.add('theme-kjfk');
+        
         // LSZH uses default (no class added)
         
         // Load theme-specific CSS dynamically
@@ -101,7 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'LSZH': '/static/css/themes/lszh.css',
             'LSGG': '/static/css/themes/lsgg.css',
             'LFSB': '/static/css/themes/lfsb.css',
-            'EGLL': '/static/css/themes/egll.css'
+            'EGLL': '/static/css/themes/egll.css',
+            'KJFK': '/static/css/themes/kjfk.css',
         };
         
         if (themeMap[airportCode]) {
@@ -115,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const swissFlag = '<img src="https://flagcdn.com/h40/ch.png" alt="Switzerland" title="Switzerland">';
         const frenchFlag = '<img src="https://flagcdn.com/h40/fr.png" alt="France" title="France">';
         const ukFlag = '<img src="https://flagcdn.com/h40/gb.png" alt="United Kingdom" title="United Kingdom">';
+        const usFlag = '<img src="https://flagcdn.com/h40/us.png" alt="United States" title="United States">';
 
         if (airportCode === 'LSZH') {
             flagContainer.innerHTML = swissFlag;

@@ -13,7 +13,8 @@ class VatsimFetcher:
             'LSZH': { 'name': 'Zurich Airport', 'lat': 47.4647, 'lon': 8.5492, 'ceiling': 6000 },
             'LSGG': { 'name': 'Geneva Airport', 'lat': 46.2370, 'lon': 6.1091, 'ceiling': 8000 },
             'LFSB': { 'name': 'EuroAirport Basel', 'lat': 47.5900, 'lon': 7.5290, 'ceiling': 5000 },
-            'EGLL': { 'name': 'London Heathrow', 'lat': 51.4700, 'lon': -0.4543, 'ceiling': 7000 }
+            'EGLL': { 'name': 'London Heathrow', 'lat': 51.4700, 'lon': -0.4543, 'ceiling': 7000 },
+            'KJFK': { 'name': 'New York JFK', 'lat': 40.6397, 'lon': 73.7788, 'ceiling': 5000 }
         }
         
         self.stands = self.load_stands()
@@ -30,7 +31,7 @@ class VatsimFetcher:
             stands_path = os.path.join('static', 'stands.json')
             if not os.path.exists(stands_path): stands_path = 'stands.json'
             with open(stands_path, 'r') as f: return json.load(f)
-        except: return {'LSZH': [], 'LSGG': [], 'LFSB': []}
+        except: return {'LSZH': [], 'LSGG': [], 'LFSB': [], 'EGLL': [], 'KJFK': []}
     
     def calculate_distance_m(self, lat1, lon1, lat2, lon2):
         if None in [lat1, lon1, lat2, lon2]: return 999999
@@ -241,7 +242,57 @@ class VatsimFetcher:
             # Default to Terminal 2 for unknown carriers
             desk = (seed % 20) + 221  # Desks 221-240
             return f"{desk}"
+        
+        # --- JFK (KJFK) --- 
+        elif airport_code == 'KJFK':
+            seed = sum(ord(c) for c in callsign)
+            airline = callsign[:3].upper()
             
+            # --- TERMINAL 1: Star Alliance mix, European long-haul ---
+            if airline in ['DLH', 'LH', 'SWR', 'LX', 'AUA', 'OS', 'BEL', 'SN', 
+                        'AFR', 'AF', 'KLM', 'KL', 'JAL', 'JL', 'KAL', 'KE']:
+                row = ((seed % 8) + 1)  # Rows 1-8
+                return f"T1-{row}"
+            
+            # --- TERMINAL 4: Delta hub + SkyTeam + Middle East + International ---
+            if airline in ['DAL', 'DL', 'AFR', 'AF', 'KLM', 'KL', 'AZA', 'AZ',
+                        'CES', 'MU', 'KQA', 'KQ', 'SVA', 'SV', 'ETD', 'EY',
+                        'VIR', 'VS', 'UAL', 'UA']:  # Virgin & some Star also in T4
+                # Known anchors: Row 6 = VS/KQ, Row 1/1A exist
+                if airline in ['VIR', 'VS', 'KQA', 'KQ']:
+                    return f"T4-6"  # Confirmed
+                else:
+                    rows = ['1', '1A', '2', '3', '4', '5', '6', '7']
+                    return f"T4-{rows[seed % len(rows)]}"
+            
+            # --- TERMINAL 5: JetBlue base ---
+            if airline in ['JBU', 'B6', 'EIN', 'EI', 'SYX', 'SY']:  # Aer Lingus, Sun Country
+                row = ((seed % 4) + 1)  # Small pool, rows 1-4 (fictional but plausible)
+                return f"T5-{row}"
+            
+            # --- TERMINAL 7: Star/non-alliance mix ---
+            if airline in ['BAW', 'BA', 'IBE', 'IB', 'ASA', 'AS', 'EWG', 'EW',
+                        'ICE', 'FI', 'UAE', 'EK']:  # Mix of carriers
+                # Known: Row C (Eurowings), Row 2 (historical Qatar), Row 6 exists
+                if airline in ['EWG', 'EW']:
+                    return f"T7-C"  # Confirmed
+                else:
+                    rows = ['2', '3', '4', '5', '6', 'C']
+                    return f"T7-{rows[seed % len(rows)]}"
+            
+            # --- TERMINAL 8: American hub + oneworld ---
+            if airline in ['AAL', 'AA', 'BAW', 'BA', 'QTR', 'QR', 'CPA', 'CX',
+                        'JAL', 'JL', 'FJI', 'FJ']:
+                # Known: Row 5 = Qatar
+                if airline in ['QTR', 'QR']:
+                    return f"T8-5"  # Confirmed
+                else:
+                    rows = ['1', '2', '3', '4', '5', '6']
+                    return f"T8-{rows[seed % len(rows)]}"
+            
+            # Default fallback (unknown carrier → T4 as largest/most diverse)
+            row = ((seed % 7) + 1)
+            return f"T4-{row}"
         return ""
 
     def format_flight(self, pilot, direction, ceiling, airport_code, dist_km):
