@@ -14,7 +14,7 @@ class VatsimFetcher:
             'LSGG': { 'name': 'Geneva Airport', 'lat': 46.2370, 'lon': 6.1091, 'ceiling': 8000 },
             'LFSB': { 'name': 'EuroAirport Basel', 'lat': 47.5900, 'lon': 7.5290, 'ceiling': 5000 },
             'EGLL': { 'name': 'London Heathrow', 'lat': 51.4700, 'lon': -0.4543, 'ceiling': 7000 },
-            'KJFK': { 'name': 'New York JFK', 'lat': 40.6397, 'lon': 73.7788, 'ceiling': 5000 }
+            'KJFK': { 'name': 'New York JFK', 'lat': 40.6397, 'lon': -73.7788, 'ceiling': 5000 }
         }
         
         self.stands = self.load_stands()
