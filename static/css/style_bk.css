@@ -32,43 +32,12 @@ html, body {
     flex-direction: column;
 }
 
-/* static/css/style.css */
-
 .monitor-frame { 
     display: flex; 
     flex-direction: column; 
     height: 100%; 
     width: 100%; 
     overflow: hidden;
-    position: relative;
-}
-/* Overlay Effect for Monitor Realism */
-.monitor-frame::after {
-    content: " ";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    
-    /* 1. The Glare: A subtle diagonal shine */
-    background: linear-gradient(
-        125deg, 
-        rgba(255, 255, 255, 0.03) 0%, 
-        rgba(255, 255, 255, 0.01) 30%, 
-        rgba(0, 0, 0, 0.02) 50%, 
-        rgba(0, 0, 0, 0.05) 100%
-    );
-
-    /* 2. The Vignette: Darkens the corners slightly like a real monitor */
-    box-shadow: inset 0 0 80px rgba(0,0,0,0.3);
-
-    /* 3. Vital: Ensures you can still click buttons underneath */
-    pointer-events: none; 
-    
-    /* 4. Keeps it on top of everything */
-    z-index: 100;
 }
 
 /* 2. HEADER (Fixed) */
