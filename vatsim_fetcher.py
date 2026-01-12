@@ -75,7 +75,7 @@ class VatsimFetcher:
         if icao in self.airport_db:
             data = self.airport_db[icao]
             
-            # --- FIX 1: Enable UKCP lookup for searched airports ---
+            # Enable UKCP lookup for supported UK airports
             is_ukcp_supported = False
             if self.ukcp_fetcher and self.ukcp_fetcher.is_uk_airport(icao):
                 is_ukcp_supported = True
@@ -246,7 +246,6 @@ class VatsimFetcher:
             airport_info['lon']
         ) / 1000.0
         
-        # --- PASS AIRPORT CODE TO FORMAT FLIGHT ---
         flight_info = self.format_flight(
             pilot, 
             direction, 
@@ -507,18 +506,29 @@ class VatsimFetcher:
                         else: return 'Boarding'
                     else:
                         # Stopped but NO gate found
-                        # --- HYBRID LOGIC FIX ---
-                        # Check if we SHOULD have found a gate (do we have local stands?)
-                        has_local_stands = len(self.stands.get(airport_code, [])) > 0
                         
+                        # Case 1: Hardcoded airport (we have local stands)
+                        # If you are not at a known stand, you must be holding short.
+                        has_local_stands = len(self.stands.get(airport_code, [])) > 0
                         if has_local_stands:
-                            # We have stands, but you aren't at one. You are holding short.
                             return 'Taxiing'
+                        
+                        # Case 2: Dynamic airport (we have NO stand data)
+                        # We can't distinguish Gate vs Runway by position.
+                        # Heuristic: Check Squawk Code & Time
+                        
+                        # If discrete squawk code (assigned by ATC) -> likely holding/active
+                        std_squawks = {'2000','2200','1200','7000','0000'}
+                        current_squawk = pilot.get('transponder')
+                        
+                        if minutes_online < 5: 
+                            return 'Check-in'
+                        elif current_squawk not in std_squawks:
+                            return 'Taxiing' # Discrete code implies active flight
+                        elif minutes_online > 35:
+                            return 'Taxiing' # Online for 35+ mins? Likely taxiing/holding.
                         else:
-                            # We don't know where the gates are (Searched/Dynamic).
-                            # Assume you are parked.
-                            if minutes_online < 5: return 'Check-in'
-                            else: return 'Boarding'
+                            return 'Boarding' # Standard squawk + < 35 mins -> Gate
                     
                 if gs < 5: 
                     # MOVING SLOWLY (Pushback or slow taxi)
