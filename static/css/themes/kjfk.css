@@ -132,3 +132,29 @@ body.theme-kjfk .flap-container::before {
     background: rgba(255, 182, 18, 0.1);
     pointer-events: none;
 }
+
+/* Column width adjustments for wider Courier Prime font */
+@media (orientation: landscape) {
+    body.theme-kjfk .flight-table th:nth-child(1) { width: 12%; }  /* Flight */
+    body.theme-kjfk .flight-table th:nth-child(2) { width: 24%; }  /* Destination/Origin */
+    body.theme-kjfk .flight-table th:nth-child(3) { width: 11%; }  /* Aircraft */
+    body.theme-kjfk .flight-table th:nth-child(4) { width: 11%; }  /* Check-In */
+    body.theme-kjfk .flight-table th:nth-child(5) { width: 9%; }   /* Gate */
+    body.theme-kjfk .flight-table th:nth-child(6) { width: 10%; }  /* Time */
+    body.theme-kjfk .flight-table th:nth-child(7) { width: 23%; }  /* Status */
+}
+
+@media (orientation: portrait) {
+    body.theme-kjfk .flight-table th:nth-child(1) { width: 14%; }  /* Flight */
+    body.theme-kjfk .flight-table th:nth-child(2) { width: 28%; }  /* Destination/Origin */
+    body.theme-kjfk .flight-table th:nth-child(3) { width: 11%; }  /* Aircraft */
+    body.theme-kjfk .flight-table th:nth-child(4) { width: 11%; }  /* Check-In */
+    body.theme-kjfk .flight-table th:nth-child(5) { width: 9%; }   /* Gate */
+    body.theme-kjfk .flight-table th:nth-child(6) { width: 10%; }  /* Time */
+    body.theme-kjfk .flight-table th:nth-child(7) { width: 17%; }  /* Status */
+}
+
+/* Airport selector - ensure full text visibility */
+body.theme-kjfk .airport-selector select {
+    font-size: 2.3rem; /* Slightly smaller to fit KJFK */
+}
