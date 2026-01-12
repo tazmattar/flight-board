@@ -1,0 +1,70 @@
+/* =============================================
+   CITY (EGLC) THEME
+   Classic City Airport Yellow with Black Text
+   ============================================= */
+
+body.theme-eglc {
+    --heathrow-yellow: #FDB813;
+    --heathrow-dark: #1a1a1a;
+}
+
+body.theme-eglc .fids-header {
+    background-color: var(--heathrow-yellow);
+    border-bottom: 4px solid #000000;
+}
+
+body.theme-eglc .airport-selector select,
+body.theme-eglc .clock-container {
+    color: #000000 !important;
+    background: transparent;
+}
+
+body.theme-eglc .section-divider {
+    background-color: var(--heathrow-yellow);
+    color: #000000;
+    padding: 12px 20px;
+    border-bottom: 2px solid #000000;
+    font-weight: 700;
+}
+
+body.theme-eglc .flight-table th {
+    background: #1a1a1a;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
+}
+
+/* Yellow destination/origin text */
+body.theme-eglc .flap-dest {
+    color: var(--heathrow-yellow) !important;
+}
+
+body.theme-eglc .fids-footer {
+    background-color: #000000;
+    border-top: 4px solid var(--heathrow-yellow);
+}
+
+body.theme-eglc .footer-group .main-label {
+    color: var(--heathrow-yellow);
+    font-weight: 700;
+}
+
+body.theme-eglc .footer-group .main-label .en {
+    display: none; /* Hide English subtitle for EGLL */
+}
+
+body.theme-eglc .gate-icon-box {
+    border-color: var(--heathrow-yellow);
+    color: var(--heathrow-yellow);
+}
+
+body.theme-eglc .huge-arrow {
+    color: var(--heathrow-yellow);
+}
+
+body.theme-eglc .security-time .label {
+    color: #cccccc;
+}
+
+body.theme-eglc .security-time .time {
+    color: var(--heathrow-yellow);
+}
