@@ -72,78 +72,81 @@ document.addEventListener('DOMContentLoaded', () => {
 }
     loadDatabases();
 
+    // REPLACE YOUR ENTIRE updateTheme FUNCTION (lines 88-137) WITH THIS:
+    
     function updateTheme(airportCode) {
-    // Remove all existing theme classes
-    document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk', 'theme-default');
-    
-    // Theme mapping for configured airports
-    const themeMap = {
-        'LSZH': {
-            css: '/static/css/themes/lszh.css',
-            class: null  // LSZH uses default styling, no class needed
-        },
-        'LSGG': {
-            css: '/static/css/themes/lsgg.css',
-            class: 'theme-lsgg'
-        },
-        'LFSB': {
-            css: '/static/css/themes/lfsb.css',
-            class: 'theme-lfsb'
-        },
-        'EGLL': {
-            css: '/static/css/themes/egll.css',
-            class: 'theme-egll'
-        },
-        'KJFK': {
-            css: '/static/css/themes/kjfk.css',
-            class: 'theme-kjfk'
-        }
-    };
-    
-    const themeLink = document.getElementById('airportTheme');
-    
-    // Check if this is a configured airport with a specific theme
-    if (themeMap[airportCode]) {
-        const theme = themeMap[airportCode];
-        themeLink.href = theme.css;
-        if (theme.class) {
-            document.body.classList.add(theme.class);
-        }
-    } else {
-        // Dynamic airport - use default theme
-        themeLink.href = '/static/css/themes/default.css';
-        document.body.classList.add('theme-default');
-    }
-    
-    // Update flags (works for both configured and dynamic airports)
-    updateFlags(airportCode);
-}
-    function updateFlags(airportCode) {
-    const flagContainer = document.getElementById('flagContainer');
-    if (!flagContainer) return;
-    
-    // Manual overrides for multi-country airports
-    const manualFlags = {
-        'LSGG': ['ch', 'fr'],  // Geneva: Swiss + French
-        'LFSB': ['ch', 'fr']   // Basel: Swiss + French
-    };
-    
-    if (manualFlags[airportCode]) {
-        // Multi-country airport
-        flagContainer.innerHTML = manualFlags[airportCode]
-            .map(country => `<img src="https://flagcdn.com/h40/${country}.png" alt="${country}" title="${country}">`)
-            .join('');
-    } else {
-        // Single country - get from airport database
-        const countryCode = airportMapping[airportCode]?.country_code;
-        if (countryCode) {
-            flagContainer.innerHTML = `<img src="https://flagcdn.com/h40/${countryCode.toLowerCase()}.png" alt="${countryCode}" title="${countryCode}">`;
+        // Remove all existing theme classes
+        document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll', 'theme-kjfk', 'theme-default');
+        
+        // Theme mapping for configured airports
+        const themeMap = {
+            'LSZH': {
+                css: '/static/css/themes/lszh.css',
+                class: null  // LSZH uses default styling, no class needed
+            },
+            'LSGG': {
+                css: '/static/css/themes/lsgg.css',
+                class: 'theme-lsgg'
+            },
+            'LFSB': {
+                css: '/static/css/themes/lfsb.css',
+                class: 'theme-lfsb'
+            },
+            'EGLL': {
+                css: '/static/css/themes/egll.css',
+                class: 'theme-egll'
+            },
+            'KJFK': {
+                css: '/static/css/themes/kjfk.css',
+                class: 'theme-kjfk'
+            }
+        };
+        
+        const themeLink = document.getElementById('airportTheme');
+        
+        // Check if this is a configured airport with a specific theme
+        if (themeMap[airportCode]) {
+            const theme = themeMap[airportCode];
+            themeLink.href = theme.css;
+            if (theme.class) {
+                document.body.classList.add(theme.class);
+            }
         } else {
-            // No flag data available
-            flagContainer.innerHTML = '';
+            // Dynamic airport - use default theme
+            themeLink.href = '/static/css/themes/default.css';
+            document.body.classList.add('theme-default');
+        }
+        
+        // Update flags (works for both configured and dynamic airports)
+        updateFlags(airportCode);
+    }
+
+    function updateFlags(airportCode) {
+        const flagContainer = document.getElementById('flagContainer');
+        if (!flagContainer) return;
+        
+        // Manual overrides for multi-country airports
+        const manualFlags = {
+            'LSGG': ['ch', 'fr'],  // Geneva: Swiss + French
+            'LFSB': ['ch', 'fr']   // Basel: Swiss + French
+        };
+        
+        if (manualFlags[airportCode]) {
+            // Multi-country airport
+            flagContainer.innerHTML = manualFlags[airportCode]
+                .map(country => `<img src="https://flagcdn.com/h40/${country}.png" alt="${country}" title="${country}">`)
+                .join('');
+        } else {
+            // Single country - get from airport database
+            const countryCode = airportMapping[airportCode]?.country_code;
+            if (countryCode) {
+                flagContainer.innerHTML = `<img src="https://flagcdn.com/h40/${countryCode.toLowerCase()}.png" alt="${countryCode}" title="${countryCode}">`;
+            } else {
+                // No flag data available
+                flagContainer.innerHTML = '';
+            }
         }
     }
-}
 
     function updateFooterText(airportCode) {
         if (airportCode === 'EGLL', 'KJFK') {
@@ -477,133 +480,135 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
     
     // ====== AIRPORT SEARCH MODAL ======
-        const modal = document.getElementById('airportSearchModal');
-        const addBtn = document.getElementById('addAirportBtn');
-        const closeBtn = document.getElementsByClassName('close')[0];
-        const searchBtn = document.getElementById('searchAirportBtn');
-        const searchInput = document.getElementById('airportSearchInput');
-        const searchResult = document.getElementById('searchResult');
-        const airportSelect = document.getElementById('airportSelect');
+    // ADD THIS ENTIRE BLOCK TO THE END OF app.js (before the final closing bracket)
+    
+    const modal = document.getElementById('airportSearchModal');
+    const addBtn = document.getElementById('addAirportBtn');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const searchBtn = document.getElementById('searchAirportBtn');
+    const searchInput = document.getElementById('airportSearchInput');
+    const searchResult = document.getElementById('searchResult');
+    const airportSelect = document.getElementById('airportSelect');
 
-        // Open modal
-        if (addBtn) {
-            addBtn.onclick = function() {
-                modal.style.display = 'block';
-                searchInput.value = '';
-                searchResult.textContent = '';
-                searchResult.className = '';
-                searchResult.style.display = 'none';
-                searchInput.focus();
-            }
+    // Open modal
+    if (addBtn) {
+        addBtn.onclick = function() {
+            modal.style.display = 'block';
+            searchInput.value = '';
+            searchResult.textContent = '';
+            searchResult.className = '';
+            searchResult.style.display = 'none';
+            searchInput.focus();
         }
+    }
 
-        // Close modal with X button
-        if (closeBtn) {
-            closeBtn.onclick = function() {
-                modal.style.display = 'none';
-            }
+    // Close modal with X button
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
         }
+    }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
         }
+    }
 
-        // Search button click
-        if (searchBtn) {
-            searchBtn.onclick = async function() {
-                const icao = searchInput.value.toUpperCase().trim();
-                
-                if (icao.length !== 4) {
-                    searchResult.textContent = 'Please enter a 4-letter ICAO code';
-                    searchResult.className = 'error';
-                    searchResult.style.display = 'block';
-                    return;
-                }
-                
-                // Show loading state
-                searchResult.textContent = 'Searching...';
-                searchResult.className = '';
-                searchResult.style.display = 'block';
-                searchBtn.disabled = true;
-                searchBtn.textContent = 'Searching...';
-                
-                try {
-                    const response = await fetch('/api/search_airport', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ icao: icao })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        searchResult.textContent = `✓ ${data.name} (${icao}) added!`;
-                        searchResult.className = 'success';
-                        searchResult.style.display = 'block';
-                        
-                        // Add to dropdown if not already there
-                        const exists = Array.from(airportSelect.options).some(opt => opt.value === icao);
-                        if (!exists) {
-                            const option = document.createElement('option');
-                            option.value = icao;
-                            option.textContent = `${data.name} - ${icao}`;
-                            airportSelect.appendChild(option);
-                        }
-                        
-                        // Switch to the new airport
-                        airportSelect.value = icao;
-                        
-                        // Trigger airport switch
-                        socket.emit('leave_airport', { airport: currentAirport });
-                        currentAirport = icao;
-                        updateTheme(currentAirport);
-                        updateFooterText(currentAirport);
-                        socket.emit('join_airport', { airport: currentAirport });
-                        
-                        // Clear the board while loading
-                        elements.departureList.innerHTML = '';
-                        elements.arrivalList.innerHTML = '';
-                        
-                        // Close modal after delay
-                        setTimeout(() => {
-                            modal.style.display = 'none';
-                        }, 1500);
-                        
-                    } else {
-                        searchResult.textContent = data.error || 'Airport not found';
-                        searchResult.className = 'error';
-                        searchResult.style.display = 'block';
-                    }
-                } catch (error) {
-                    searchResult.textContent = 'Network error. Please try again.';
-                    searchResult.className = 'error';
-                    searchResult.style.display = 'block';
-                    console.error('Search error:', error);
-                } finally {
-                    // Reset button
-                    searchBtn.disabled = false;
-                    searchBtn.textContent = 'Search';
-                }
-            }
-        }
-
-        // Enter key to search
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchBtn.click();
-                }
-            });
+    // Search button click
+    if (searchBtn) {
+        searchBtn.onclick = async function() {
+            const icao = searchInput.value.toUpperCase().trim();
             
-            // Auto-uppercase and limit to 4 chars
-            searchInput.addEventListener('input', function(e) {
-                this.value = this.value.toUpperCase().slice(0, 4);
-            });
+            if (icao.length !== 4) {
+                searchResult.textContent = 'Please enter a 4-letter ICAO code';
+                searchResult.className = 'error';
+                searchResult.style.display = 'block';
+                return;
+            }
+            
+            // Show loading state
+            searchResult.textContent = 'Searching...';
+            searchResult.className = '';
+            searchResult.style.display = 'block';
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+            
+            try {
+                const response = await fetch('/api/search_airport', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ icao: icao })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    searchResult.textContent = `✓ ${data.name} (${icao}) added!`;
+                    searchResult.className = 'success';
+                    searchResult.style.display = 'block';
+                    
+                    // Add to dropdown if not already there
+                    const exists = Array.from(airportSelect.options).some(opt => opt.value === icao);
+                    if (!exists) {
+                        const option = document.createElement('option');
+                        option.value = icao;
+                        option.textContent = `${data.name} - ${icao}`;
+                        airportSelect.appendChild(option);
+                    }
+                    
+                    // Switch to the new airport
+                    airportSelect.value = icao;
+                    
+                    // Trigger airport switch
+                    socket.emit('leave_airport', { airport: currentAirport });
+                    currentAirport = icao;
+                    updateTheme(currentAirport);
+                    updateFooterText(currentAirport);
+                    socket.emit('join_airport', { airport: currentAirport });
+                    
+                    // Clear the board while loading
+                    elements.departureList.innerHTML = '';
+                    elements.arrivalList.innerHTML = '';
+                    
+                    // Close modal after delay
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                    }, 1500);
+                    
+                } else {
+                    searchResult.textContent = data.error || 'Airport not found';
+                    searchResult.className = 'error';
+                    searchResult.style.display = 'block';
+                }
+            } catch (error) {
+                searchResult.textContent = 'Network error. Please try again.';
+                searchResult.className = 'error';
+                searchResult.style.display = 'block';
+                console.error('Search error:', error);
+            } finally {
+                // Reset button
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Search';
+            }
         }
+    }
+
+    // Enter key to search
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+        
+        // Auto-uppercase and limit to 4 chars
+        searchInput.addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase().slice(0, 4);
+        });
+    }
 
 });

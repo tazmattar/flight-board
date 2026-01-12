@@ -22,19 +22,26 @@
 <body>
     <div class="monitor-frame">
         <header class="fids-header">
-                <div class="airport-selector">
-                    <select id="airportSelect">
-                        <option value="LSZH">Zurich Airport - LSZH</option>
-                        <option value="LSGG">Geneva Airport - LSGG</option>
-                        <option value="LFSB">Basel Airport - LFSB</option>
-                        <option value="EGLL">London Heathrow Airport - EGLL</option>
-                        <option value="KJFK">New York JFK Airport - KJFK</option>
-                    </select>
-                </div>
-                <div class="clock-container">
-                    <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
-                </div>
-            </header>
+    <div class="airport-selector">
+        <select id="airportSelect">
+            <option value="LSZH">Zurich Airport - LSZH</option>
+            <option value="LSGG">Geneva Airport - LSGG</option>
+            <option value="LFSB">Basel Airport - LFSB</option>
+            <option value="EGLL">London Heathrow Airport - EGLL</option>
+            <option value="KJFK">New York JFK Airport - KJFK</option>
+        </select>
+        
+        
+        <button id="addAirportBtn" class="add-airport-btn" title="Add Airport">
+            <span class="material-icons">add_circle</span>
+        </button>
+        
+        
+    </div>
+    <div class="clock-container">
+        <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
+    </div>
+</header>
         <div class="page-container">
             
             <div class="fids-table-wrapper">
