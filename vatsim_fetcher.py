@@ -122,28 +122,28 @@ class VatsimFetcher:
         return R*c
 
     def find_stand(self, pilot_lat, pilot_lon, airport_code, groundspeed, altitude, callsign=None):
-        """
-        Find stand with Priority:
-        1. UKCP API (ID -> Mapped Name)
-        2. Geofencing (Lat/Lon -> Name)
-        """
-        
         # --- PRIORITY 1: UKCP API ---
         if self.ukcp_fetcher and callsign and self.ukcp_fetcher.is_uk_airport(airport_code):
-            # Fetch the numeric ID (e.g. 1231)
+            
+            # Fetch the numeric ID
             ukcp_id = self.ukcp_fetcher.get_stand_for_flight(callsign, airport_code)
             
             if ukcp_id:
-                # Try to convert numeric ID to readable name (e.g. 1231 -> "1B")
-                readable_name = self.ukcp_mapping.get(ukcp_id)
+                print(f"[DEBUG] UKCP found ID {ukcp_id} for {callsign}") # <--- DEBUG PRINT
+                
+                # Try to convert to name
+                readable_name = self.ukcp_mapping.get(str(ukcp_id)) or self.ukcp_mapping.get(ukcp_id)
                 
                 if readable_name:
+                    print(f"[DEBUG] Mapped ID {ukcp_id} -> {readable_name}") # <--- DEBUG PRINT
                     return readable_name
                 else:
-                    # Fallback: Return the ID itself if no name found
+                    print(f"[DEBUG] Warning: ID {ukcp_id} not found in ukcp_stands.json") # <--- DEBUG PRINT
                     return str(ukcp_id)
-        
-        # --- PRIORITY 2: GEOFENCING ---
+            # else:
+            #    print(f"[DEBUG] No UKCP stand for {callsign}") 
+
+        # --- PRIORITY 2: GEOFENCING (Existing logic) ---
         if groundspeed > 5 or altitude > 10000: return None
         if pilot_lat is None or pilot_lon is None: return None
         
