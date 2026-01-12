@@ -70,6 +70,14 @@ html, body {
     
     /* 4. Keeps it on top of everything */
     z-index: 100;
+    /* scanlines */
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 3px
+    );
+    background-size: 100% 3px;
 }
 
 /* 2. HEADER (Fixed) */
