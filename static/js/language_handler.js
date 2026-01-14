@@ -43,7 +43,7 @@ const COUNTRY_CODE_TO_LANGUAGE = {
     'CL': 'es', 'PE': 'es', 'VE': 'es',
     
     // Other European
-    'IT': 'it', 'PT': 'pt', 'BR': 'pt', 'NL': 'nl',
+    'IT': 'it', 'PT': 'pt', 'BR': 'pt', 'NL': 'nl','SE': 'sv',
     
     // Asian
     'JP': 'ja', 'CN': 'zh',
@@ -86,7 +86,7 @@ const COUNTRY_TO_LANGUAGE = {
     'Portugal': 'pt',
     'Brazil': 'pt',
     'Netherlands': 'nl',
-    
+    'Sweden': 'sv',    
     // Asian
     'Japan': 'ja',
     'China': 'zh',
