@@ -324,12 +324,28 @@ class VatsimFetcher:
             if raw_status == 'Check-in': gate_display = 'TBA'
             elif raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']: gate_display = 'CLOSED'
         
+        # STATUS OVERRIDE ("At Gate") & REALITY CHECK
         display_status = raw_status
-        # Only switch to "At Gate" if they have a stand AND are stopped (< 5 knots)
+        
         if direction == 'ARR' and gate:
             if pilot['groundspeed'] < 5:
                 display_status = 'At Gate'
-            # If they are moving (taxiing/landing), keep the raw status (e.g. "Landed")
+                
+                # --- NEW: CHECK REALITY ---
+                # The pilot has parked. Let's see where they REALLY are.
+                # We call find_stand() with callsign=None to FORCE a coordinate check (bypassing UKCP API)
+                real_location = self.find_stand(
+                    pilot['latitude'], 
+                    pilot['longitude'], 
+                    airport_code, 
+                    pilot['groundspeed'], 
+                    pilot['altitude'], 
+                    callsign=None  # <--- This is the secret key! Forces geofencing.
+                )
+                
+                # If they are at a valid stand in our database, override the API assignment
+                if real_location:
+                    gate_display = real_location
 
         return {
             'callsign': callsign, 'aircraft': fp.get('aircraft_short', 'N/A'),
