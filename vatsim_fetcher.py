@@ -128,11 +128,6 @@ class VatsimFetcher:
         return R*c
 
     def find_stand(self, pilot_lat, pilot_lon, airport_code, groundspeed, altitude, callsign=None):
-        # --- 🧪 TEST INJECTION START ---
-        # Replace 'BAW505' with a REAL callsign currently on your board!
-        if callsign == 'EZY378': 
-            return 'TEST-99'
-        # --- 🧪 TEST INJECTION END ---
         # --- PRIORITY 1: UKCP API ---
         if self.ukcp_fetcher and callsign and self.ukcp_fetcher.is_uk_airport(airport_code):
             
