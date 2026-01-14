@@ -54,6 +54,9 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 ### London Heathrow (EGLL) - Yellow Theme
 ![Heathrow Board](screenshots/EGLL.png)
 
+### London Gatwick (EGLL) - Yellow Theme
+![Gatwick Board](screenshots/EGKK.png)
+
 ## Technical Stack
 
 * **Backend:** Python 3.8+, Flask, Flask-SocketIO
