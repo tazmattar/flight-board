@@ -325,8 +325,11 @@ class VatsimFetcher:
             elif raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']: gate_display = 'CLOSED'
         
         display_status = raw_status
-        if direction == 'ARR' and gate and raw_status == 'Landed': 
-            display_status = 'At Gate'
+        # Only switch to "At Gate" if they have a stand AND are stopped (< 5 knots)
+        if direction == 'ARR' and gate:
+            if pilot['groundspeed'] < 5:
+                display_status = 'At Gate'
+            # If they are moving (taxiing/landing), keep the raw status (e.g. "Landed")
 
         return {
             'callsign': callsign, 'aircraft': fp.get('aircraft_short', 'N/A'),
