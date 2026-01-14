@@ -131,6 +131,16 @@ class AirportLanguages:
             'security': 'Tempo estimado de espera<br>na segurança',
             'bilingual': True
         },
+        'sv': {
+            'arrivals': 'Ankomst',
+            'arrivals_sub': 'Arrivals',
+            'departures': 'Avgång',
+            'departures_sub': 'Departures',
+            'gate': 'Gate',
+            'gates': 'Gater',
+            'security': 'Väntetid i<br>säkerhetskontrollen',
+            'bilingual': True
+        },
         'nl': {
             'arrivals': 'Aankomst',
             'arrivals_sub': 'Arrivals',
