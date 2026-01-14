@@ -54,6 +54,12 @@ html, body {
     border: none;
     font-family: var(--font-ui); font-size: 2.5rem; font-weight: 700;
     text-transform: uppercase; cursor: pointer; outline: none;
+    /* SAFARI FIXES: */
+    -webkit-appearance: none; /* Safely removes macOS glossy styling */
+    -moz-appearance: none;    /* Removes Firefox default styling */
+    appearance: none;         /* Standard property */
+    background-color: transparent;
+    border-radius: 0;         /* Removes default rounded corners */
 }
 
 .airport-selector select option {
