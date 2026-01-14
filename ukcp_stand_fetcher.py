@@ -77,29 +77,16 @@ class UKCPStandFetcher:
             return self.cache
     
     def get_stand_for_flight(self, callsign, airport_code):
-        """
-        Get stand assignment for a specific flight
-        
-        Args:
-            callsign: Aircraft callsign
-            airport_code: ICAO code of the airport
-            
-        Returns:
-            Stand identifier or None
-        """
-        # Only works for UK airports
+        # Only check UK airports
         if airport_code not in self.uk_airports:
             return None
         
-        # Ensure we have fresh data
         assignments = self.fetch_stand_assignments()
         
         if callsign in assignments:
-            assignment = assignments[callsign]
-            # Verify the assignment is for the correct airport
-            if assignment['airport'] == airport_code:
-                return assignment['stand']
-        
+            # The API doesn't send the airport code, so we trust the unique callsign match.
+            return assignments[callsign]['stand']
+            
         return None
     
     def is_uk_airport(self, icao):
