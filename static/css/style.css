@@ -496,6 +496,7 @@ html, body {
     display: flex;
     align-items: center;
     gap: 25px;
+    margin-left: auto;
     margin-right: 30px; /* Gap between Weather and Clock */
     flex-shrink: 0;
 }
