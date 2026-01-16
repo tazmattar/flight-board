@@ -78,8 +78,11 @@ html, body {
 }
 
 .clock-container {
-    font-size: 2.5rem; font-weight: 700; 
+    font-size: 2.5rem; 
+    font-weight: 700; 
     letter-spacing: 2px;
+    margin-left: 30px; /* MOVE THE GAP HERE - keeps clock attached to widgets */
+    flex-shrink: 0;
 }
 
 /* 3. CONTENT AREA */
@@ -496,8 +499,6 @@ html, body {
     display: flex;
     align-items: center;
     gap: 25px;
-    margin-left: auto;
-    margin-right: 30px; /* Gap between Weather and Clock */
     flex-shrink: 0;
 }
 
