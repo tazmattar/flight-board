@@ -102,12 +102,12 @@ html, body {
     align-items: center !important;
     gap: 30px !important; /* Space between Widgets and Clock */
     margin-left: 0;
-    justify-content: flex-end;
+    justify-content: flex-end !important;
     flex-wrap: nowrap;
     /* Ensure this container never stretches */
     flex: 0 0 auto;
     flex-shrink: 0 !important;
-    width: max-content; 
+    width: max-content !important; 
     margin-right: 0;
     grid-column: 3;
     justify-self: end;
@@ -558,10 +558,10 @@ html, body {
     display: inline-flex !important;
     align-items: center !important;
     gap: 25px !important; /* Space between Radar and Weather */
-    flex: 0 0 auto;
+    flex: 0 0 auto !important;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    width: max-content;
+    width: max-content !important;
     margin: 0;
 }
 /* Ensure your widget items have no weird margins */
@@ -571,7 +571,7 @@ html, body {
     gap: 8px;
     position: relative;
     opacity: 0.4;
-    flex: 0 0 auto;
+    flex: 0 0 auto !important;
     width: auto !important;
     margin: 0 !important;
 }
