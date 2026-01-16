@@ -151,32 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update flags (works for both configured and dynamic airports)
         updateFlags(airportCode);
 
-        if (airportCode === 'EGKK') {
-            setTimeout(() => {
-                const header = document.querySelector('.fids-header');
-                const selector = document.querySelector('.airport-selector');
-                const rightGroup = document.querySelector('.header-right-group');
-                const widgets = document.querySelector('.header-widgets');
-                const clock = document.querySelector('.clock-container');
-                if (!header || !selector || !rightGroup || !widgets || !clock) return;
-
-                const styles = {
-                    headerDisplay: getComputedStyle(header).display,
-                    rightGroupDisplay: getComputedStyle(rightGroup).display,
-                    rightGroupJustify: getComputedStyle(rightGroup).justifyContent,
-                    widgetsDisplay: getComputedStyle(widgets).display,
-                    widgetsJustify: getComputedStyle(widgets).justifyContent
-                };
-                const widths = {
-                    header: header.getBoundingClientRect().width,
-                    selector: selector.getBoundingClientRect().width,
-                    rightGroup: rightGroup.getBoundingClientRect().width,
-                    widgets: widgets.getBoundingClientRect().width,
-                    clock: clock.getBoundingClientRect().width
-                };
-                console.log('[EGKK Header Debug]', { styles, widths });
-            }, 0);
-        }
     }
 
     function updateFlags(airportCode) {
