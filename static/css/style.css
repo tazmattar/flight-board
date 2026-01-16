@@ -85,6 +85,14 @@ html, body {
     flex-shrink: 0;
 }
 
+.header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
 /* 3. CONTENT AREA */
 .page-container { 
     flex: 1;             

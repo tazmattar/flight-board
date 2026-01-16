@@ -33,32 +33,33 @@
             <option value="KJFK">New York JFK Airport - KJFK</option>
         </select>
         
-        
         <button id="addAirportBtn" class="add-airport-btn" title="Add Airport">
             <span class="material-icons">add_circle</span>
         </button>
-        
-        
     </div>
 
-    <div class="header-widgets">
-        <div class="widget-item" id="atcWidget">
-            <span class="material-icons widget-icon" id="atcIcon">track_changes</span>
-            <div class="atc-popover" id="atcList">
-                <div class="popover-title">Active Controllers</div>
-                <ul id="atcListContent"></ul>
+    <!-- NEW WRAPPER -->
+    <div class="header-right-group">
+        <div class="header-widgets">
+            <div class="widget-item" id="atcWidget">
+                <span class="material-icons widget-icon" id="atcIcon">track_changes</span>
+                <div class="atc-popover" id="atcList">
+                    <div class="popover-title">Active Controllers</div>
+                    <ul id="atcListContent"></ul>
+                </div>
+            </div>
+
+            <div class="widget-item" id="weatherWidget">
+                <span class="material-icons widget-icon" id="wxIcon">cloud_off</span>
+                <span class="widget-text" id="wxTemp">--°</span>
             </div>
         </div>
 
-        <div class="widget-item" id="weatherWidget">
-            <span class="material-icons widget-icon" id="wxIcon">cloud_off</span>
-            <span class="widget-text" id="wxTemp">--°</span>
+        <div class="clock-container">
+            <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
         </div>
     </div>
-
-    <div class="clock-container">
-        <span id="lastUpdate">--:--:--</span> <span class="utc-label">Z</span>
-    </div>
+    <!-- END NEW WRAPPER -->
 </header>
         <div class="page-container">
             
