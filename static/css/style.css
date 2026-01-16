@@ -337,6 +337,20 @@ html, body {
     display: flex;
     align-items: center;
     gap: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.powered-by {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #777;
+    line-height: 1;
+}
+
+.footer-logos a {
+    display: block;
 }
 
 .footer-logos img {
