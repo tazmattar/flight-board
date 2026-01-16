@@ -69,6 +69,13 @@ body.theme-egll .security-time .time {
     color: var(--heathrow-yellow);
 }
 
+/* Debug header layout */
+body.theme-egll .fids-header { outline: 2px solid #ff0000; }
+body.theme-egll .airport-selector { outline: 2px solid #00a0ff; }
+body.theme-egll .header-right-group { outline: 2px solid #00ff6a; }
+body.theme-egll .header-widgets { outline: 2px solid #ff00ff; }
+body.theme-egll .clock-container { outline: 2px solid #00ffd0; }
+
 /* Widget Colors: Force BLACK */
 body [class*="theme-"] .widget-icon, 
 body [class*="theme-"] .widget-text {
