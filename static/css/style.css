@@ -53,8 +53,6 @@ html, body {
 
 /* Add this immediately after the header rule */
 .airport-selector {
-    /* This "spring" margin pushes the Widgets and Clock to the far right */
-    margin-right: auto !important; 
     flex-shrink: 1;
     min-width: 0;
 }
