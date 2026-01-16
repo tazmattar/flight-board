@@ -667,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!exists) {
                         const option = document.createElement('option');
                         option.value = icao;
-                        option.textContent = `${data.name}`;
+                        option.textContent = `${data.name.replace(/\s*airport\b/i, '').trim()}`;
                         option.title = icao;
                         airportSelect.appendChild(option);
                     }
