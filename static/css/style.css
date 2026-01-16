@@ -480,46 +480,69 @@ html, body {
 }
 
 /* =========================================
-   8. HEADER WIDGETS & LAYOUT FIXES
+   8. HEADER WIDGETS & LAYOUT REINFORCEMENT
    ========================================= */
 
-/* 1. FORCE HEADER LAYOUT (High Specificity) */
-/* "body .fids-header" ensures this wins over generic theme rules */
-body .fids-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start !important; /* CRITICAL: Forces items to the left */
-    gap: 20px;
+/* 1. FORCE PARENT LAYOUT (Target ALL themes explicitly) */
+/* We must override the "space-between" default that causes the spreading */
+.fids-header,
+body.theme-egkk .fids-header, 
+body.theme-eglc .fids-header, 
+body.theme-kjfk .fids-header,
+body.theme-lszh .fids-header,
+body.theme-lsgg .fids-header,
+body.theme-lfsb .fids-header,
+body.theme-egll .fids-header,
+body.theme-default .fids-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important; /* CRITICAL: Force items to start from left */
+    gap: 20px !important;
 }
 
-/* "body .airport-selector" ensures this wins */
-body .airport-selector {
-    margin-right: auto !important; /* CRITICAL: Pushes widgets/clock to the right */
+/* 2. THE SPRING (The Airport Selector) */
+/* This element grows to push the Widgets and Clock to the far right */
+.airport-selector,
+body.theme-egkk .airport-selector, 
+body.theme-kjfk .airport-selector,
+body.theme-eglc .airport-selector {
+    margin-right: auto !important; /* Pushes neighbors to the right */
     flex-shrink: 1;
     min-width: 0;
 }
 
-/* 2. WIDGET CONTAINER */
+/* 3. WIDGET CONTAINER (Compact Group) */
 .header-widgets {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    margin-right: 30px; 
-    flex-shrink: 0;     
-    flex-grow: 0;       
-    width: auto;        
+    display: flex !important;
+    align-items: center !important;
+    gap: 25px !important;
+    margin-right: 30px !important; /* Space before clock */
+    
+    /* PREVENT STRETCHING */
+    flex-shrink: 0 !important;     
+    flex-grow: 0 !important;       
+    width: auto !important;        
+    justify-content: flex-end !important;
 }
 
-/* 3. INDIVIDUAL WIDGET ITEMS */
+/* 4. CLOCK CONTAINER */
+.clock-container,
+body.theme-egkk .clock-container,
+body.theme-kjfk .clock-container {
+    flex-shrink: 0 !important;
+    width: auto !important;
+}
+
+/* 5. INDIVIDUAL WIDGET ITEMS */
 .widget-item {
     display: flex;
     align-items: center;
     gap: 8px;
     position: relative;
-    opacity: 0.4; /* Dimmed when inactive */
+    opacity: 0.4;
     cursor: default;
     
-    /* PREVENT STRETCHING */
+    /* Ensure icons don't stretch */
     flex-shrink: 0;
     flex-grow: 0;
     width: auto; 
@@ -538,11 +561,6 @@ body .airport-selector {
     font-weight: 700;
     font-family: var(--font-ui);
     color: inherit;
-    white-space: nowrap;
-}
-
-.clock-container {
-    flex-shrink: 0;
     white-space: nowrap;
 }
 
