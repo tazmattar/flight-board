@@ -83,8 +83,11 @@ html, body {
     font-size: 2.5rem; 
     font-weight: 700; 
     letter-spacing: 2px;
+    display: flex;
+    align-items: center;
     flex-shrink: 0 !important;
     width: auto !important;
+    margin: 0;
 }
 
 /* CHILD 2: The Right Wrapper (Widgets + Clock) */
@@ -92,11 +95,12 @@ html, body {
     display: flex !important;
     align-items: center !important;
     gap: 30px !important; /* Space between Widgets and Clock */
-    
+    margin-left: auto;
     /* Ensure this container never stretches */
+    flex: 0 0 auto;
     flex-shrink: 0 !important;
     width: auto !important; 
-    margin: 0 !important; /* Remove any old auto margins */
+    margin-right: 0;
 }
 
 /* 3. CONTENT AREA */
@@ -513,6 +517,8 @@ html, body {
     display: flex !important;
     align-items: center !important;
     gap: 25px !important; /* Space between Radar and Weather */
+    flex: 0 0 auto;
+    margin: 0;
 }
 /* Ensure your widget items have no weird margins */
 .widget-item {
