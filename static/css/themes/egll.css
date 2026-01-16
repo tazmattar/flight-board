@@ -18,10 +18,16 @@ body.theme-egll .clock-container {
     color: #000000 !important;
     background: transparent;
 }
+/* Use a grid header for EGLL to keep widgets compact without truncating text */
+body.theme-egll .fids-header {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 30px;
+}
 
-/* Tighten selector width for EGLL to avoid header widget stretching */
-body.theme-egll .airport-selector select {
-    max-width: clamp(220px, 32vw, 420px);
+body.theme-egll .header-right-group {
+    justify-self: end;
 }
 
 body.theme-egll .section-divider {
