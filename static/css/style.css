@@ -45,8 +45,8 @@ html, body {
     padding: 15px 30px; 
     display: flex !important;
     align-items: center !important;
-    /* This automatically pushes the two main children apart */
-    justify-content: space-between !important; 
+    /* Keep the right group pinned by its auto margin */
+    justify-content: flex-start !important; 
     flex-shrink: 0;      
     z-index: 10;
     width: 100%;
@@ -106,7 +106,7 @@ html, body {
     /* Ensure this container never stretches */
     flex: 0 0 auto;
     flex-shrink: 0 !important;
-    width: auto !important; 
+    width: max-content; 
     margin-right: 0;
 }
 
@@ -526,6 +526,8 @@ html, body {
     gap: 25px !important; /* Space between Radar and Weather */
     flex: 0 0 auto;
     flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: max-content;
     margin: 0;
 }
 /* Ensure your widget items have no weird margins */
