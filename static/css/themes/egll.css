@@ -26,7 +26,12 @@ body.theme-egll .fids-header {
     column-gap: 30px;
 }
 
+body.theme-egll .airport-selector {
+    grid-column: 1;
+}
+
 body.theme-egll .header-right-group {
+    grid-column: 3;
     justify-self: end;
 }
 

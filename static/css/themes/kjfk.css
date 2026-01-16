@@ -25,7 +25,12 @@ body.theme-kjfk .clock-container {
     letter-spacing: 0.08em;
 }
 
+body.theme-kjfk .airport-selector {
+    grid-column: 1;
+}
+
 body.theme-kjfk .header-right-group {
+    grid-column: 3;
     justify-self: end;
 }
 

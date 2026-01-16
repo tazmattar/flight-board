@@ -23,7 +23,12 @@ body.theme-egkk .clock-container {
     background: transparent;
 }
 
+body.theme-egkk .airport-selector {
+    grid-column: 1;
+}
+
 body.theme-egkk .header-right-group {
+    grid-column: 3;
     justify-self: end;
 }
 
