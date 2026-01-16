@@ -68,3 +68,9 @@ body.theme-egkk .security-time .label {
 body.theme-egkk .security-time .time {
     color: var(--heathrow-yellow);
 }
+
+/* Widget Colors */
+body.theme-egkk .widget-icon, 
+body.theme-egkk .widget-text {
+    color: #000000 !important;
+}

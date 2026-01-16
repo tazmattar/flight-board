@@ -73,3 +73,8 @@ body.theme-lfsb .gate-icon-box {
 body.theme-lfsb .huge-arrow {
     color: #ffffff;
 }
+/* Widget Colors */
+body.theme-lfsb .widget-icon, 
+body.theme-lfsb .widget-text {
+    color: #ffffff !important;
+}

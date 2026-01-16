@@ -480,35 +480,58 @@ html, body {
 }
 
 /* =========================================
-   8. HEADER WIDGETS (ATC & WX)
+   8. HEADER WIDGETS & LAYOUT FIXES
    ========================================= */
 
+/* 1. FORCE HEADER LAYOUT */
+/* This ensures the selector stays left, and pushes widgets/clock to the far right */
+.fids-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start !important; /* Override standard space-between */
+    gap: 20px;
+}
+
+.airport-selector {
+    margin-right: auto; /* This acts as the spring pushing everything else right */
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+/* 2. WIDGET CONTAINER */
+/* Force this container to be only as wide as its content */
 .header-widgets {
     display: flex;
     align-items: center;
     gap: 25px;
-    margin-left: auto; /* Pushes widgets to the right */
     margin-right: 30px; /* Space between widgets and clock */
+    flex-shrink: 0;     /* Do not squish */
+    flex-grow: 0;       /* Do not stretch */
+    width: auto;        /* Do not fill space */
 }
 
+/* 3. INDIVIDUAL WIDGET ITEMS */
 .widget-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    position: relative; /* Anchor for tooltip */
-    opacity: 0.4; /* Dimmed by default (offline) */
-    transition: opacity 0.3s;
+    position: relative;
+    opacity: 0.4;
     cursor: default;
+    
+    /* CRITICAL FIXES FOR GAPS */
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: auto; 
+    justify-content: flex-start;
 }
 
-.widget-item.active {
-    opacity: 1; /* Fully visible when online */
-}
+.widget-item.active { opacity: 1; }
 
 .widget-icon {
-    font-size: 2.2rem; /* Match general header scaling */
-    /* Inherit color from theme (Black for EGLL, White for LSGG) */
-    color: inherit; 
+    font-size: 2.2rem;
+    color: inherit;
+    line-height: 1;
 }
 
 .widget-text {
@@ -516,9 +539,15 @@ html, body {
     font-weight: 700;
     font-family: var(--font-ui);
     color: inherit;
+    white-space: nowrap;
 }
 
-/* --- ATC RADAR PULSE --- */
+.clock-container {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* --- ANIMATIONS & TOOLTIPS --- */
 @keyframes radar-pulse {
     0% { text-shadow: 0 0 0 rgba(34, 197, 94, 0); }
     50% { text-shadow: 0 0 15px rgba(34, 197, 94, 0.8); color: #22c55e; }
@@ -529,12 +558,11 @@ html, body {
     animation: radar-pulse 3s infinite ease-in-out;
 }
 
-/* --- ATC TOOLTIP / POPOVER --- */
 .atc-popover {
     visibility: hidden;
     opacity: 0;
     position: absolute;
-    top: 120%; /* Below the icon */
+    top: 120%;
     left: 50%;
     transform: translateX(-50%);
     width: 220px;
@@ -543,12 +571,12 @@ html, body {
     border-radius: 6px;
     padding: 10px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    z-index: 100;
-    transition: all 0.2s ease-in-out;
+    z-index: 1000;
+    transition: all 0.2s;
     pointer-events: none;
+    color: #fff; text-align: left; /* Reset text align */
 }
 
-/* Show tooltip on hover */
 .widget-item:hover .atc-popover {
     visibility: visible;
     opacity: 1;
@@ -558,107 +586,15 @@ html, body {
 .popover-title {
     color: #888;
     font-size: 0.8rem;
-    text-transform: uppercase;
     font-weight: 700;
-    margin-bottom: 8px;
     border-bottom: 1px solid #333;
-    padding-bottom: 4px;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    text-transform: uppercase;
 }
 
-.atc-popover ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
+.atc-popover ul { list-style: none; margin: 0; padding: 0; }
+.atc-popover li { display: flex; justify-content: space-between; font-family: var(--font-data); font-size: 0.9rem; padding: 2px 0; }
+.atc-popover li span.freq { color: #22c55e; }
 
-.atc-popover li {
-    display: flex;
-    justify-content: space-between;
-    color: #fff;
-    font-family: var(--font-data);
-    font-size: 0.9rem;
-    padding: 2px 0;
-}
-
-.atc-popover li span.freq {
-    color: var(--fids-green);
-}
-
-/* Mobile responsive adjustments */
-@media (orientation: portrait) {
-    .header-widgets { gap: 15px; margin-right: 15px; }
-    .widget-icon { font-size: 1.8rem; }
-    .widget-text { font-size: 1.4rem; }
-}
-
-/* =========================================
-   9. THEME & LAYOUT FIXES
-   ========================================= */
-
-/* LAYOUT FIX: Ensure correct spacing between Selector, Widgets, and Clock */
-.fids-header {
-    /* Ensure we don't force spacing that conflicts with margin-auto */
-    justify-content: flex-start !important; 
-    gap: 20px;
-}
-
-.airport-selector {
-    flex-shrink: 1; /* Allow selector text to shrink if needed */
-    min-width: 0;   /* Enable text truncation if screen is tight */
-    margin-right: auto; /* This pushes everything else to the right */
-}
-
-.header-widgets {
-    /* Remove the auto margin here since the selector pushes us */
-    margin-left: 0 !important; 
-    margin-right: 20px !important;
-    flex-shrink: 0; /* Never shrink the widgets */
-}
-
-.clock-container {
-    flex-shrink: 0; /* Never shrink the clock */
-}
-
-/* COLOR FIXES: Force correct icon colors per theme */
-
-/* Black Icons (White/Yellow Headers) */
-body.theme-lszh .widget-icon, body.theme-lszh .widget-text,
-body.theme-egll .widget-icon, body.theme-egll .widget-text,
-body.theme-egkk .widget-icon, body.theme-egkk .widget-text,
-body.theme-eglc .widget-icon, body.theme-eglc .widget-text,
-body.theme-default .widget-icon, body.theme-default .widget-text {
-    color: #000000 !important;
-}
-
-/* White Icons (Blue/Dark Headers) */
-body.theme-lsgg .widget-icon, body.theme-lsgg .widget-text,
-body.theme-lfsb .widget-icon, body.theme-lfsb .widget-text {
-    color: #ffffff !important;
-}
-
-/* Yellow Icons (Black Headers - JFK) */
-body.theme-kjfk .widget-icon, body.theme-kjfk .widget-text {
-    color: #FFB612 !important; /* JFK Yellow */
-    text-shadow: none; /* Clean look for icons */
-}
-
-/* OPACITY TWEAK */
-/* Make them darker when offline so they don't look "disabled" */
-.widget-item {
-    opacity: 0.3; 
-}
-/* If you prefer them fully visible always, change 0.3 to 1.0 above */
-
-/* Active states are fully opaque */
-.widget-item.active {
-    opacity: 1;
-}
-
-/* Fix for the popover text color to always be readable */
-.atc-popover {
-    color: #ffffff; /* Always white text in the dark tooltip */
-    text-align: left;
-}
-.atc-popover .popover-title {
-    color: #aaaaaa;
-}
+ 

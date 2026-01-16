@@ -122,3 +122,9 @@ body.theme-kjfk .flap-container::before {
     background: rgba(255, 182, 18, 0.1);
     pointer-events: none;
 }
+/* Widget Colors (JFK Header is Black, so icons must be Yellow) */
+body.theme-kjfk .widget-icon, 
+body.theme-kjfk .widget-text {
+    color: var(--jfk-yellow) !important;
+    text-shadow: none;
+}

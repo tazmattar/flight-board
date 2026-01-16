@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeMap = {
             'LSZH': {
                 css: '/static/css/themes/lszh.css',
-                class: 'theme-lszh'
+                class: null  // LSZH uses default styling, no class needed
             },
             'LSGG': {
                 css: '/static/css/themes/lsgg.css',

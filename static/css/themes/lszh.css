@@ -46,3 +46,9 @@
 .huge-arrow {
     color: white;
 }
+
+/* Widget Colors (Zurich header is white) */
+.widget-icon, 
+.widget-text {
+    color: #000000 !important;
+}

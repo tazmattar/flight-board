@@ -66,3 +66,8 @@ body.theme-default .security-time .label {
 body.theme-default .security-time .time {
     color: #ffffff;
 }
+/* Widget Colors */
+body.theme-default .widget-icon, 
+body.theme-default .widget-text {
+    color: #000000 !important;
+}  
