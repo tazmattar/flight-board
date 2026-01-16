@@ -43,10 +43,10 @@ html, body {
 /* 2. HEADER (Fixed) */
 .fids-header {
     padding: 15px 30px; 
-    display: flex !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
     align-items: center !important;
-    /* Keep the right group pinned by its auto margin */
-    justify-content: flex-start !important; 
+    column-gap: 30px;
     flex-shrink: 0;      
     z-index: 10;
     width: 100%;
@@ -59,6 +59,7 @@ html, body {
     min-width: 0;
     display: flex;
     align-items: center;
+    grid-column: 1;
 }
 
 .airport-selector select {
@@ -100,7 +101,7 @@ html, body {
     display: inline-flex !important;
     align-items: center !important;
     gap: 30px !important; /* Space between Widgets and Clock */
-    margin-left: auto;
+    margin-left: 0;
     justify-content: flex-end;
     flex-wrap: nowrap;
     /* Ensure this container never stretches */
@@ -108,6 +109,8 @@ html, body {
     flex-shrink: 0 !important;
     width: max-content; 
     margin-right: 0;
+    grid-column: 3;
+    justify-self: end;
 }
 
 /* 3. CONTENT AREA */
