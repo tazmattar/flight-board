@@ -45,17 +45,18 @@ html, body {
     padding: 15px 30px; 
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start !important; /* Force Left Alignment */
-    gap: 20px !important;
+    /* This automatically pushes the two main children apart */
+    justify-content: space-between !important; 
     flex-shrink: 0;      
     z-index: 10;
     width: 100%;
 }
 
+/* CHILD 1: The Airport Selector */
 .airport-selector {
-    flex-shrink: 1;
+    /* No margins needed. space-between handles the push. */
+    flex-shrink: 1; 
     min-width: 0;
-    margin-right: auto !important; /* THE SPRING: Pushes everything else to the right */
     display: flex;
     align-items: center;
 }
@@ -86,15 +87,16 @@ html, body {
     width: auto !important;
 }
 
+/* CHILD 2: The Right Wrapper (Widgets + Clock) */
 .header-right-group {
     display: flex !important;
     align-items: center !important;
-    gap: 30px !important;
+    gap: 30px !important; /* Space between Widgets and Clock */
+    
+    /* Ensure this container never stretches */
     flex-shrink: 0 !important;
-    flex-grow: 0 !important; /* Prevent it from stretching */
-    width: auto !important;  /* Snap to content width */
-    justify-content: flex-end !important;
-    margin-left: 0 !important; /* Reset any auto margins here, handled by selector */
+    width: auto !important; 
+    margin: 0 !important; /* Remove any old auto margins */
 }
 
 /* 3. CONTENT AREA */
@@ -510,21 +512,17 @@ html, body {
 .header-widgets {
     display: flex !important;
     align-items: center !important;
-    gap: 25px !important;
-    flex-shrink: 0 !important;
-    flex-grow: 0 !important;
-    width: auto !important; /* Crucial: Prevents internal spacing out */
-    justify-content: flex-end !important;
+    gap: 25px !important; /* Space between Radar and Weather */
 }
-
+/* Ensure your widget items have no weird margins */
 .widget-item {
-    display: flex !important;
-    align-items: center !important;
+    display: flex;
+    align-items: center;
     gap: 8px;
     position: relative;
     opacity: 0.4;
-    cursor: default;
     width: auto !important;
+    margin: 0 !important;
 }
 
 .widget-item.active { opacity: 1; }
