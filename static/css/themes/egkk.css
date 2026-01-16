@@ -36,6 +36,20 @@ body.theme-egkk .header-right-group {
     margin-left: 0;
 }
 
+/* Force compact widget grouping for EGKK */
+body.theme-egkk .header-widgets {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    justify-content: flex-start !important;
+    gap: 25px !important;
+}
+
+body.theme-egkk .widget-item {
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+}
+
 body.theme-egkk .section-divider {
     background-color: var(--heathrow-yellow);
     color: #000000;
