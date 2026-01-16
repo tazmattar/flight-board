@@ -71,6 +71,11 @@ html, body {
     appearance: none;         /* Standard property */
     background-color: transparent;
     border-radius: 0;         /* Removes default rounded corners */
+    max-width: 55vw;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .airport-selector select option {
@@ -96,6 +101,8 @@ html, body {
     align-items: center !important;
     gap: 30px !important; /* Space between Widgets and Clock */
     margin-left: auto;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
     /* Ensure this container never stretches */
     flex: 0 0 auto;
     flex-shrink: 0 !important;
@@ -518,6 +525,7 @@ html, body {
     align-items: center !important;
     gap: 25px !important; /* Space between Radar and Weather */
     flex: 0 0 auto;
+    flex-wrap: nowrap;
     margin: 0;
 }
 /* Ensure your widget items have no weird margins */
@@ -527,6 +535,7 @@ html, body {
     gap: 8px;
     position: relative;
     opacity: 0.4;
+    flex: 0 0 auto;
     width: auto !important;
     margin: 0 !important;
 }
