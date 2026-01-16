@@ -345,13 +345,16 @@ html, body {
     text-transform: uppercase;
     color: #777;
     line-height: 1;
-    text-align: center;
+    position: absolute;
+    left: 0;
+    top: -12px;
 }
 
 .footer-logo-block {
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 4px;
 }
 
