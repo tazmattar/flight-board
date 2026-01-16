@@ -667,7 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!exists) {
                         const option = document.createElement('option');
                         option.value = icao;
-                        option.textContent = `${data.name} - ${icao}`;
+                        option.textContent = `${data.name}`;
+                        option.title = icao;
                         airportSelect.appendChild(option);
                     }
                     
