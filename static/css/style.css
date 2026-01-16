@@ -345,12 +345,13 @@ html, body {
     text-transform: uppercase;
     color: #777;
     line-height: 1;
+    text-align: center;
 }
 
 .footer-logo-block {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 4px;
 }
 
