@@ -47,8 +47,8 @@
     color: white;
 }
 
-/* Widget Colors (Zurich header is white) */
-.widget-icon, 
-.widget-text {
+/* Widget Colors: Force BLACK for Zurich */
+body .widget-icon, 
+body .widget-text {
     color: #000000 !important;
 }

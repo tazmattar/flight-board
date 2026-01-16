@@ -69,8 +69,8 @@ body.theme-egll .security-time .time {
     color: var(--heathrow-yellow);
 }
 
-/* Widget Colors */
-body.theme-egll .widget-icon, 
-body.theme-egll .widget-text {
+/* Widget Colors: Force BLACK */
+body [class*="theme-"] .widget-icon, 
+body [class*="theme-"] .widget-text {
     color: #000000 !important;
 }
