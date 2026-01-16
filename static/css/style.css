@@ -97,7 +97,7 @@ html, body {
 
 /* CHILD 2: The Right Wrapper (Widgets + Clock) */
 .header-right-group {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     gap: 30px !important; /* Space between Widgets and Clock */
     margin-left: auto;
@@ -521,7 +521,7 @@ html, body {
    ========================================= */
 
 .header-widgets {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     gap: 25px !important; /* Space between Radar and Weather */
     flex: 0 0 auto;
