@@ -43,18 +43,21 @@ html, body {
 /* 2. HEADER (Fixed) */
 .fids-header {
     padding: 15px 30px; 
-    display: flex;
-    justify-content: flex-start !important; /* CRITICAL FIX: Forces everything to the left */
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important; /* Force Left Alignment */
+    gap: 20px !important;
     flex-shrink: 0;      
     z-index: 10;
-    gap: 20px;
+    width: 100%;
 }
 
-/* Add this immediately after the header rule */
 .airport-selector {
     flex-shrink: 1;
     min-width: 0;
+    margin-right: auto !important; /* THE SPRING: Pushes everything else to the right */
+    display: flex;
+    align-items: center;
 }
 
 .airport-selector select {
@@ -79,15 +82,19 @@ html, body {
     font-size: 2.5rem; 
     font-weight: 700; 
     letter-spacing: 2px;
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
+    width: auto !important;
 }
 
 .header-right-group {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    flex-shrink: 0;
-    margin-left: auto;
+    display: flex !important;
+    align-items: center !important;
+    gap: 30px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important; /* Prevent it from stretching */
+    width: auto !important;  /* Snap to content width */
+    justify-content: flex-end !important;
+    margin-left: 0 !important; /* Reset any auto margins here, handled by selector */
 }
 
 /* 3. CONTENT AREA */
@@ -501,19 +508,23 @@ html, body {
    ========================================= */
 
 .header-widgets {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    flex-shrink: 0;
+    display: flex !important;
+    align-items: center !important;
+    gap: 25px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    width: auto !important; /* Crucial: Prevents internal spacing out */
+    justify-content: flex-end !important;
 }
 
 .widget-item {
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     gap: 8px;
     position: relative;
     opacity: 0.4;
     cursor: default;
+    width: auto !important;
 }
 
 .widget-item.active { opacity: 1; }
