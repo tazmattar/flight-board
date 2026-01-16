@@ -10,6 +10,7 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 * **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLL, EGKK, and KJFK.
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 60 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
+* **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display.
 * **Responsive Layout:**
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
     * **Portrait Mode:** Automatically stacks tables vertically for optimal use on vertical monitors.
@@ -140,6 +141,6 @@ This project is open-source and available under the MIT License.
 - [x] Implement custom themes for major hub airports
 - [x] Universal Airport Search (Dynamic loading)
 - [ ] Asian Pacific airports (VHHH, WSSS, YSSY)
-- [ ] Add METAR/weather display toggle
-- [ ] Add ATC/Controller information panel
+- [x] Add METAR/weather display widget
+- [x] Add ATC/controller widget with live popover
 - [ ] Aircraft type silhouettes/icons
