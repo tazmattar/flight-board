@@ -337,8 +337,6 @@ html, body {
     display: flex;
     align-items: center;
     gap: 14px;
-    flex-direction: column;
-    align-items: flex-start;
 }
 
 .powered-by {
@@ -349,8 +347,11 @@ html, body {
     line-height: 1;
 }
 
-.footer-logos a {
-    display: block;
+.footer-logo-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
 }
 
 .footer-logos img {
