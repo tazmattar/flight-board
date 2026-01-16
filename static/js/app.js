@@ -584,10 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (metar.includes('FG') || metar.includes('BR')) icon = 'foggy'; // Fog/Mist
         else if (metar.includes('OVC') || metar.includes('BKN')) icon = 'cloud'; // Overcast/Broken
         else if (metar.includes('SCT') || metar.includes('FEW')) icon = 'partly_cloudy_day'; // Scattered
-        else if (metar.includes('CAVOK') || metar.includes('CLR') || metar.includes('NSC')) icon = 'wb_sunny';
-        
-        // Night-time logic (optional polish): 
-        // If it's standard 'wb_sunny' but local time is night, switch to 'bedtime' (moon)
+        else if (metar.includes('CAVOK') || metar.includes('CLR') || metar.includes('NSC')) icon = 'wb_sunny'; // Clear
         
         iconEl.textContent = icon;
     }
