@@ -30,6 +30,7 @@ body.theme-egkk .airport-selector {
 body.theme-egkk .header-right-group {
     grid-column: 3;
     justify-self: end;
+    margin-left: 0;
 }
 
 body.theme-egkk .section-divider {

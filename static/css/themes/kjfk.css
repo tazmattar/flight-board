@@ -32,6 +32,7 @@ body.theme-kjfk .airport-selector {
 body.theme-kjfk .header-right-group {
     grid-column: 3;
     justify-self: end;
+    margin-left: 0;
 }
 
 /* Force dropdown options to be readable */
