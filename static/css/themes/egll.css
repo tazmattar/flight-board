@@ -19,6 +19,11 @@ body.theme-egll .clock-container {
     background: transparent;
 }
 
+/* Tighten selector width for EGLL to avoid header widget stretching */
+body.theme-egll .airport-selector select {
+    max-width: clamp(220px, 32vw, 420px);
+}
+
 body.theme-egll .section-divider {
     background-color: var(--heathrow-yellow);
     color: #000000;
