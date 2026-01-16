@@ -125,7 +125,14 @@
 
 <footer class="fids-footer">
     <div class="footer-group left">
-        <div id="flagContainer" class="country-flags"></div>
+        <div class="footer-logos">
+            <a href="https://vatsim.net/" target="_blank" rel="noopener">
+                <img src="{{ url_for('static', filename='vatsim_logos/VATSIM_Logo_White.png') }}" alt="VATSIM">
+            </a>
+            <a href="https://www.vatsim.uk/" target="_blank" rel="noopener">
+                <img src="{{ url_for('static', filename='vatsim_logos/vatsimuk_white.png') }}" alt="VATSIM UK">
+            </a>
+        </div>
     </div>
     
     <div class="footer-group center-left">
@@ -134,6 +141,7 @@
             <span class="material-icons">flight_takeoff</span>
             <span id="gateLabel">Gates</span>
         </div>
+        <div id="flagContainer" class="country-flags"></div>
     </div>
 
     <div class="footer-group center">

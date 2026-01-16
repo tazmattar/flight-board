@@ -333,6 +333,18 @@ html, body {
 .airline-logo { height: 20px; width: auto; filter: grayscale(100%) brightness(200%); }
 .flight-cell { display: flex; align-items: center; gap: 10px; }
 
+.footer-logos {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.footer-logos img {
+    height: 30px;
+    width: auto;
+    opacity: 0.9;
+}
+
 /* MEDIA QUERIES */
 @media (orientation: portrait) {
     .split-top-row { flex-direction: column; }
@@ -363,7 +375,6 @@ html, body {
     display: flex;
     gap: 12px;
     align-items: center;
-    margin-right: 20px;
 }
 .country-flags img {
     height: 28px;
