@@ -356,6 +356,7 @@ html, body {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    padding-top: 2px;
 }
 
 .footer-logos img {
