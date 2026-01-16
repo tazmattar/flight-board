@@ -11,12 +11,20 @@ body.theme-egkk {
 body.theme-egkk .fids-header {
     background-color: var(--heathrow-yellow);
     border-bottom: 4px solid #000000;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 30px;
 }
 
 body.theme-egkk .airport-selector select,
 body.theme-egkk .clock-container {
     color: #000000 !important;
     background: transparent;
+}
+
+body.theme-egkk .header-right-group {
+    justify-self: end;
 }
 
 body.theme-egkk .section-divider {
