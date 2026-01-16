@@ -150,25 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update flags (works for both configured and dynamic airports)
         updateFlags(airportCode);
-
-        // Log header widths to diagnose widget spacing issues.
-        setTimeout(() => {
-            const header = document.querySelector('.fids-header');
-            const selector = document.querySelector('.airport-selector');
-            const rightGroup = document.querySelector('.header-right-group');
-            const widgets = document.querySelector('.header-widgets');
-            const clock = document.querySelector('.clock-container');
-            if (!header || !selector || !rightGroup || !widgets || !clock) return;
-
-            const rects = {
-                header: header.getBoundingClientRect().width,
-                selector: selector.getBoundingClientRect().width,
-                rightGroup: rightGroup.getBoundingClientRect().width,
-                widgets: widgets.getBoundingClientRect().width,
-                clock: clock.getBoundingClientRect().width
-            };
-            console.log('[Header Widths]', airportCode, rects);
-        }, 0);
     }
 
     function updateFlags(airportCode) {

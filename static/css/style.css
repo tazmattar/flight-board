@@ -71,7 +71,7 @@ html, body {
     appearance: none;         /* Standard property */
     background-color: transparent;
     border-radius: 0;         /* Removes default rounded corners */
-    max-width: 55vw;
+    max-width: clamp(260px, 40vw, 520px);
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
