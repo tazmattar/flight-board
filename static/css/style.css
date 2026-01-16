@@ -590,3 +590,75 @@ html, body {
     .widget-icon { font-size: 1.8rem; }
     .widget-text { font-size: 1.4rem; }
 }
+
+/* =========================================
+   9. THEME & LAYOUT FIXES
+   ========================================= */
+
+/* LAYOUT FIX: Ensure correct spacing between Selector, Widgets, and Clock */
+.fids-header {
+    /* Ensure we don't force spacing that conflicts with margin-auto */
+    justify-content: flex-start !important; 
+    gap: 20px;
+}
+
+.airport-selector {
+    flex-shrink: 1; /* Allow selector text to shrink if needed */
+    min-width: 0;   /* Enable text truncation if screen is tight */
+    margin-right: auto; /* This pushes everything else to the right */
+}
+
+.header-widgets {
+    /* Remove the auto margin here since the selector pushes us */
+    margin-left: 0 !important; 
+    margin-right: 20px !important;
+    flex-shrink: 0; /* Never shrink the widgets */
+}
+
+.clock-container {
+    flex-shrink: 0; /* Never shrink the clock */
+}
+
+/* COLOR FIXES: Force correct icon colors per theme */
+
+/* Black Icons (White/Yellow Headers) */
+body.theme-lszh .widget-icon, body.theme-lszh .widget-text,
+body.theme-egll .widget-icon, body.theme-egll .widget-text,
+body.theme-egkk .widget-icon, body.theme-egkk .widget-text,
+body.theme-eglc .widget-icon, body.theme-eglc .widget-text,
+body.theme-default .widget-icon, body.theme-default .widget-text {
+    color: #000000 !important;
+}
+
+/* White Icons (Blue/Dark Headers) */
+body.theme-lsgg .widget-icon, body.theme-lsgg .widget-text,
+body.theme-lfsb .widget-icon, body.theme-lfsb .widget-text {
+    color: #ffffff !important;
+}
+
+/* Yellow Icons (Black Headers - JFK) */
+body.theme-kjfk .widget-icon, body.theme-kjfk .widget-text {
+    color: #FFB612 !important; /* JFK Yellow */
+    text-shadow: none; /* Clean look for icons */
+}
+
+/* OPACITY TWEAK */
+/* Make them darker when offline so they don't look "disabled" */
+.widget-item {
+    opacity: 0.3; 
+}
+/* If you prefer them fully visible always, change 0.3 to 1.0 above */
+
+/* Active states are fully opaque */
+.widget-item.active {
+    opacity: 1;
+}
+
+/* Fix for the popover text color to always be readable */
+.atc-popover {
+    color: #ffffff; /* Always white text in the dark tooltip */
+    text-align: left;
+}
+.atc-popover .popover-title {
+    color: #aaaaaa;
+}
