@@ -478,3 +478,115 @@ html, body {
     color: #fff;
     font-weight: 600;
 }
+
+/* =========================================
+   8. HEADER WIDGETS (ATC & WX)
+   ========================================= */
+
+.header-widgets {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-left: auto; /* Pushes widgets to the right */
+    margin-right: 30px; /* Space between widgets and clock */
+}
+
+.widget-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative; /* Anchor for tooltip */
+    opacity: 0.4; /* Dimmed by default (offline) */
+    transition: opacity 0.3s;
+    cursor: default;
+}
+
+.widget-item.active {
+    opacity: 1; /* Fully visible when online */
+}
+
+.widget-icon {
+    font-size: 2.2rem; /* Match general header scaling */
+    /* Inherit color from theme (Black for EGLL, White for LSGG) */
+    color: inherit; 
+}
+
+.widget-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: var(--font-ui);
+    color: inherit;
+}
+
+/* --- ATC RADAR PULSE --- */
+@keyframes radar-pulse {
+    0% { text-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+    50% { text-shadow: 0 0 15px rgba(34, 197, 94, 0.8); color: #22c55e; }
+    100% { text-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.widget-item.atc-online .widget-icon {
+    animation: radar-pulse 3s infinite ease-in-out;
+}
+
+/* --- ATC TOOLTIP / POPOVER --- */
+.atc-popover {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 120%; /* Below the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 100;
+    transition: all 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+/* Show tooltip on hover */
+.widget-item:hover .atc-popover {
+    visibility: visible;
+    opacity: 1;
+    top: 100%;
+}
+
+.popover-title {
+    color: #888;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 4px;
+}
+
+.atc-popover ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.atc-popover li {
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+    font-family: var(--font-data);
+    font-size: 0.9rem;
+    padding: 2px 0;
+}
+
+.atc-popover li span.freq {
+    color: var(--fids-green);
+}
+
+/* Mobile responsive adjustments */
+@media (orientation: portrait) {
+    .header-widgets { gap: 15px; margin-right: 15px; }
+    .widget-icon { font-size: 1.8rem; }
+    .widget-text { font-size: 1.4rem; }
+}

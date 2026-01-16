@@ -14,7 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Country from data:', data.country); // DEBUG
         rawFlightData = data;
         if (data.airport_name) elements.airportName.textContent = data.airport_name;
-        
+        // Update ATC and Weather widgets
+        updateAtcWidget(data.controllers);
+        updateWeatherWidget(data.metar);
         // Update footer text with country information
         window.updateFooterText(currentAirport, data.country);
         
@@ -516,9 +518,80 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     }, 4000);
+
+    function updateAtcWidget(controllers) {
+        const atcWidget = document.getElementById('atcWidget');
+        const atcIcon = document.getElementById('atcIcon');
+        const atcListContent = document.getElementById('atcListContent');
+        
+        // Filter out OBS (Observer) positions if any sneak in
+        const activeControllers = (controllers || []).filter(c => !c.callsign.endsWith('_OBS'));
+
+        if (activeControllers.length > 0) {
+            atcWidget.classList.add('active', 'atc-online');
+            
+            // Sort priority: TWR > APP > GND > DEL
+            const typePriority = { 'DEL': 1, 'GND': 2, 'TWR': 3, 'APP': 4, 'DEP': 4, 'CTR': 5 };
+            
+            activeControllers.sort((a, b) => {
+                const typeA = a.callsign.split('_').pop();
+                const typeB = b.callsign.split('_').pop();
+                return (typePriority[typeB] || 0) - (typePriority[typeA] || 0);
+            });
+
+            // Build the tooltip list
+            atcListContent.innerHTML = activeControllers.map(c => `
+                <li>
+                    <span>${c.callsign}</span>
+                    <span class="freq">${c.frequency}</span>
+                </li>
+            `).join('');
+        } else {
+            atcWidget.classList.remove('active', 'atc-online');
+            atcListContent.innerHTML = '<li>No active controllers</li>';
+        }
+    }
+
+    function updateWeatherWidget(metar) {
+        const widget = document.getElementById('weatherWidget');
+        const iconEl = document.getElementById('wxIcon');
+        const tempEl = document.getElementById('wxTemp');
+        
+        if (!metar || metar === 'Unavailable') {
+            widget.classList.remove('active');
+            return;
+        }
+
+        widget.classList.add('active');
+
+        // 1. Parse Temperature (Look for pattern "12/10" or "M02/M05")
+        // Regex matches 2 digits, optional 'M' prefix, followed by slash
+        const tempMatch = metar.match(/(M?\d{2})\/(?:M?\d{2})/);
+        if (tempMatch) {
+            let temp = tempMatch[1].replace('M', '-'); // Convert "M05" to "-05"
+            temp = parseInt(temp, 10); // Remove leading zeros
+            tempEl.textContent = `${temp}°`;
+        }
+
+        // 2. Determine Conditions for Icon
+        let icon = 'wb_sunny'; // Default Clear/Sunny
+
+        // Check metar strings for priority conditions
+        if (metar.includes('TS')) icon = 'thunderstorm';
+        else if (metar.includes('SN') || metar.includes('SG')) icon = 'ac_unit'; // Snow
+        else if (metar.includes('RA') || metar.includes('DZ')) icon = 'water_drop'; // Rain
+        else if (metar.includes('FG') || metar.includes('BR')) icon = 'foggy'; // Fog/Mist
+        else if (metar.includes('OVC') || metar.includes('BKN')) icon = 'cloud'; // Overcast/Broken
+        else if (metar.includes('SCT') || metar.includes('FEW')) icon = 'partly_cloudy_day'; // Scattered
+        else if (metar.includes('CAVOK') || metar.includes('CLR') || metar.includes('NSC')) icon = 'wb_sunny';
+        
+        // Night-time logic (optional polish): 
+        // If it's standard 'wb_sunny' but local time is night, switch to 'bedtime' (moon)
+        
+        iconEl.textContent = icon;
+    }
     
     // ====== AIRPORT SEARCH MODAL ======
-    // ADD THIS ENTIRE BLOCK TO THE END OF app.js (before the final closing bracket)
     
     const modal = document.getElementById('airportSearchModal');
     const addBtn = document.getElementById('addAirportBtn');
