@@ -9,10 +9,6 @@ body.theme-kjfk {
     --jfk-black: #000000;
 }
 
-body.theme-kjfk {
-    --font-data: 'B612', monospace;
-}
-
 body.theme-kjfk .fids-header {
     background-color: var(--jfk-black);
     border-bottom: 4px solid var(--jfk-yellow);
