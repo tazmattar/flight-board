@@ -167,6 +167,36 @@ class VatsimFetcher:
                     min_distance = dist
                     closest_stand = stand['name']
         return closest_stand
+    
+    def _get_sortable_time(self, time_str):
+        """
+        Converts a time string (HH:MM) into a sortable datetime object,
+        accounting for day wrapping (e.g. 00:05 is 'tomorrow' relative to 23:50).
+        """
+        if not time_str or len(time_str) != 5: # Expecting "HH:MM"
+            return datetime.max # Push undefined times to the end
+        
+        try:
+            now = datetime.utcnow()
+            h, m = map(int, time_str.split(':'))
+            # Create a datetime for "today" at this time
+            dt = now.replace(hour=h, minute=m, second=0, microsecond=0)
+            
+            # Calculate difference from now
+            diff = (dt - now).total_seconds()
+            
+            # Logic: If the time is more than 12 hours away, assume it belongs to the adjacent day.
+            # Example 1: Now=23:00, Flight=00:30. Diff = -22.5h. -> Shift to Tomorrow (Diff +1.5h)
+            # Example 2: Now=01:00, Flight=23:30. Diff = +22.5h. -> Shift to Yesterday (Diff -1.5h)
+            
+            if diff < -12 * 3600:
+                dt += timedelta(days=1)
+            elif diff > 12 * 3600:
+                dt -= timedelta(days=1)
+                
+            return dt
+        except:
+            return datetime.max
 
     def fetch_flights(self):
         results = {}
@@ -197,8 +227,10 @@ class VatsimFetcher:
                     self.process_flight(pilot, arr, 'ARR', results[arr], info)
 
             for code in results:
-                results[code]['departures'].sort(key=lambda x: x.get('time_display', ''))
-                results[code]['arrivals'].sort(key=lambda x: x.get('time_display', ''))
+                # Use smart sorting for both lists
+                results[code]['departures'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
+                results[code]['arrivals'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
+                
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
@@ -232,8 +264,10 @@ class VatsimFetcher:
                 if dep == airport_code: self.process_flight(pilot, airport_code, 'DEP', result, info)
                 if arr == airport_code: self.process_flight(pilot, airport_code, 'ARR', result, info)
 
-            result['departures'].sort(key=lambda x: x.get('time_display', ''))
-            result['arrivals'].sort(key=lambda x: x.get('time_display', ''))
+            # Use smart sorting for both lists
+            result['departures'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
+            result['arrivals'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
+            
             result['metar'] = self.get_metar(airport_code)
             result['controllers'] = self.get_controllers(data.get('controllers', []), airport_code)
             return {airport_code: result}
@@ -410,7 +444,7 @@ class VatsimFetcher:
                     airport_code, 
                     pilot['groundspeed'], 
                     pilot['altitude'], 
-                    callsign=None  # Forces geofencing.
+                    callsign=None  # <--- This is the secret key! Forces geofencing.
                 )
                 
                 # If they are at a valid stand in our database, override the API assignment
