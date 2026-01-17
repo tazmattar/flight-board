@@ -11,8 +11,8 @@ body.theme-rjtt {
     --haneda-header-bg: #0b1c3f;
     --haneda-header-glow: #1a3f7a;
     --haneda-accent-green: #00c36a; /* Icon green accent */
-    --haneda-row-dark: #0a1f45;
-    --haneda-row-light: #0d2a5b;
+    --haneda-row-dark: #091c40;
+    --haneda-row-light: #12326a;
     --haneda-row-line: #2a5fa6;
     --haneda-divider: #1e4f8e;
     --haneda-text: #ffffff;
@@ -24,7 +24,7 @@ body.theme-rjtt {
 /* --- 1. HEADER --- */
 body.theme-rjtt .fids-header {
     background: linear-gradient(180deg, #0e2352 0%, var(--haneda-header-bg) 70%);
-    border-bottom: 2px solid var(--haneda-divider);
+    border-bottom: 2px solid var(--haneda-accent-green);
     border-top: 1px solid #12306a;
     box-shadow: inset 0 -1px 0 rgba(160, 200, 255, 0.15);
 }
@@ -123,6 +123,11 @@ body.theme-rjtt .col-status[data-status*="Delayed"]::before {
 body.theme-rjtt .fids-footer {
     background: linear-gradient(180deg, #0c1f46 0%, var(--haneda-header-bg) 100%);
     border-top: 2px solid var(--haneda-divider);
+}
+
+body.theme-rjtt .gate-icon-box {
+    color: var(--haneda-accent-green);
+    border-color: var(--haneda-accent-green);
 }
 
 body.theme-rjtt .footer-group .main-label {
