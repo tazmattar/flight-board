@@ -125,7 +125,8 @@ window.updateFooterText = function(airportCode, country) {
             'LFSB': 'France',
             'EGLL': 'United Kingdom',
             'EGKK': 'United Kingdom',
-            'KJFK': 'United States'
+            'KJFK': 'United States',
+            'RJTT': 'Japan'
         };
         country = fallbackCountries[airportCode] || 'United Kingdom';
     }
