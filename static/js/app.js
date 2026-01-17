@@ -207,8 +207,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let airportNameCycleIndex = 0;
 
+    function isJapaneseLanguageActive() {
+        return window.currentLanguageCode === 'ja';
+    }
+
     function getAirportNameCycleMax() {
-        return document.body.classList.contains('theme-rjtt') ? 3 : 2;
+        return isJapaneseLanguageActive() ? 3 : 2;
     }
 
     function syncAirportNameCycle() {
@@ -216,10 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getDestinationDisplayText(code, name, jpName) {
-        const isRjtt = document.body.classList.contains('theme-rjtt');
+        const isJapanese = isJapaneseLanguageActive();
         const hasEnglishName = name && name !== 'undefined' && name !== code;
 
-        if (isRjtt) {
+        if (isJapanese) {
             if (airportNameCycleIndex === 1 && hasEnglishName) return name.toUpperCase();
             if (airportNameCycleIndex === 2) {
                 if (jpName) return jpName;
@@ -247,6 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
         airportNameCycleIndex = (airportNameCycleIndex + 1) % max;
         applyDestinationNameMode();
     }, 4000);
+
+    document.addEventListener('language-change', (event) => {
+        if (!event.detail || !event.detail.languageCode) return;
+        syncAirportNameCycle();
+        applyDestinationNameMode();
+    });
 
     // updateFooterText is defined globally in language_handler.js
 

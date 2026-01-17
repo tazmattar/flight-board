@@ -135,6 +135,10 @@ window.updateFooterText = function(airportCode, country) {
     const translation = translations[languageCode] || translations['en'];
     
     console.log(`[Language Handler] Airport: ${airportCode}, Country: ${country}, Language: ${languageCode}, Bilingual: ${translation.bilingual}`);
+
+    // Expose current language for theme-specific UI behavior
+    window.currentLanguageCode = languageCode;
+    document.dispatchEvent(new CustomEvent('language-change', { detail: { languageCode } }));
     
     if (translation.bilingual) {
         // Bilingual display: Local language with English subtitle
