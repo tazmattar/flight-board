@@ -44,6 +44,8 @@ class CheckinAssignments:
             return self._gatwick(airline, seed)
         elif airport_code == 'EGSS':
             return self._stansted(airline, seed)
+        elif airport_code == 'EGLC':
+            return self._london_city(airline, seed)
         elif airport_code == 'KJFK':
             return self._jfk(airline, seed)
         else:
@@ -139,7 +141,7 @@ class CheckinAssignments:
 
     def _stansted(self, airline, seed):
         """London Stansted (EGSS) check-in assignments"""
-        # Jet2: Dedicated desks 14-28 (from real-world info)
+        # Jet2: Dedicated desks 14-28
         if airline in ['EXS']:
             desk = (seed % 15) + 14
             return f"{desk}"
@@ -166,6 +168,27 @@ class CheckinAssignments:
             
         # Others: General check-in
         desk = (seed % 20) + 110
+        return f"{desk}"
+
+    def _london_city(self, airline, seed):
+        """London City (EGLC) check-in assignments"""
+        # British Airways (CityFlyer) - Dominant carrier
+        if airline in ['BAW', 'CFE', 'SHT']:
+            desk = (seed % 8) + 2  # Desks 2-9
+            return f"{desk}"
+            
+        # Star Alliance (Swiss, Lufthansa)
+        if airline in ['SWR', 'LX', 'DLH', 'LH']:
+            desk = (seed % 2) + 1  # Desks 1-2
+            return f"{desk}"
+            
+        # SkyTeam (KLM, ITA) & Others (Luxair, Loganair)
+        if airline in ['KLM', 'KL', 'ITY', 'AZ', 'LGL', 'LG', 'LOG', 'LM']:
+            desk = (seed % 6) + 10 # Desks 10-15
+            return f"{desk}"
+            
+        # General Aviation / Other
+        desk = (seed % 5) + 16
         return f"{desk}"
     
     # ==================== UNITED STATES ====================
