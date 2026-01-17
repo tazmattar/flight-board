@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadJapaneseAirportNames() {
         try {
-            const response = await fetch('/static/data/airport_names_ja.json');
+            const response = await fetch('/static/airport_names_ja.json');
             if (response.ok) {
                 const data = await response.json();
                 Object.assign(airportJapaneseMapping, data);
