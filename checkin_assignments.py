@@ -42,6 +42,8 @@ class CheckinAssignments:
             return self._heathrow(airline, seed)
         elif airport_code == 'EGKK':
             return self._gatwick(airline, seed)
+        elif airport_code == 'EGSS':
+            return self._stansted(airline, seed)
         elif airport_code == 'KJFK':
             return self._jfk(airline, seed)
         else:
@@ -134,6 +136,37 @@ class CheckinAssignments:
         # South Terminal: Others
         desk = (seed % 25) + 201
         return f"S{desk}"
+
+    def _stansted(self, airline, seed):
+        """London Stansted (EGSS) check-in assignments"""
+        # Jet2: Dedicated desks 14-28 (from real-world info)
+        if airline in ['EXS']:
+            desk = (seed % 15) + 14
+            return f"{desk}"
+            
+        # EasyJet: Zone A (Desks 1-12)
+        if airline in ['EZY', 'EJU']:
+            desk = (seed % 12) + 1
+            return f"{desk}"
+            
+        # TUI: Zone B (Desks 30-39)
+        if airline in ['TOM']:
+            desk = (seed % 10) + 30
+            return f"{desk}"
+            
+        # Ryanair: Zones C/D (Desks 40-99) - Massive operator presence
+        if airline in ['RYR', 'RUK']:
+            desk = (seed % 60) + 40
+            return f"{desk}"
+            
+        # Emirates: Premium Zone (e.g., Desks 100-105)
+        if airline in ['UAE']:
+            desk = (seed % 6) + 100
+            return f"{desk}"
+            
+        # Others: General check-in
+        desk = (seed % 20) + 110
+        return f"{desk}"
     
     # ==================== UNITED STATES ====================
     
