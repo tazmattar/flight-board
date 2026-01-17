@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function updateTheme(airportCode) {
         // Remove all existing theme classes
-        document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll','theme-eglc', 'theme-kjfk', 'theme-default', 'theme-egkk');
+        document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll','theme-eglc', 'theme-kjfk', 'theme-default', 'theme-egkk', 'theme-egss');
         
         // Theme mapping for configured airports
         const themeMap = {
@@ -126,6 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'EGKK': {
                 css: '/static/css/themes/egkk.css',
                 class: 'theme-egkk'
+            },
+            'EGSS': {
+                css: '/static/css/themes/egss.css',
+                class: 'theme-egss'
             },
             'KJFK': {
                 css: '/static/css/themes/kjfk.css',

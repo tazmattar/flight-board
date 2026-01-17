@@ -1,0 +1,93 @@
+/* =============================================
+   STANSTED (EGSS) THEME
+   Classic STANSTED Yellow with Black Text
+   ============================================= */
+
+body.theme-egss {
+    --heathrow-yellow: #FDB813;
+    --heathrow-dark: #1a1a1a;
+}
+
+body.theme-egss .fids-header {
+    background-color: var(--heathrow-yellow);
+    border-bottom: 4px solid #000000;
+}
+
+body.theme-egss .airport-selector select,
+body.theme-egss .clock-container {
+    color: #000000 !important;
+    background: transparent;
+}
+/* Use a grid header for EGLL to keep widgets compact without truncating text */
+body.theme-egss .fids-header {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 30px;
+}
+
+body.theme-egss .airport-selector {
+    grid-column: 1;
+}
+
+body.theme-egss .header-right-group {
+    grid-column: 3;
+    justify-self: end;
+    margin-left: 0;
+}
+
+body.theme-egss .section-divider {
+    background-color: var(--heathrow-yellow);
+    color: #000000;
+    padding: 12px 20px;
+    border-bottom: 2px solid #000000;
+    font-weight: 700;
+}
+
+body.theme-egss .flight-table th {
+    background: #1a1a1a;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
+}
+
+/* Yellow destination/origin text */
+body.theme-egss .flap-dest {
+    color: var(--heathrow-yellow) !important;
+}
+
+body.theme-egss .fids-footer {
+    background-color: #000000;
+    border-top: 4px solid var(--heathrow-yellow);
+}
+
+body.theme-egss .footer-group .main-label {
+    color: var(--heathrow-yellow);
+    font-weight: 700;
+}
+
+body.theme-egss .footer-group .main-label .en {
+    display: none; /* Hide English subtitle for EGLL */
+}
+
+body.theme-egss .gate-icon-box {
+    border-color: var(--heathrow-yellow);
+    color: var(--heathrow-yellow);
+}
+
+body.theme-egss .huge-arrow {
+    color: var(--heathrow-yellow);
+}
+
+body.theme-egss .security-time .label {
+    color: #cccccc;
+}
+
+body.theme-egss .security-time .time {
+    color: var(--heathrow-yellow);
+}
+
+/* Widget Colors: Force BLACK */
+body [class*="theme-"] .widget-icon, 
+body [class*="theme-"] .widget-text {
+    color: #000000 !important;
+}

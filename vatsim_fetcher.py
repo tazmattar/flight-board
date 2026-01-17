@@ -30,6 +30,7 @@ class VatsimFetcher:
             'EGLC': { 'name': 'London City', 'ceiling': 5000, 'has_stands': True },
             'EGLL': { 'name': 'London Heathrow', 'ceiling': 7000, 'has_stands': True },
             'EGKK': { 'name': 'London Gatwick', 'ceiling': 7000, 'has_stands': True },
+            'EGSS': { 'name': 'London Stansted', 'ceiling': 7000, 'has_stands': True },
             'KJFK': { 'name': 'New York JFK', 'ceiling': 5000, 'has_stands': True }
         }
         
