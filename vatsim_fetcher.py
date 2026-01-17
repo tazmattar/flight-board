@@ -288,6 +288,65 @@ class VatsimFetcher:
             return delay_minutes
         except: return 0
 
+    def check_late_arrival(self, deptime, enroute_time, dist_km, groundspeed):
+        """
+        Check if an arrival is running late based on planned arrival time vs ETA.
+        """
+        try:
+            if not deptime or not enroute_time or groundspeed < 50: 
+                return None
+            
+            now = datetime.utcnow()
+            
+            # 1. Parse Departure Time
+            if len(deptime) != 4 or not deptime.isdigit(): return None
+            dep_h = int(deptime[:2])
+            dep_m = int(deptime[2:4])
+            
+            # Use logic similar to calculate_delay to determine the correct date for departure
+            # Assuming flight departed within the last 24 hours
+            dep_dt = now.replace(hour=dep_h, minute=dep_m, second=0, microsecond=0)
+            
+            diff = (now - dep_dt).total_seconds()
+            
+            # If dep_dt is >12h ahead of now (e.g. now=01:00, dep=23:00), it implies departure was yesterday
+            if diff < -12 * 3600: 
+                dep_dt -= timedelta(days=1)
+            # If dep_dt is >12h behind now (e.g. now=23:00, dep=01:00), it implies departure was today (but just long ago) 
+            # OR if it's erroneously tomorrow (unlikely)
+            # The standard window +/- 12h handles the day wrapping nicely for short-haul/medium-haul
+            elif diff > 12 * 3600:
+                # If departure was theoretically 13h ago, it might be valid. 
+                # But if we follow the 'closest time' logic:
+                dep_dt += timedelta(days=1)
+            
+            # 2. Add Enroute Time to get Planned Arrival
+            if len(enroute_time) != 4 or not enroute_time.isdigit(): return None
+            enr_h = int(enroute_time[:2])
+            enr_m = int(enroute_time[2:4])
+            
+            planned_arrival_dt = dep_dt + timedelta(hours=enr_h, minutes=enr_m)
+            
+            # 3. Calculate ETA based on current distance and groundspeed
+            # speed is in knots, dist is in km
+            # 1 knot = 1.852 km/h
+            speed_kmh = groundspeed * 1.852
+            if speed_kmh <= 0: return None
+            
+            hours_remaining = dist_km / speed_kmh
+            eta_dt = now + timedelta(hours=hours_remaining)
+            
+            # 4. Compare ETA vs Planned
+            # Threshold: 15 minutes late
+            delay_seconds = (eta_dt - planned_arrival_dt).total_seconds()
+            
+            if delay_seconds > 15 * 60:
+                return "LATE ARRIVAL"
+            
+            return None
+        except Exception:
+            return None
+
     def get_checkin_area(self, callsign, airport_code):
         """
         Get check-in desk assignment for a flight.
@@ -318,6 +377,17 @@ class VatsimFetcher:
             if 15 < delay_min < 300: 
                 h, m = divmod(delay_min, 60)
                 delay_text = f"Delayed {h}h {m:02d}m" if h > 0 else f"Delayed {m} min"
+        
+        # --- NEW: Arrival Delay Logic ---
+        if direction == 'ARR' and raw_status == 'Approaching':
+            late_status = self.check_late_arrival(
+                fp.get('deptime'), 
+                fp.get('enroute_time'), 
+                dist_km, 
+                pilot.get('groundspeed', 0)
+            )
+            if late_status:
+                delay_text = late_status
 
         gate_display = gate or 'TBA'
         if direction == 'DEP':
@@ -340,7 +410,7 @@ class VatsimFetcher:
                     airport_code, 
                     pilot['groundspeed'], 
                     pilot['altitude'], 
-                    callsign=None  # <--- This is the secret key! Forces geofencing.
+                    callsign=None  # Forces geofencing.
                 )
                 
                 # If they are at a valid stand in our database, override the API assignment
