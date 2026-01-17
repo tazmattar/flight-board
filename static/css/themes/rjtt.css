@@ -8,68 +8,74 @@
 
 body.theme-rjtt {
     /* Core Palette */
-    --haneda-header-bg: #000000;
-    --haneda-green-line: #00ff00; /* Bright terminal green */
-    --haneda-row-dark: #001830;   /* Very Dark Blue */
-    --haneda-row-light: #002850;  /* Lighter (but still dark) Blue */
+    --haneda-header-bg: #0b1c3f;
+    --haneda-header-glow: #1a3f7a;
+    --haneda-accent-green: #00c36a; /* Icon green accent */
+    --haneda-row-dark: #0a1f45;
+    --haneda-row-light: #0d2a5b;
+    --haneda-row-line: #2a5fa6;
+    --haneda-divider: #1e4f8e;
     --haneda-text: #ffffff;
-    --haneda-label: #cccccc;      /* For column headers */
+    --haneda-label: #9ec4ff;      /* For column headers */
+    --haneda-status-warn: #f3c12b;
+    --haneda-status-info: #b7d6ff;
 }
 
 /* --- 1. HEADER --- */
 body.theme-rjtt .fids-header {
-    background-color: var(--haneda-header-bg);
-    /* The "Green Lines" look: A solid green border at the bottom */
-    border-bottom: 3px solid var(--haneda-green-line);
-    /* Optional: A thin top border if the real photo has it */
-    border-top: 1px solid var(--haneda-green-line); 
+    background: linear-gradient(180deg, #0e2352 0%, var(--haneda-header-bg) 70%);
+    border-bottom: 2px solid var(--haneda-divider);
+    border-top: 1px solid #12306a;
+    box-shadow: inset 0 -1px 0 rgba(160, 200, 255, 0.15);
 }
 
 /* Header Text (Clock, Airport Name) */
 body.theme-rjtt .airport-selector select,
 body.theme-rjtt .clock-container {
     color: var(--haneda-text) !important;
-    color: #ffffff !important; 
-    font-family: 'JetBrains Mono', monospace; /* Tech/Terminal feel */
-    letter-spacing: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(120, 170, 255, 0.15);
 }
 
 /* --- 2. TABLE HEADERS --- */
 body.theme-rjtt .section-divider {
-    background-color: var(--haneda-header-bg);
-    color: var(--haneda-green-line);
-    border-bottom: 1px solid var(--haneda-green-line);
-    font-weight: 700;
+    background: linear-gradient(180deg, #0f2658 0%, #0c204b 100%);
+    color: var(--haneda-label);
+    border-bottom: 2px solid var(--haneda-divider);
+    font-weight: 600;
+    text-shadow: 0 0 6px rgba(90, 140, 220, 0.25);
 }
 
 body.theme-rjtt .flight-table th {
-    background-color: #000000;
-    color: var(--haneda-label); 
-    border-bottom: 1px solid #333;
-    font-weight: 400;
-    text-transform: uppercase;
+    background: linear-gradient(180deg, #0d234f 0%, #0b1e44 100%);
+    color: var(--haneda-label);
+    border-bottom: 1px solid var(--haneda-divider);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0.5px;
 }
 
 /* --- 3. ALTERNATING ROWS (The Key Feature) --- */
 
 /* Odd Rows: Dark Blue */
 body.theme-rjtt .flight-table tbody tr:nth-child(odd) td {
-    background-color: var(--haneda-row-dark);
+    background: linear-gradient(180deg, #0b2047 0%, var(--haneda-row-dark) 100%);
     color: var(--haneda-text);
-    border-bottom: 1px solid rgba(0,0,0,0.3); /* Subtle separation */
+    border-bottom: 1px solid rgba(42, 95, 166, 0.35);
 }
 
 /* Even Rows: Lighter Blue */
 body.theme-rjtt .flight-table tbody tr:nth-child(even) td {
-    background-color: var(--haneda-row-light);
+    background: linear-gradient(180deg, #0f2b5f 0%, var(--haneda-row-light) 100%);
     color: var(--haneda-text);
-    border-bottom: 1px solid rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(42, 95, 166, 0.35);
 }
 
 /* --- 4. FLIGHT DATA STYLING --- */
 body.theme-rjtt .flap-container {
     color: #ffffff !important;
-    text-shadow: none;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
     font-weight: 600;
 }
 
@@ -80,15 +86,43 @@ body.theme-rjtt .flap-dest {
 }
 
 /* --- 5. STATUS COLUMN --- */
-/* To maintain the "Blue Board" look, we might want to keep the status backgrounds 
-   but maybe make them slightly transparent or bordered? 
-   For now, we keep the standard solid colors (Green/Yellow) for readability, 
-   as purely blue status might be confusing. */
+body.theme-rjtt .flight-table td.col-status {
+    position: relative;
+    border-bottom: 1px solid rgba(42, 95, 166, 0.35);
+}
+
+body.theme-rjtt .col-status .flap-container {
+    background-color: transparent !important;
+    color: var(--haneda-status-info) !important;
+    justify-content: flex-start;
+    padding-left: 16px;
+    text-transform: none;
+    font-weight: 600;
+}
+
+body.theme-rjtt .col-status[data-status*="Cancelled"] .flap-container,
+body.theme-rjtt .col-status[data-status*="Delayed"] .flap-container {
+    color: var(--haneda-status-warn) !important;
+    font-weight: 700;
+}
+
+body.theme-rjtt .col-status[data-status*="Cancelled"]::before,
+body.theme-rjtt .col-status[data-status*="Delayed"]::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--haneda-status-warn);
+    box-shadow: 0 0 6px rgba(243, 193, 43, 0.45);
+}
 
 /* --- 6. FOOTER --- */
 body.theme-rjtt .fids-footer {
-    background-color: var(--haneda-header-bg);
-    border-top: 3px solid var(--haneda-green-line);
+    background: linear-gradient(180deg, #0c1f46 0%, var(--haneda-header-bg) 100%);
+    border-top: 2px solid var(--haneda-divider);
 }
 
 body.theme-rjtt .footer-group .main-label {
@@ -99,11 +133,18 @@ body.theme-rjtt .security-time .label {
     color: #aaaaaa;
 }
 body.theme-rjtt .security-time .time {
-    color: var(--haneda-green-line);
+    color: var(--haneda-accent-green);
 }
 
 /* Widget Colors (Radar/Weather) */
 body.theme-rjtt .widget-icon, 
 body.theme-rjtt .widget-text {
     color: #ffffff !important;
+}
+
+body.theme-rjtt .split-panel {
+    background: #081732;
+    border: 1px solid #10224a;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 0 rgba(130, 170, 240, 0.05);
 }
