@@ -467,6 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 statusCell.setAttribute('data-status', displayColorClass);
             }
+
+            // CRITICAL FIX: Ensure the row is visually sorted
+            // Since 'flights' is already sorted by the backend, appending the row here
+            // moves it to the correct chronological position in the table.
+            container.appendChild(row);
         });
 
         existingRows.forEach(row => {
