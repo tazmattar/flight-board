@@ -643,4 +643,26 @@ html, body {
 .atc-popover li { display: flex; justify-content: space-between; font-family: var(--font-data); font-size: 0.9rem; padding: 2px 0; }
 .atc-popover li span.freq { color: #22c55e; }
 
- 
+/* Flight Plan Tooltip */
+.flight-plan-tooltip {
+    position: fixed;
+    display: none;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid #444;
+    padding: 12px;
+    border-radius: 4px;
+    color: #fff;
+    font-family: var(--font-data);
+    font-size: 0.9rem;
+    max-width: 400px;
+    z-index: 9999;
+    pointer-events: none; /* Allows mouse to pass through */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    white-space: normal;
+    line-height: 1.4;
+}
+
+/* Hover effect for the cell to show it's interactive */
+.flight-cell {
+    cursor: help;
+}

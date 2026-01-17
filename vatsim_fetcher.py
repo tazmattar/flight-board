@@ -458,7 +458,8 @@ class VatsimFetcher:
             'altitude': pilot.get('altitude', 0), 'groundspeed': pilot.get('groundspeed', 0),
             'status': display_status, 'status_raw': raw_status, 'delay_text': delay_text,
             'gate': gate_display, 'checkin': checkin_area, 'time_display': time_display,
-            'direction': direction, 'distance': dist_km
+            'direction': direction, 'distance': dist_km,
+            'route': fp.get('route', 'No route available')
         }
 
     def determine_status(self, pilot, direction, ceiling, dist_km, gate_found, airport_code):

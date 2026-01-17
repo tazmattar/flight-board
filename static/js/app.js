@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const commonCells = `
                     <td>
-                        <div class="flight-cell">
+                        <div class="flight-cell" id="${rowId}-cell">
                             <img src="${primaryLogo}" 
                                  data-primary="${primaryLogo}"
                                  data-secondary="${secondaryLogo}"
@@ -407,7 +407,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="col-status"><div class="flap-container" id="${rowId}-status"></div></td>
                     `;
                 }
+                
+                // Add the row to the DOM first
                 container.appendChild(row);
+            }
+
+            // NOW update the flight data attribute (safe because row is in DOM)
+            const flightCell = document.getElementById(`${rowId}-cell`);
+            if (flightCell) {
+                flightCell.setAttribute('data-route', flight.route || 'No route');
             }
 
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
@@ -729,5 +737,29 @@ document.addEventListener('DOMContentLoaded', () => {
             this.value = this.value.toUpperCase().slice(0, 4);
         });
     }
+    // --- FLIGHT PLAN TOOLTIP LOGIC ---
+    const tooltip = document.getElementById('flightTooltip');
 
+    document.addEventListener('mouseover', (e) => {
+        // Check if we are hovering over a flight cell (or its children)
+        const cell = e.target.closest('.flight-cell');
+        
+        if (cell && cell.hasAttribute('data-route')) {
+            const route = cell.getAttribute('data-route');
+            if (route && route !== 'No route available') {
+                tooltip.style.display = 'block';
+                tooltip.textContent = route;
+            }
+        } else {
+            tooltip.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        // Move tooltip with mouse
+        if (tooltip.style.display === 'block') {
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+        }
+    });
 });
