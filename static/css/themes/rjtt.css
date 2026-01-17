@@ -1,0 +1,109 @@
+/* =============================================
+   TOKYO HANEDA (RJTT) THEME
+   Visual Style:
+   - Header: Black (#000) with Green accent lines
+   - Rows: Alternating Dark Blue / Lighter Blue
+   - Text: White
+   ============================================= */
+
+body.theme-rjtt {
+    /* Core Palette */
+    --haneda-header-bg: #000000;
+    --haneda-green-line: #00ff00; /* Bright terminal green */
+    --haneda-row-dark: #001830;   /* Very Dark Blue */
+    --haneda-row-light: #002850;  /* Lighter (but still dark) Blue */
+    --haneda-text: #ffffff;
+    --haneda-label: #cccccc;      /* For column headers */
+}
+
+/* --- 1. HEADER --- */
+body.theme-rjtt .fids-header {
+    background-color: var(--haneda-header-bg);
+    /* The "Green Lines" look: A solid green border at the bottom */
+    border-bottom: 3px solid var(--haneda-green-line);
+    /* Optional: A thin top border if the real photo has it */
+    border-top: 1px solid var(--haneda-green-line); 
+}
+
+/* Header Text (Clock, Airport Name) */
+body.theme-rjtt .airport-selector select,
+body.theme-rjtt .clock-container {
+    color: var(--haneda-text) !important;
+    color: #ffffff !important; 
+    font-family: 'JetBrains Mono', monospace; /* Tech/Terminal feel */
+    letter-spacing: 2px;
+}
+
+/* --- 2. TABLE HEADERS --- */
+body.theme-rjtt .section-divider {
+    background-color: var(--haneda-header-bg);
+    color: var(--haneda-green-line);
+    border-bottom: 1px solid var(--haneda-green-line);
+    font-weight: 700;
+}
+
+body.theme-rjtt .flight-table th {
+    background-color: #000000;
+    color: var(--haneda-label); 
+    border-bottom: 1px solid #333;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+/* --- 3. ALTERNATING ROWS (The Key Feature) --- */
+
+/* Odd Rows: Dark Blue */
+body.theme-rjtt .flight-table tbody tr:nth-child(odd) td {
+    background-color: var(--haneda-row-dark);
+    color: var(--haneda-text);
+    border-bottom: 1px solid rgba(0,0,0,0.3); /* Subtle separation */
+}
+
+/* Even Rows: Lighter Blue */
+body.theme-rjtt .flight-table tbody tr:nth-child(even) td {
+    background-color: var(--haneda-row-light);
+    color: var(--haneda-text);
+    border-bottom: 1px solid rgba(0,0,0,0.3);
+}
+
+/* --- 4. FLIGHT DATA STYLING --- */
+body.theme-rjtt .flap-container {
+    color: #ffffff !important;
+    text-shadow: none;
+    font-weight: 600;
+}
+
+/* Destination/Origin Highlight (Optional: Make them stand out?) */
+body.theme-rjtt .flap-dest {
+    color: #fff !important;
+    font-weight: 700;
+}
+
+/* --- 5. STATUS COLUMN --- */
+/* To maintain the "Blue Board" look, we might want to keep the status backgrounds 
+   but maybe make them slightly transparent or bordered? 
+   For now, we keep the standard solid colors (Green/Yellow) for readability, 
+   as purely blue status might be confusing. */
+
+/* --- 6. FOOTER --- */
+body.theme-rjtt .fids-footer {
+    background-color: var(--haneda-header-bg);
+    border-top: 3px solid var(--haneda-green-line);
+}
+
+body.theme-rjtt .footer-group .main-label {
+    color: #ffffff;
+}
+
+body.theme-rjtt .security-time .label {
+    color: #aaaaaa;
+}
+body.theme-rjtt .security-time .time {
+    color: var(--haneda-green-line);
+}
+
+/* Widget Colors (Radar/Weather) */
+body.theme-rjtt .widget-icon, 
+body.theme-rjtt .widget-text {
+    color: #ffffff !important;
+}

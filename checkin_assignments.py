@@ -48,6 +48,8 @@ class CheckinAssignments:
             return self._london_city(airline, seed)
         elif airport_code == 'KJFK':
             return self._jfk(airline, seed)
+        elif airport_code == 'RJTT':
+            return self._haneda(airline, seed)
         else:
             # Generic fallback for unknown airports
             return self._generic(seed)
@@ -235,6 +237,27 @@ class CheckinAssignments:
         # Default: Terminal 4 (largest/most diverse)
         row = ((seed % 7) + 1)
         return f"T4-{row}"
+    
+    # ==================== JAPAN ====================
+    def _haneda(self, airline, seed):
+        """Tokyo Haneda (RJTT) check-in assignments"""
+        # Terminal 1: JAL Group & Skymark
+        if airline in ['JAL', 'JL', 'SKY', 'BC', 'SFJ', '7G']: 
+            # SFJ uses T1 for flights to Kitakyushu/Fukuoka, T2 for Kansai/Yamaguchi
+            # Simplified to T1 for main logic
+            wing = "North" if seed % 2 == 0 else "South"
+            desk = (seed % 30) + 1
+            return f"T1-{wing}-{desk}"
+            
+        # Terminal 2: ANA Group & Air Do & Solaseed
+        if airline in ['ANA', 'NH', 'ADO', 'HD', 'SNJ', '6J']:
+            desk = (seed % 40) + 1
+            return f"T2-{desk}"
+            
+        # Terminal 3: International
+        # Almost everyone else goes here
+        row = chr(65 + (seed % 10)) # A, B, C...
+        return f"T3-{row}"
     
     # ==================== GENERIC FALLBACK ====================
     

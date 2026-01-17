@@ -643,7 +643,7 @@ html, body {
 .atc-popover li { display: flex; justify-content: space-between; font-family: var(--font-data); font-size: 0.9rem; padding: 2px 0; }
 .atc-popover li span.freq { color: #22c55e; }
 
-/* Flight Plan Tooltip */
+    /* Flight Plan Tooltip */
 .flight-plan-tooltip {
     position: fixed;
     display: none;
