@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA', 'SHT': 'BA'
     };
     const airportMapping = {}; 
+    const airportJapaneseMapping = {};
 
     async function loadDatabases() {
         // This is the missing block that fixes your logos
@@ -94,6 +95,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (e) { console.warn('Airport DB failed', e); }
+
+        await loadJapaneseAirportNames();
+    }
+
+    async function loadJapaneseAirportNames() {
+        try {
+            const response = await fetch('/static/data/airport_names_ja.json');
+            if (response.ok) {
+                const data = await response.json();
+                Object.assign(airportJapaneseMapping, data);
+            }
+        } catch (e) {
+            console.warn('Japanese airport DB failed', e);
+        }
     }
     loadDatabases();
     
@@ -158,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update flags (works for both configured and dynamic airports)
         updateFlags(airportCode);
+        syncAirportNameCycle();
+        applyDestinationNameMode();
 
     }
 
@@ -187,6 +204,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    let airportNameCycleIndex = 0;
+
+    function getAirportNameCycleMax() {
+        return document.body.classList.contains('theme-rjtt') ? 3 : 2;
+    }
+
+    function syncAirportNameCycle() {
+        airportNameCycleIndex = airportNameCycleIndex % getAirportNameCycleMax();
+    }
+
+    function getDestinationDisplayText(code, name, jpName) {
+        const isRjtt = document.body.classList.contains('theme-rjtt');
+        const hasEnglishName = name && name !== 'undefined' && name !== code;
+
+        if (isRjtt) {
+            if (airportNameCycleIndex === 1 && hasEnglishName) return name.toUpperCase();
+            if (airportNameCycleIndex === 2) {
+                if (jpName) return jpName;
+                if (hasEnglishName) return name.toUpperCase();
+            }
+            return code;
+        }
+
+        if (airportNameCycleIndex === 1 && hasEnglishName) return name.toUpperCase();
+        return code;
+    }
+
+    function applyDestinationNameMode() {
+        const destFlaps = document.querySelectorAll('.flap-dest');
+        destFlaps.forEach(flap => {
+            const code = flap.getAttribute('data-code');
+            const name = flap.getAttribute('data-name');
+            const jpName = flap.getAttribute('data-jp-name');
+            updateFlapText(flap, getDestinationDisplayText(code, name, jpName));
+        });
+    }
+
+    setInterval(() => {
+        const max = getAirportNameCycleMax();
+        airportNameCycleIndex = (airportNameCycleIndex + 1) % max;
+        applyDestinationNameMode();
+    }, 4000);
 
     // updateFooterText is defined globally in language_handler.js
 
@@ -426,10 +486,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const destFlap = document.getElementById(`${rowId}-dest`);
             const destDisplayName = airportMapping[destIcao]?.name || destIcao;
+            const destJapaneseName = airportJapaneseMapping[destIcao] || '';
             destFlap.setAttribute('data-code', destIcao);
             destFlap.setAttribute('data-name', destDisplayName);
-            if (showAirportNames && destDisplayName) updateFlapText(destFlap,    destDisplayName.toUpperCase());
-            else updateFlapText(destFlap, destIcao);
+            destFlap.setAttribute('data-jp-name', destJapaneseName);
+            updateFlapText(destFlap, getDestinationDisplayText(destIcao, destDisplayName, destJapaneseName));
 
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
@@ -525,21 +586,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock(); 
     setInterval(updateClock, 1000);
 
-    let showAirportNames = false; 
-    setInterval(() => {
-        showAirportNames = !showAirportNames;
-        const destFlaps = document.querySelectorAll('.flap-dest');
-    destFlaps.forEach(flap => {
-        const code = flap.getAttribute('data-code');
-        const name = flap.getAttribute('data-name');
-        if (showAirportNames && name && name !== 'undefined' && name !== code) {
-            updateFlapText(flap, name.toUpperCase());
-        } else {
-            updateFlapText(flap, code);
-        }
-    });
-
-    }, 4000);
 
     function updateAtcWidget(controllers) {
         const atcWidget = document.getElementById('atcWidget');
