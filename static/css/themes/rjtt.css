@@ -85,6 +85,12 @@ body.theme-rjtt .flap-dest {
     font-weight: 700;
 }
 
+body.theme-rjtt .flap-dest[data-display-lang="ja"] {
+    font-family: 'M PLUS 1p', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
 /* --- 5. STATUS COLUMN --- */
 body.theme-rjtt .flight-table td.col-status {
     position: relative;

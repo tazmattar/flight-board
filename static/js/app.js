@@ -226,21 +226,25 @@ document.addEventListener('DOMContentLoaded', () => {
         airportNameCycleIndex = airportNameCycleIndex % getAirportNameCycleMax();
     }
 
-    function getDestinationDisplayText(code, name, jpName) {
+    function getDestinationDisplayData(code, name, jpName) {
         const isJapanese = isJapaneseLanguageActive();
         const hasEnglishName = name && name !== 'undefined' && name !== code;
 
         if (isJapanese) {
-            if (airportNameCycleIndex === 1 && hasEnglishName) return name.toUpperCase();
-            if (airportNameCycleIndex === 2) {
-                if (jpName) return jpName;
-                if (hasEnglishName) return name.toUpperCase();
+            if (airportNameCycleIndex === 1 && hasEnglishName) {
+                return { text: name.toUpperCase(), lang: 'en' };
             }
-            return code;
+            if (airportNameCycleIndex === 2) {
+                if (jpName) return { text: jpName, lang: 'ja' };
+                if (hasEnglishName) return { text: name.toUpperCase(), lang: 'en' };
+            }
+            return { text: code, lang: 'icao' };
         }
 
-        if (airportNameCycleIndex === 1 && hasEnglishName) return name.toUpperCase();
-        return code;
+        if (airportNameCycleIndex === 1 && hasEnglishName) {
+            return { text: name.toUpperCase(), lang: 'en' };
+        }
+        return { text: code, lang: 'icao' };
     }
 
     function applyDestinationNameMode() {
@@ -249,7 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = flap.getAttribute('data-code');
             const name = flap.getAttribute('data-name');
             const jpName = flap.getAttribute('data-jp-name');
-            updateFlapText(flap, getDestinationDisplayText(code, name, jpName));
+            const display = getDestinationDisplayData(code, name, jpName);
+            flap.setAttribute('data-display-lang', display.lang);
+            updateFlapText(flap, display.text);
         });
     }
 
@@ -507,7 +513,9 @@ document.addEventListener('DOMContentLoaded', () => {
             destFlap.setAttribute('data-code', destIcao);
             destFlap.setAttribute('data-name', destDisplayName);
             destFlap.setAttribute('data-jp-name', destJapaneseName);
-            updateFlapText(destFlap, getDestinationDisplayText(destIcao, destDisplayName, destJapaneseName));
+            const display = getDestinationDisplayData(destIcao, destDisplayName, destJapaneseName);
+            destFlap.setAttribute('data-display-lang', display.lang);
+            updateFlapText(destFlap, display.text);
 
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
             updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
