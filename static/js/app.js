@@ -100,14 +100,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadJapaneseAirportNames() {
-        try {
-            const response = await fetch('/static/airport_names_ja.json');
-            if (response.ok) {
-                const data = await response.json();
-                Object.assign(airportJapaneseMapping, data);
+        const sources = [
+            '/static/data/airport_names_ja.json',
+            '/static/js/airport_names_ja.json'
+        ];
+
+        for (const source of sources) {
+            try {
+                const response = await fetch(source);
+                if (response.ok) {
+                    const data = await response.json();
+                    Object.assign(airportJapaneseMapping, data);
+                }
+            } catch (e) {
+                console.warn('Japanese airport DB failed', source, e);
             }
-        } catch (e) {
-            console.warn('Japanese airport DB failed', e);
         }
     }
     loadDatabases();
