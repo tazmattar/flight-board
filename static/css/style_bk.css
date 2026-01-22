@@ -369,8 +369,7 @@ html, body {
 }
 
 /* MEDIA QUERIES */
-/* Force portrait when height > width (which should be true for 1080x1920) */
-@media (min-height: 1500px), (orientation: portrait) {
+@media (orientation: portrait) {
     .split-top-row { flex-direction: column; }
     .airport-selector select { font-size: 2rem; }
     :root { --font-size-cell: 1.4rem; --font-size-header: 1.1rem; --row-height: 50px; }
@@ -383,7 +382,7 @@ html, body {
     .flight-table th:nth-child(7) { width: 15%; }
 }
 
-@media (max-height: 1499px) and (orientation: landscape) {
+@media (orientation: landscape) {
     .split-top-row { flex-direction: row; }
     :root { --font-size-cell: 0.95rem; --font-size-header: 0.85rem; --row-height: 36px; }
     .flight-table th:nth-child(1) { width: 14%; }
