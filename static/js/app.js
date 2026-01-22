@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Visual debug overlay
+    const debugDiv = document.createElement('div');
+    debugDiv.style.cssText = 'position:fixed;top:20px;left:20px;background:red;color:white;padding:20px;z-index:9999;font-size:2rem;';
+    debugDiv.innerHTML = `
+        Width: ${window.innerWidth}<br>
+        Height: ${window.innerHeight}<br>
+        Orientation: ${window.innerWidth > window.innerHeight ? 'LANDSCAPE' : 'PORTRAIT'}<br>
+        Media Query: ${window.matchMedia('(orientation: portrait)').matches ? 'PORTRAIT' : 'LANDSCAPE'}
+    `;
+    document.body.appendChild(debugDiv);
+    
     const socket = io();
 
     // --- SOCKET LISTENER ---
