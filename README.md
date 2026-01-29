@@ -107,41 +107,6 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 
 ## Configuration
 
-### Remote Airport Switching (API)
-Perfect for **kiosk mode deployments** on external machines (Raspberry Pi, dedicated displays, etc.). Remotely switch all connected clients to a different airport without manual interaction using the broadcast API endpoint:
-
-**Endpoint:** `GET /api/switch_airport/<airport_code>`
-
-**Use Cases:**
-* Multiple display kiosks showing different airport data simultaneously
-* Automated airport switching schedules on Raspberry Pi displays
-* Control multiple displays from a central management system
-* Rotate through airports on dedicated information screens
-
-**Examples:**
-```bash
-# Using curl
-curl http://your-proxmox-ip:5000/api/switch_airport/EGLL
-
-# Using your browser
-http://your-proxmox-ip:5000/api/switch_airport/EGLL
-
-# Switch to different airports
-http://your-proxmox-ip:5000/api/switch_airport/KJFK
-http://your-proxmox-ip:5000/api/switch_airport/LSZH
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "airport": "EGLL",
-  "message": "Switched all clients to EGLL"
-}
-```
-
-**Validation:** The endpoint validates that the airport code is exactly 4 letters and alphabetic. Invalid codes return a 400 error.
-
 ### Adding Logos Manually
 To ensure cargo or special operators (e.g., FedEx, Rega) have logos:
 1.  Save the logo as a PNG file (e.g., `FX.png` for FedEx).

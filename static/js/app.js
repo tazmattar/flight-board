@@ -24,34 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSection('arr');
     });
 
-    socket.on('force_airport_switch', (data) => {
-        const newAirport = data.airport;
-        console.log('🛫 Remote airport switch requested:', newAirport);
-        
-        // Check if airport exists in dropdown, if not add it dynamically
-        const exists = Array.from(elements.airportSelect.options).some(opt => opt.value === newAirport);
-        if (!exists) {
-            console.log('Airport not in dropdown, will fetch dynamically...');
-            // The join_airport handler will trigger fetch if needed
-        }
-        
-        // Update dropdown if it exists
-        if (exists) {
-            elements.airportSelect.value = newAirport;
-        }
-        
-        // Trigger the switch
-        socket.emit('leave_airport', { airport: currentAirport });
-        currentAirport = newAirport;
-        updateTheme(currentAirport);
-        window.updateFooterText(currentAirport, '');
-        socket.emit('join_airport', { airport: currentAirport });
-        
-        // Clear the board while loading
-        elements.departureList.innerHTML = '';
-        elements.arrivalList.innerHTML = '';
-    });
-
     // --- STATE MANAGEMENT ---
     let currentAirport = 'LSZH';
     let rawFlightData = { departures: [], arrivals: [] };
