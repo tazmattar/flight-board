@@ -9,8 +9,8 @@
     --fids-red: #ef4444;
     --fids-amber: #f59e0b;
     
-    --font-ui: 'Roboto Condensed', sans-serif;
-    --font-data: 'JetBrains Mono', monospace;
+    --font-ui: 'Roboto Condensed', 'Noto Sans CJK JP', 'Noto Sans CJK SC', 'Noto Sans CJK', sans-serif;
+    --font-data: 'JetBrains Mono', 'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK', monospace;
     
     /* Dynamic Font Sizing */
     --font-size-cell: 1.1rem; 

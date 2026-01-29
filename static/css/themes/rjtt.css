@@ -33,7 +33,7 @@ body.theme-rjtt .fids-header {
 body.theme-rjtt .airport-selector select,
 body.theme-rjtt .clock-container {
     color: var(--haneda-text) !important;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', 'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK', monospace; /* NEW */
     letter-spacing: 1px;
     text-shadow: 0 0 6px rgba(120, 170, 255, 0.15);
 }
