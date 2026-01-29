@@ -381,6 +381,25 @@ html, body {
     .flight-table th:nth-child(5) { width: 8%; } 
     .flight-table th:nth-child(6) { width: 10%; }
     .flight-table th:nth-child(7) { width: 15%; }
+
+    /* --- NEW FOOTER FIXES --- */
+    /* 1. Hide the Security Time container completely */
+    .security-time {
+        display: none !important;
+    }
+
+    /* 2. Optimize footer spacing for the remaining elements */
+    .fids-footer {
+        /* Ensure elements spread out to fill the gaps */
+        justify-content: space-between;
+        /* Slightly reduce padding to give elements more room */
+        padding: 15px 10px;
+    }
+
+    /* 3. Optional: Adjust the 'Arrivals/Departures' label size if it's still tight */
+    .main-label {
+        font-size: 28px; /* Slightly smaller than the default 32px */
+    }
 }
 
 @media (max-height: 1499px) and (orientation: landscape) {
