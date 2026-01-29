@@ -167,12 +167,14 @@ Want to run the flight board on a dedicated monitor? Here's how to set up a Rasp
 
 Flash to SD card and boot up.
 
-**2. Install Minimal GUI Components**
-
+**2. Install GUI Components & Fonts**
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y xorg openbox lightdm unclutter
 sudo snap install chromium
+
+# Install international fonts for proper character rendering
+sudo apt install -y fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji
 ```
 
 **3. Configure Auto-Login**
