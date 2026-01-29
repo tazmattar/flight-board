@@ -837,4 +837,32 @@ document.addEventListener('DOMContentLoaded', () => {
             tooltip.style.top = (e.clientY + 15) + 'px';
         }
     });
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        const select = elements.airportSelect;
+        
+        // Arrow keys to cycle through airports
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (select.selectedIndex < select.options.length - 1) {
+                select.selectedIndex++;
+                select.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (select.selectedIndex > 0) {
+                select.selectedIndex--;
+                select.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        // Number keys for direct airport selection
+        const numKey = parseInt(e.key);
+        if (numKey >= 1 && numKey <= select.options.length) {
+            select.selectedIndex = numKey - 1;
+            select.dispatchEvent(new Event('change'));
+        }
+    });
 });
