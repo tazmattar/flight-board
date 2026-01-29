@@ -151,13 +151,7 @@ This project is open-source and available under the MIT License.
 - [x] Add ATC/controller widget with live popover
 - [ ] Aircraft type silhouettes/icons
 
-## Bonus
-
-Excellent idea! Here's a concise "Kiosk Mode Setup" section to add to your README.md:
-
----
-
-## Running as a Dedicated Kiosk Display
+## Bonus - Running as a Dedicated Kiosk Display
 
 Want to run the flight board on a dedicated monitor? Here's how to set up a Raspberry Pi (or any Linux machine) as a fullscreen kiosk display.
 
