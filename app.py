@@ -77,6 +77,28 @@ def search_airport():
         })
     else:
         return jsonify({'error': f'Failed to fetch data for {icao}'}), 500
+    
+@app.route('/api/switch_airport/<airport_code>')
+def switch_airport_broadcast(airport_code):
+    """
+    Broadcast airport switch command to all connected clients
+    Usage: curl http://your-proxmox-ip:5000/api/switch_airport/EGLL
+    Or visit in browser: http://your-proxmox-ip:5000/api/switch_airport/EGLL
+    """
+    airport_code = airport_code.upper()
+    
+    # Validate ICAO code format
+    if len(airport_code) != 4 or not airport_code.isalpha():
+        return jsonify({'error': 'Invalid ICAO code - must be 4 letters'}), 400
+    
+    # Broadcast to all connected clients
+    socketio.emit('force_airport_switch', {'airport': airport_code}, broadcast=True)
+    
+    return jsonify({
+        'success': True, 
+        'airport': airport_code,
+        'message': f'Switched all clients to {airport_code}'
+    })
 
 @socketio.on('join_airport')
 def handle_join(data):
@@ -103,28 +125,6 @@ def handle_leave(data):
     airport = data.get('airport')
     if airport:
         leave_room(airport)
-
-@app.route('/api/switch_airport/<airport_code>')
-def switch_airport_broadcast(airport_code):
-    """
-    Broadcast airport switch command to all connected clients
-    Usage: curl http://your-proxmox-ip:5000/api/switch_airport/EGLL
-    Or visit in browser: http://your-proxmox-ip:5000/api/switch_airport/EGLL
-    """
-    airport_code = airport_code.upper()
-    
-    # Validate ICAO code format
-    if len(airport_code) != 4 or not airport_code.isalpha():
-        return jsonify({'error': 'Invalid ICAO code - must be 4 letters'}), 400
-    
-    # Broadcast to all connected clients
-    socketio.emit('force_airport_switch', {'airport': airport_code}, broadcast=True)
-    
-    return jsonify({
-        'success': True, 
-        'airport': airport_code,
-        'message': f'Switched all clients to {airport_code}'
-    })
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
