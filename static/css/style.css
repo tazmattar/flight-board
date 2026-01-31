@@ -44,7 +44,7 @@ html, body {
 .fids-header {
     padding: 15px 30px; 
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr minmax(max-content, auto);
     align-items: center;
     column-gap: 30px;
     row-gap: 0;
@@ -63,6 +63,7 @@ html, body {
     grid-column: 1;
     min-width: 0;
     flex-shrink: 1;
+    overflow: hidden;
 }
 
 .airport-selector select {
@@ -75,7 +76,7 @@ html, body {
     appearance: none;         /* Standard property */
     background-color: transparent;
     border-radius: 0;         /* Removes default rounded corners */
-    max-width: clamp(260px, 40vw, 520px);
+    max-width: 400px;
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
