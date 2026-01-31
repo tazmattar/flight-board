@@ -12,27 +12,13 @@ body.theme-kjfk {
 body.theme-kjfk .fids-header {
     background-color: var(--jfk-black);
     border-bottom: 4px solid var(--jfk-yellow);
-    display: grid !important;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    column-gap: 30px;
 }
 
 body.theme-kjfk .airport-selector select,
 body.theme-kjfk .clock-container {
-    color: var(--jfk-yellow) !important;
+    color: var(--jfk-yellow);
     background: transparent;
     letter-spacing: 0.08em;
-}
-
-body.theme-kjfk .airport-selector {
-    grid-column: 1;
-}
-
-body.theme-kjfk .header-right-group {
-    grid-column: 3;
-    justify-self: end;
-    margin-left: 0;
 }
 
 /* Force dropdown options to be readable */

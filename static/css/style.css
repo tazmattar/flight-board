@@ -43,9 +43,9 @@ html, body {
 /* 2. HEADER (Fixed) */
 .fids-header {
     padding: 15px 30px; 
-    display: grid !important;
+    display: grid;
     grid-template-columns: auto 1fr auto;
-    align-items: center !important;
+    align-items: center;
     column-gap: 30px;
     flex-shrink: 0;      
     z-index: 10;
@@ -54,12 +54,12 @@ html, body {
 
 /* CHILD 1: The Airport Selector */
 .airport-selector {
-    /* No margins needed. space-between handles the push. */
-    flex-shrink: 1; 
-    min-width: 0;
     display: flex;
     align-items: center;
+    gap: 15px;
     grid-column: 1;
+    min-width: 0;
+    flex-shrink: 1;
 }
 
 .airport-selector select {
@@ -98,19 +98,13 @@ html, body {
 
 /* CHILD 2: The Right Wrapper (Widgets + Clock) */
 .header-right-group {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 30px !important; /* Space between Widgets and Clock */
-    margin-left: 0;
-    justify-content: flex-end !important;
-    flex-wrap: nowrap;
-    /* Ensure this container never stretches */
-    flex: 0 0 auto;
-    flex-shrink: 0 !important;
-    width: max-content !important; 
-    margin-right: 0;
+    display: flex;
+    align-items: center;
+    gap: 30px;
     grid-column: 3;
     justify-self: end;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 /* 3. CONTENT AREA */
@@ -414,6 +408,84 @@ html, body {
     .flight-table th:nth-child(7) { width: 22%; }
 }
 
+/* =========================================
+   RESPONSIVE HEADER ADJUSTMENTS
+   ========================================= */
+
+/* Portrait mode header optimizations */
+@media (min-height: 1500px), (orientation: portrait) {
+    .fids-header {
+        padding: 12px 20px;
+        column-gap: 20px;
+    }
+    
+    .header-right-group {
+        gap: 15px;
+    }
+    
+    .header-widgets {
+        gap: 15px;
+    }
+    
+    .clock-container {
+        font-size: 2rem;
+    }
+    
+    .widget-icon {
+        font-size: 1.8rem;
+    }
+    
+    .widget-text {
+        font-size: 1.4rem;
+    }
+    
+    .atc-popover {
+        width: 200px;
+    }
+}
+
+/* Small screens / mobile optimization */
+@media (max-width: 768px) {
+    .airport-selector select {
+        font-size: 1.8rem;
+        max-width: 30vw;
+    }
+    
+    .airport-selector {
+        gap: 8px;
+    }
+    
+    .fids-header {
+        padding: 10px 15px;
+        column-gap: 15px;
+    }
+    
+    .header-right-group {
+        gap: 12px;
+    }
+    
+    .header-widgets {
+        gap: 12px;
+    }
+    
+    .clock-container {
+        font-size: 1.8rem;
+    }
+    
+    .widget-icon {
+        font-size: 1.6rem;
+    }
+    
+    .widget-text {
+        font-size: 1.2rem;
+    }
+    
+    .atc-popover {
+        width: 90vw;
+        max-width: 250px;
+    }
+}
+
 .country-flags {
     display: flex;
     gap: 12px;
@@ -575,14 +647,11 @@ html, body {
    ========================================= */
 
 .header-widgets {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 25px !important; /* Space between Radar and Weather */
-    flex: 0 0 auto !important;
+    display: flex;
+    align-items: center;
+    gap: 25px;
     flex-wrap: nowrap;
-    justify-content: flex-start;
-    width: max-content !important;
-    margin: 0;
+    white-space: nowrap;
 }
 /* Ensure your widget items have no weird margins */
 .widget-item {
@@ -591,9 +660,8 @@ html, body {
     gap: 8px;
     position: relative;
     opacity: 0.4;
-    flex: 0 0 auto !important;
-    width: auto !important;
-    margin: 0 !important;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .widget-item.active { opacity: 1; }
@@ -631,6 +699,7 @@ html, body {
     left: 50%;
     transform: translateX(-50%);
     width: 220px;
+    max-width: 90vw;
     background-color: #1a1a1a;
     border: 1px solid #333;
     border-radius: 6px;

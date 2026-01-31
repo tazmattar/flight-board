@@ -15,25 +15,8 @@ body.theme-egll .fids-header {
 
 body.theme-egll .airport-selector select,
 body.theme-egll .clock-container {
-    color: #000000 !important;
+    color: #000000;
     background: transparent;
-}
-/* Use a grid header for EGLL to keep widgets compact without truncating text */
-body.theme-egll .fids-header {
-    display: grid !important;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    column-gap: 30px;
-}
-
-body.theme-egll .airport-selector {
-    grid-column: 1;
-}
-
-body.theme-egll .header-right-group {
-    grid-column: 3;
-    justify-self: end;
-    margin-left: 0;
 }
 
 body.theme-egll .section-divider {

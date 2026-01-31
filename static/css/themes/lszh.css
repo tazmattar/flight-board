@@ -1,7 +1,7 @@
 /* =============================================
-   ZURICH (LSZH) THEME - DEFAULT
-   Classic White/Black with Yellow Accents
-   ============================================= */
+    ZURICH (LSZH) THEME - DEFAULT
+    Classic White/Black with Yellow Accents
+    ============================================= */
 
 /* LSZH uses the default styling from style.css */
 /* This is the base theme - minimal overrides needed */
@@ -9,12 +9,12 @@
 .fids-header {
     background: #ffffff;
     border-bottom: 4px solid #000000;
+    color: #000000;
 }
 
 .airport-selector select,
 .clock-container {
-    color: #000000 !important;
-    background: transparent;
+    color: #000000;
 }
 
 .section-divider {
