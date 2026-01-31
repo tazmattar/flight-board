@@ -92,39 +92,21 @@ html, body {
     font-size: 2.5rem; 
     font-weight: 700; 
     letter-spacing: 2px;
-    display: flex;
-    flex-direction: row;
+    display: inline-flex;
     align-items: center;
     gap: 0;
-    flex-wrap: nowrap;
     white-space: nowrap;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    margin: 0;
-    padding: 0;
-    width: auto;
-    height: auto;
 }
 
 /* CHILD 2: The Right Wrapper (Widgets + Clock) */
 .header-right-group {
     grid-column: 3;
     justify-self: end;
-    display: flex;
-    flex-direction: row;
+    display: inline-flex;
     align-items: center;
     gap: 20px;
     flex-wrap: nowrap;
     white-space: nowrap;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    min-width: max-content;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    box-sizing: content-box;
 }
 
 /* 3. CONTENT AREA */
@@ -667,36 +649,20 @@ html, body {
    ========================================= */
 
 .header-widgets {
-    display: flex;
-    flex-direction: row;
+    display: inline-flex;
     align-items: center;
     gap: 25px;
     flex-wrap: nowrap;
     white-space: nowrap;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    min-width: max-content;
-    width: auto;
-    height: auto;
 }
 /* Ensure your widget items have no weird margins */
 .widget-item {
     display: inline-flex;
-    flex-direction: row;
     align-items: center;
     gap: 8px;
     position: relative;
     opacity: 0.4;
-    flex-wrap: nowrap;
     white-space: nowrap;
-    flex-basis: auto;
-    flex-grow: 0;
-    flex-shrink: 0;
-    width: auto;
-    height: auto;
-    margin: 0;
-    padding: 0;
 }
 
 .widget-item.active { opacity: 1; }
