@@ -40,14 +40,13 @@ html, body {
     overflow: hidden;
 }
 
-/* 2. HEADER (Fixed) */
+/* 2. HEADER (Fixed) - Changed from grid to flexbox for better control */
 .fids-header {
     padding: 15px 30px; 
-    display: grid;
-    grid-template-columns: auto 1fr minmax(max-content, auto);
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    column-gap: 30px;
-    row-gap: 0;
+    gap: 30px;
     flex-shrink: 0;      
     z-index: 10;
     width: 100%;
@@ -60,7 +59,6 @@ html, body {
     display: flex;
     align-items: center;
     gap: 15px;
-    grid-column: 1;
     min-width: 0;
     flex-shrink: 1;
     overflow: hidden;
@@ -102,14 +100,12 @@ html, body {
 
 /* CHILD 2: The Right Wrapper (Widgets + Clock) */
 .header-right-group {
-    grid-column: 3;
-    justify-self: end;
     display: inline-flex;
     align-items: center;
     gap: 20px;
     flex-wrap: nowrap;
     white-space: nowrap;
-    justify-content: flex-start;
+    flex-shrink: 0;
     width: fit-content;
 }
 
