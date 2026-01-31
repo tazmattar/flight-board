@@ -107,6 +107,7 @@ html, body {
     gap: 20px;
     flex-wrap: nowrap;
     white-space: nowrap;
+    justify-content: flex-start;
 }
 
 /* 3. CONTENT AREA */
