@@ -107,6 +107,7 @@ html, body {
     white-space: nowrap;
     flex-shrink: 0;
     width: fit-content;
+    margin-left: auto;
 }
 
 /* 3. CONTENT AREA */
