@@ -74,3 +74,14 @@ body [class*="theme-"] .widget-icon,
 body [class*="theme-"] .widget-text {
     color: #000000 !important;
 }
+
+/* EGKK HEADER LAYOUT FIX - Ensure widgets don't spread */
+body.theme-egkk .header-right-group {
+    display: inline-flex !important;
+    gap: 20px !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    width: fit-content !important;
+    margin-left: auto !important;
+}
