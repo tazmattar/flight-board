@@ -383,10 +383,10 @@ html, body {
     .airport-selector select { font-size: 2rem; }
     :root { --font-size-cell: 1.4rem; --font-size-header: 1.1rem; --row-height: 50px; }
     .flight-table th:nth-child(1) { width: 15%; }
-    .flight-table th:nth-child(2) { width: 30%; }
+    .flight-table th:nth-child(2) { width: 28%; }
     .flight-table th:nth-child(3) { width: 10%; }
     .flight-table th:nth-child(4) { width: 12%; }
-    .flight-table th:nth-child(5) { width: 8%; } 
+    .flight-table th:nth-child(5) { width: 10%; } 
     .flight-table th:nth-child(6) { width: 10%; }
     .flight-table th:nth-child(7) { width: 15%; }
 
