@@ -6,49 +6,49 @@
 /* LSZH uses the default styling from style.css */
 /* This is the base theme - minimal overrides needed */
 
-.fids-header {
+body.theme-lszh .fids-header {
     background: #ffffff;
     border-bottom: 4px solid #000000;
     color: #000000;
 }
 
-.airport-selector select,
-.clock-container {
+body.theme-lszh .airport-selector select,
+body.theme-lszh .clock-container {
     color: #000000;
 }
 
-.section-divider {
+body.theme-lszh .section-divider {
     background: #111;
     color: var(--fids-yellow);
     border-bottom: 2px solid var(--border-dim);
 }
 
-.flight-table th {
+body.theme-lszh .flight-table th {
     background: #151515;
     color: #ffffff;
     border-bottom: 2px solid #333;
 }
 
-.fids-footer {
+body.theme-lszh .fids-footer {
     background-color: #000;
     border-top: 4px solid white;
 }
 
-.footer-group .main-label {
+body.theme-lszh .footer-group .main-label {
     color: #ffffff;
 }
 
-.gate-icon-box {
+body.theme-lszh .gate-icon-box {
     border-color: white;
     color: white;
 }
 
-.huge-arrow {
+body.theme-lszh .huge-arrow {
     color: white;
 }
 
 /* Widget Colors: Force BLACK for Zurich */
-body .widget-icon, 
-body .widget-text {
+body.theme-lszh .widget-icon, 
+body.theme-lszh .widget-text {
     color: #000000 !important;
 }

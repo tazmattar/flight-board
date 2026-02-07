@@ -669,13 +669,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Determine Conditions for Icon
         let icon = 'wb_sunny'; // Default Clear/Sunny
 
-        // Check metar strings for priority conditions
-        if (metar.includes('TS')) icon = 'thunderstorm';
+        // Use Material Icons ligatures that exist in the classic set
+        if (metar.includes('TS')) icon = 'flash_on'; // Thunderstorm
         else if (metar.includes('SN') || metar.includes('SG')) icon = 'ac_unit'; // Snow
-        else if (metar.includes('RA') || metar.includes('DZ')) icon = 'water_drop'; // Rain
-        else if (metar.includes('FG') || metar.includes('BR')) icon = 'foggy'; // Fog/Mist
+        else if (metar.includes('RA') || metar.includes('DZ')) icon = 'opacity'; // Rain/Drizzle
+        else if (metar.includes('FG') || metar.includes('BR')) icon = 'blur_on'; // Fog/Mist
         else if (metar.includes('OVC') || metar.includes('BKN')) icon = 'cloud'; // Overcast/Broken
-        else if (metar.includes('SCT') || metar.includes('FEW')) icon = 'partly_cloudy_day'; // Scattered
+        else if (metar.includes('SCT') || metar.includes('FEW')) icon = 'wb_cloudy'; // Scattered/Few
         else if (metar.includes('CAVOK') || metar.includes('CLR') || metar.includes('NSC')) icon = 'wb_sunny'; // Clear
         
         iconEl.textContent = icon;

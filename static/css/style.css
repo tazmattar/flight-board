@@ -91,23 +91,28 @@ html, body {
     font-size: 2.5rem; 
     font-weight: 700; 
     letter-spacing: 2px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0;
     white-space: nowrap;
-    width: fit-content;
+    flex: 0 0 auto;
 }
 
 /* CHILD 2: The Right Wrapper (Widgets + Clock) */
 .header-right-group {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 20px;
     flex-wrap: nowrap;
     white-space: nowrap;
-    flex-shrink: 0;
-    width: fit-content;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    width: auto;
     margin-left: auto;
+}
+
+.header-right-group > * {
+    flex: 0 0 auto;
 }
 
 /* 3. CONTENT AREA */
@@ -650,12 +655,12 @@ html, body {
    ========================================= */
 
 .header-widgets {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 25px;
     flex-wrap: nowrap;
     white-space: nowrap;
-    width: fit-content;
+    flex: 0 0 auto;
 }
 /* Ensure your widget items have no weird margins */
 .widget-item {
