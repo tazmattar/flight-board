@@ -137,6 +137,9 @@
             <a href="https://www.vatsim.uk/" target="_blank" rel="noopener">
                 <img src="{{ url_for('static', filename='vatsim_logos/vatsimuk_white.png') }}" alt="VATSIM UK">
             </a>
+            <a href="https://simfixr.com/" target="_blank" rel="noopener">
+                <img class="simfixr-logo" src="https://simfixr.com/content/images/2025/07/simfixr_logo_small.png" alt="SimFixr">
+            </a>
         </div>
     </div>
     
@@ -166,7 +169,7 @@
     <div class="footer-group right">
         <div class="security-time">
             <span class="label" id="securityLabel">Actual waiting time<br>at security control</span>
-            <span class="time">9 <small>minutes</small></span>
+            <span class="time" id="securityTime">9 <small>minutes</small></span>
         </div>
         <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
     </div>

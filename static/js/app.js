@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update ATC and Weather widgets
         updateAtcWidget(data.controllers);
         updateWeatherWidget(data.metar);
+        updateSecurityTime(data);
         // Update footer text with country information
         window.updateFooterText(currentAirport, data.country);
         
@@ -678,6 +679,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateClock(); 
     setInterval(updateClock, 1000);
+
+    function updateSecurityTime(data) {
+        const securityEl = document.getElementById('securityTime');
+        if (!securityEl) return;
+        const depCount = (data && data.departures) ? data.departures.length : 0;
+        const arrCount = (data && data.arrivals) ? data.arrivals.length : 0;
+        const totalFlights = depCount + arrCount;
+
+        let minutes = 6 + Math.floor(totalFlights / 4);
+        minutes = Math.max(5, Math.min(25, minutes));
+        securityEl.innerHTML = `${minutes} <small>minutes</small>`;
+    }
 
 
     function updateAtcWidget(controllers) {

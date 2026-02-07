@@ -376,6 +376,9 @@ html, body {
     width: auto;
     opacity: 0.9;
 }
+.footer-logos img.simfixr-logo {
+    height: 40px;
+}
 
 /* MEDIA QUERIES */
 /* Force portrait when height > width (which should be true for 1080x1920) */
