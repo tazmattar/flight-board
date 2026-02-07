@@ -60,7 +60,7 @@ html, body {
     align-items: center;
     gap: 15px;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     overflow: hidden;
 }
 
@@ -74,8 +74,8 @@ html, body {
     appearance: none;         /* Standard property */
     background-color: transparent;
     border-radius: 0;         /* Removes default rounded corners */
-    flex: 1 1 auto;
-    max-width: 100%;
+    flex: 0 1 auto;
+    max-width: clamp(320px, 45vw, 720px);
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
