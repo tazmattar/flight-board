@@ -283,6 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('join_airport', { airport: currentAirport });
         elements.departureList.innerHTML = '';
         elements.arrivalList.innerHTML = '';
+        applyPagination('dep', true);
+        applyPagination('arr', true);
     });
 
     // Initial theme and footer setup
@@ -325,29 +327,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- AUTO-SCROLL ENGINE ---
-    function initAutoScroll() {
-        const scrollContainers = document.querySelectorAll('.table-scroll-area');
-        scrollContainers.forEach(container => {
-            if (container.dataset.scrollInterval) return;
-            const intervalId = setInterval(() => {
-                const maxScroll = container.scrollHeight - container.clientHeight;
-                const currentScroll = Math.ceil(container.scrollTop);
-                if (maxScroll <= 0) {
-                    if (currentScroll > 0) container.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-                if (currentScroll >= maxScroll - 5) { 
-                    container.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    const nextScroll = currentScroll + container.clientHeight;
-                    container.scrollTo({ top: nextScroll, behavior: 'smooth' });
-                }
-            }, 8000); 
-            container.dataset.scrollInterval = intervalId;
+    // --- PAGINATION ENGINE ---
+    const PAGE_INTERVAL_MS = 8000;
+    const paginationState = {
+        dep: { page: 0, rowsPerPage: 1, totalPages: 1, intervalId: null },
+        arr: { page: 0, rowsPerPage: 1, totalPages: 1, intervalId: null }
+    };
+
+    function applyPagination(type, recompute = true) {
+        const state = paginationState[type];
+        const container = type === 'dep' ? elements.departureList : elements.arrivalList;
+        if (!container) return;
+
+        const scrollArea = container.closest('.table-scroll-area');
+        const table = scrollArea ? scrollArea.querySelector('table') : null;
+        const header = table ? table.querySelector('thead') : null;
+        const rows = Array.from(container.children);
+
+        if (recompute && scrollArea) {
+            const headerHeight = header ? header.offsetHeight : 0;
+            let rowHeight = rows[0]?.offsetHeight;
+            if (!rowHeight) {
+                const cssRowHeight = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--row-height');
+                rowHeight = parseFloat(cssRowHeight) || 42;
+            }
+
+            const availableHeight = Math.max(0, scrollArea.clientHeight - headerHeight);
+            const rowsPerPage = Math.max(1, Math.floor(availableHeight / rowHeight));
+            const totalPages = rows.length ? Math.ceil(rows.length / rowsPerPage) : 1;
+
+            state.rowsPerPage = rowsPerPage;
+            state.totalPages = totalPages;
+        }
+
+        if (state.page >= state.totalPages) state.page = 0;
+
+        const startIdx = state.page * state.rowsPerPage;
+        const endIdx = startIdx + state.rowsPerPage;
+        rows.forEach((row, idx) => {
+            row.style.display = (idx >= startIdx && idx < endIdx) ? '' : 'none';
         });
+
+        const indicator = document.getElementById(type === 'dep' ? 'depPageInd' : 'arrPageInd');
+        if (indicator) {
+            if (state.totalPages > 1) {
+                indicator.textContent = `${state.page + 1} of ${state.totalPages}`;
+                indicator.style.display = 'inline';
+            } else {
+                indicator.textContent = '';
+                indicator.style.display = 'none';
+            }
+        }
+
+        if (state.totalPages > 1) {
+            if (!state.intervalId) {
+                state.intervalId = setInterval(() => {
+                    const currentState = paginationState[type];
+                    if (currentState.totalPages <= 1) return;
+                    currentState.page = (currentState.page + 1) % currentState.totalPages;
+                    applyPagination(type, false);
+                }, PAGE_INTERVAL_MS);
+            }
+        } else if (state.intervalId) {
+            clearInterval(state.intervalId);
+            state.intervalId = null;
+        }
     }
-    initAutoScroll();
+
+    function initPaginationObservers() {
+        const scrollAreas = document.querySelectorAll('.table-scroll-area');
+        scrollAreas.forEach(area => {
+            const type = area.querySelector('#departureList') ? 'dep'
+                : area.querySelector('#arrivalList') ? 'arr'
+                : null;
+            if (!type) return;
+            if ('ResizeObserver' in window) {
+                const observer = new ResizeObserver(() => applyPagination(type, true));
+                observer.observe(area);
+            }
+        });
+        if (!('ResizeObserver' in window)) {
+            window.addEventListener('resize', () => {
+                applyPagination('dep', true);
+                applyPagination('arr', true);
+            });
+        }
+    }
+    initPaginationObservers();
 
     // --- STATUS FLIP ENGINE (Now with clean CSS fade) ---
     setInterval(() => {
@@ -399,6 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (indicator) indicator.style.display = 'none';
         updateTableSmart(list, container, type === 'dep' ? 'Departures' : 'Arrivals');
+        applyPagination(type, true);
     }
 
     function updateTableSmart(flights, container, type) {

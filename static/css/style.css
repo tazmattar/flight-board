@@ -166,11 +166,17 @@ html, body {
 .table-scroll-area {
     flex: 1;            
     min-height: 0;      
-    overflow-y: auto;   
+    overflow-y: hidden;   
     scrollbar-width: none; 
-    scroll-behavior: smooth;
 }
 .table-scroll-area::-webkit-scrollbar { display: none; }
+
+.page-ind {
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
 
 .flight-table { 
     width: 100%; 
