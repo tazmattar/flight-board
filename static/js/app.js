@@ -745,6 +745,16 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (metar.includes('OVC') || metar.includes('BKN')) icon = 'cloud'; // Overcast/Broken
         else if (metar.includes('SCT') || metar.includes('FEW')) icon = 'wb_cloudy'; // Scattered/Few
         else if (metar.includes('CAVOK') || metar.includes('CLR') || metar.includes('NSC')) icon = 'wb_sunny'; // Clear
+
+        // 3. Night tweak (based on METAR UTC time group DDHHMMZ)
+        if (icon === 'wb_sunny') {
+            const timeMatch = metar.match(/\b(\d{2})(\d{2})(\d{2})Z\b/);
+            if (timeMatch) {
+                const hour = parseInt(timeMatch[2], 10);
+                const isNightUtc = (hour >= 20 || hour < 6);
+                if (isNightUtc) icon = 'bedtime';
+            }
+        }
         
         iconEl.textContent = icon;
     }
