@@ -1,0 +1,63 @@
+/* =============================================
+   SCHIPHOL (EHAM) THEME
+   Based on Real Schiphol FIDS Reference
+   ============================================= */
+
+body.theme-eham {
+    --schiphol-yellow: #FFD010;
+    --schiphol-dark-bg: #1A1C20;
+    --schiphol-panel-grey: #32353B;
+    --schiphol-text-white: #FFFFFF;
+    --schiphol-green: #298C43;
+}
+
+/* Header styling: "Flight departures | Vertrekken" on Yellow background */
+body.theme-eham .fids-header {
+    background-color: var(--schiphol-yellow);
+    color: #000000;
+    border-bottom: 3px solid #000;
+    font-family: 'Roboto Condensed', sans-serif;
+    text-transform: none;
+}
+
+/* Main board background: Dark charcoal as seen in image */
+body.theme-eham .page-container,
+body.theme-eham .table-scroll-area {
+    background-color: var(--schiphol-dark-bg);
+}
+
+/* Section Dividers mimic the image's top sub-header bar */
+body.theme-eham .section-divider {
+    background-color: var(--schiphol-panel-grey);
+    color: var(--schiphol-text-white);
+    border-bottom: 1px solid #444;
+}
+
+/* Flight table: Alternating dark rows with white text */
+body.theme-eham .flight-table th {
+    background: var(--schiphol-dark-bg);
+    color: #AAAAAA;
+    font-weight: normal;
+    text-transform: none;
+}
+
+body.theme-eham .flight-table td {
+    color: var(--schiphol-text-white);
+    border-bottom: 1px solid #2A2D33;
+}
+
+/* Gate boxes: Bright yellow with black text (Reference: Gate 1991, B18, etc.) */
+body.theme-eham .gate-cell {
+    background-color: var(--schiphol-yellow) !important;
+    color: #000000 !important;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 0px;
+}
+
+/* Status: Green indicators (Reference: DEIAG, BOARDING) */
+body.theme-eham .status-boarding {
+    color: #FFFFFF;
+    background-color: var(--schiphol-green);
+    padding: 2px 4px;
+}
