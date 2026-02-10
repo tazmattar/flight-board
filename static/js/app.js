@@ -98,6 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.warn('Airport DB failed', e); }
 
         await loadJapaneseAirportNames();
+
+        // Ensure flags render once airport metadata is available
+        updateFlags(currentAirport);
     }
 
     async function loadJapaneseAirportNames() {
