@@ -73,8 +73,8 @@ body.theme-eham .gate-cell {
 
 /* Status: Green indicators (Reference: DEIAG, BOARDING) */
 body.theme-eham .status-boarding {
-    color: #FFFFFF;
-    background-color: var(--schiphol-green);
+    color: var(--schiphol-green);
+    background-color: transparent;
     padding: 2px 4px;
 }
 
@@ -88,4 +88,24 @@ body.theme-eham .fids-footer {
 body.theme-eham .fids-footer,
 body.theme-eham .fids-footer * {
     color: #FFFFFF;
+}
+
+/* Status column: minimal, text-only like RJTT */
+body.theme-eham .flight-table td.col-status {
+    padding: 8px 10px !important;
+}
+
+body.theme-eham .col-status .flap-container {
+    background-color: transparent !important;
+    color: #000000 !important;
+    justify-content: flex-start;
+    padding-left: 0;
+    text-transform: none;
+}
+
+body.theme-eham .col-status[data-status*="Delayed"] .flap-container,
+body.theme-eham .col-status[data-status="Cancelled"] .flap-container,
+body.theme-eham .col-status[data-status="CLOSED"] .flap-container {
+    color: #c00000 !important;
+    font-weight: 700;
 }

@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const airportMapping = {}; 
     const airportJapaneseMapping = {};
+    const euMembers = new Set();
 
     async function loadDatabases() {
         // This is the missing block that fixes your logos
@@ -96,6 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (e) { console.warn('Airport DB failed', e); }
+
+        try {
+            const response = await fetch('/static/data/eu_members.json');
+            if (response.ok) {
+                const data = await response.json();
+                data.forEach(code => euMembers.add(String(code).toUpperCase()));
+            }
+        } catch (e) { console.warn('EU member list failed', e); }
 
         await loadJapaneseAirportNames();
 
@@ -196,6 +205,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFlags(airportCode) {
         const flagContainer = document.getElementById('flagContainer');
         if (!flagContainer) return;
+
+        const buildFlagImg = (code) => (
+            `<img src="https://flagcdn.com/h40/${code.toLowerCase()}.png" alt="${code}" title="${code}">`
+        );
+
+        const renderCountryWithEU = (code) => {
+            let html = buildFlagImg(code);
+            if (euMembers.has(String(code).toUpperCase())) {
+                html += buildFlagImg('EU');
+            }
+            return html;
+        };
+
+        const renderMultiCountryWithEU = (codes) => {
+            const normalized = codes.map(code => String(code).toUpperCase());
+            const anyEU = normalized.some(code => euMembers.has(code));
+            const flags = normalized.map(code => buildFlagImg(code)).join('');
+            return anyEU ? `${flags}${buildFlagImg('EU')}` : flags;
+        };
         
         // Manual overrides for multi-country airports
         const manualFlags = {
@@ -205,14 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (manualFlags[airportCode]) {
             // Multi-country airport
-            flagContainer.innerHTML = manualFlags[airportCode]
-                .map(country => `<img src="https://flagcdn.com/h40/${country}.png" alt="${country}" title="${country}">`)
-                .join('');
+            flagContainer.innerHTML = renderMultiCountryWithEU(manualFlags[airportCode]);
         } else {
             // Single country - get from airport database
             const countryCode = airportMapping[airportCode]?.country_code;
             if (countryCode) {
-                flagContainer.innerHTML = `<img src="https://flagcdn.com/h40/${countryCode.toLowerCase()}.png" alt="${countryCode}" title="${countryCode}">`;
+                flagContainer.innerHTML = renderCountryWithEU(countryCode);
             } else {
                 // No flag data available
                 flagContainer.innerHTML = '';
