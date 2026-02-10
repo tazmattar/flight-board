@@ -9,6 +9,8 @@ body.theme-eham {
     --schiphol-panel-grey: #32353B;
     --schiphol-text-white: #FFFFFF;
     --schiphol-green: #298C43;
+    --schiphol-board-bg: #FFFFFF;
+    --schiphol-row-alt: #F1F1F1;
 }
 
 /* Header styling: "Flight departures | Vertrekken" on Yellow background */
@@ -23,27 +25,41 @@ body.theme-eham .fids-header {
 /* Main board background: Dark charcoal as seen in image */
 body.theme-eham .page-container,
 body.theme-eham .table-scroll-area {
-    background-color: var(--schiphol-dark-bg);
+    background-color: var(--schiphol-board-bg);
+}
+
+body.theme-eham .split-panel {
+    background-color: var(--schiphol-board-bg);
+    border: 1px solid #D9D9D9;
 }
 
 /* Section Dividers mimic the image's top sub-header bar */
 body.theme-eham .section-divider {
     background-color: var(--schiphol-panel-grey);
-    color: var(--schiphol-text-white);
+    color: #000000;
     border-bottom: 1px solid #444;
 }
 
 /* Flight table: Alternating dark rows with white text */
 body.theme-eham .flight-table th {
-    background: var(--schiphol-dark-bg);
-    color: #AAAAAA;
+    background: var(--schiphol-board-bg);
+    color: #000000;
     font-weight: normal;
     text-transform: none;
 }
 
 body.theme-eham .flight-table td {
-    color: var(--schiphol-text-white);
-    border-bottom: 1px solid #2A2D33;
+    color: #000000;
+    border-bottom: 1px solid #D9D9D9;
+}
+
+/* Alternating rows: light grey */
+body.theme-eham .flight-table tbody tr:nth-child(odd) td {
+    background-color: var(--schiphol-board-bg);
+}
+
+body.theme-eham .flight-table tbody tr:nth-child(even) td {
+    background-color: var(--schiphol-row-alt);
 }
 
 /* Gate boxes: Bright yellow with black text (Reference: Gate 1991, B18, etc.) */
@@ -60,4 +76,16 @@ body.theme-eham .status-boarding {
     color: #FFFFFF;
     background-color: var(--schiphol-green);
     padding: 2px 4px;
+}
+
+/* Footer: Grey with white text */
+body.theme-eham .fids-footer {
+    background-color: var(--schiphol-panel-grey);
+    color: #FFFFFF;
+    border-top: 1px solid #444;
+}
+
+body.theme-eham .fids-footer,
+body.theme-eham .fids-footer * {
+    color: #FFFFFF;
 }
