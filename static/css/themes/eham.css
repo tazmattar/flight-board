@@ -6,7 +6,7 @@
 body.theme-eham {
     --schiphol-yellow: #FFD010;
     --schiphol-dark-bg: #1A1C20;
-    --schiphol-panel-grey: #32353B;
+    --schiphol-panel-grey: #696969;
     --schiphol-text-white: #FFFFFF;
     --schiphol-green: #298C43;
     --schiphol-board-bg: #FFFFFF;
@@ -22,7 +22,7 @@ body.theme-eham .fids-header {
     text-transform: none;
 }
 
-/* Main board background: Dark charcoal as seen in image */
+/* Main board background*/
 body.theme-eham .page-container,
 body.theme-eham .table-scroll-area {
     background-color: var(--schiphol-board-bg);
@@ -37,7 +37,7 @@ body.theme-eham .split-panel {
 body.theme-eham .section-divider {
     background-color: var(--schiphol-panel-grey);
     color: #000000;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid #696969;
 }
 
 /* Flight table: Alternating dark rows with white text */
