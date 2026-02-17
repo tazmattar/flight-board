@@ -12,14 +12,38 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 flight_fetcher = VatsimFetcher()
 # Global store: {'LSZH': {...}, 'LSGG': {...}, 'EDDF': {...}, etc}
-current_data = {} 
+current_data = {}
+
+# Track active airport rooms so dynamic airports can be refreshed
+active_airport_counts = {}
+client_airports = {}
+
+def _increment_airport(airport):
+    active_airport_counts[airport] = active_airport_counts.get(airport, 0) + 1
+
+def _decrement_airport(airport):
+    count = active_airport_counts.get(airport, 0)
+    if count <= 1:
+        active_airport_counts.pop(airport, None)
+    else:
+        active_airport_counts[airport] = count - 1
 
 def update_flights():
     """Fetch all configured airports and broadcast to their respective rooms"""
     global current_data
     print("Fetching flight data...")
     new_data = flight_fetcher.fetch_flights()
-    
+
+    # Refresh any active dynamic airports (not in configured list)
+    dynamic_airports = [
+        code for code in active_airport_counts.keys()
+        if code not in flight_fetcher.configured_airports
+    ]
+    for code in dynamic_airports:
+        airport_data = flight_fetcher.fetch_single_airport(code)
+        if airport_data:
+            new_data.update(airport_data)
+
     if new_data:
         current_data.update(new_data)
         # Broadcast specifically to subscribers of each airport
@@ -82,7 +106,14 @@ def search_airport():
 def handle_join(data):
     """Client wants to view a specific airport"""
     airport = data.get('airport', 'LSZH').upper()
+    previous = client_airports.get(request.sid)
+    if previous and previous != airport:
+        leave_room(previous)
+        _decrement_airport(previous)
+
     join_room(airport)
+    client_airports[request.sid] = airport
+    _increment_airport(airport)
     print(f"Client {request.sid} joined {airport}")
     
     # If it's a dynamic airport not in current_data, fetch it
@@ -102,7 +133,17 @@ def handle_join(data):
 def handle_leave(data):
     airport = data.get('airport')
     if airport:
+        airport = airport.upper()
         leave_room(airport)
+        if client_airports.get(request.sid) == airport:
+            client_airports.pop(request.sid, None)
+        _decrement_airport(airport)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    airport = client_airports.pop(request.sid, None)
+    if airport:
+        _decrement_airport(airport)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

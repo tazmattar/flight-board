@@ -1,9 +1,58 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- STATE MANAGEMENT ---
+    const AIRPORT_STORAGE_KEY = 'flightboard.airport';
+
+    function normalizeIcao(value) {
+        return String(value || '').trim().toUpperCase();
+    }
+
+    function getInitialAirport() {
+        const params = new URLSearchParams(window.location.search);
+        const paramValue = normalizeIcao(params.get('icao') || params.get('airport'));
+        if (paramValue.length === 4) return paramValue;
+
+        try {
+            const stored = normalizeIcao(localStorage.getItem(AIRPORT_STORAGE_KEY));
+            if (stored.length === 4) return stored;
+        } catch (e) {
+            console.warn('LocalStorage unavailable, falling back to default.');
+        }
+
+        return 'LSZH';
+    }
+
+    function persistAirportSelection(icao) {
+        try {
+            localStorage.setItem(AIRPORT_STORAGE_KEY, icao);
+        } catch (e) {
+            // Ignore storage errors
+        }
+
+        if (history && history.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('icao', icao);
+            history.replaceState({}, '', url);
+        }
+    }
+
+    let currentAirport = getInitialAirport();
+    let rawFlightData = { departures: [], arrivals: [] };
+    
+    // Global flag to track the display cycle (Status vs Delay)
+    let showingDelayPhase = false;
+
+    const elements = {
+        airportSelect: document.getElementById('airportSelect'),
+        airportName: document.getElementById('airportName'),
+        departureList: document.getElementById('departureList'),
+        arrivalList: document.getElementById('arrivalList'),
+        lastUpdate: document.getElementById('lastUpdate'),
+        fsBtn: document.getElementById('fullscreenBtn')
+    };
+
     const socket = io();
 
     // --- SOCKET LISTENER ---
-    
-    // Automatically join the current airport when connected
     socket.on('connect', () => {
         console.log('Connected via WebSockets. Joining:', currentAirport);
         socket.emit('join_airport', { airport: currentAirport });
@@ -24,22 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSection('dep');
         renderSection('arr');
     });
-
-    // --- STATE MANAGEMENT ---
-    let currentAirport = 'LSZH';
-    let rawFlightData = { departures: [], arrivals: [] };
-    
-    // Global flag to track the display cycle (Status vs Delay)
-    let showingDelayPhase = false;
-
-    const elements = {
-        airportSelect: document.getElementById('airportSelect'),
-        airportName: document.getElementById('airportName'),
-        departureList: document.getElementById('departureList'),
-        arrivalList: document.getElementById('arrivalList'),
-        lastUpdate: document.getElementById('lastUpdate'),
-        fsBtn: document.getElementById('fullscreenBtn')
-    };
 
     // --- Dynamic Data Sources ---
     const airlineMapping = { 
@@ -202,6 +235,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
+    async function ensureAirportInSelect(icao) {
+        if (!elements.airportSelect) return false;
+        const exists = Array.from(elements.airportSelect.options).some(opt => opt.value === icao);
+        if (exists) return true;
+
+        try {
+            const response = await fetch('/api/search_airport', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ icao })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                const option = document.createElement('option');
+                option.value = icao;
+                option.textContent = data.name;
+                option.title = icao;
+                elements.airportSelect.appendChild(option);
+                return true;
+            }
+        } catch (e) {
+            console.warn('Failed to preload dynamic airport:', icao, e);
+        }
+
+        return false;
+    }
+
     function updateFlags(airportCode) {
         const flagContainer = document.getElementById('flagContainer');
         if (!flagContainer) return;
@@ -310,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- AIRPORT SWITCHER ---
     elements.airportSelect.addEventListener('change', (e) => {
         socket.emit('leave_airport', { airport: currentAirport });
-        currentAirport = e.target.value;
+        currentAirport = normalizeIcao(e.target.value);
         updateTheme(currentAirport);
         // Country will be updated when flight_update arrives
         window.updateFooterText(currentAirport, '');
@@ -319,11 +379,26 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.arrivalList.innerHTML = '';
         applyPagination('dep', true);
         applyPagination('arr', true);
+        persistAirportSelection(currentAirport);
     });
 
     // Initial theme and footer setup
-    updateTheme(currentAirport);
-    window.updateFooterText(currentAirport, '');
+    (async () => {
+        const initialAirport = currentAirport;
+        const ok = await ensureAirportInSelect(currentAirport);
+        if (!ok && currentAirport !== 'LSZH') {
+            currentAirport = 'LSZH';
+            await ensureAirportInSelect(currentAirport);
+        }
+        if (elements.airportSelect) elements.airportSelect.value = currentAirport;
+        updateTheme(currentAirport);
+        window.updateFooterText(currentAirport, '');
+        persistAirportSelection(currentAirport);
+        if (socket.connected && currentAirport !== initialAirport) {
+            socket.emit('leave_airport', { airport: initialAirport });
+            socket.emit('join_airport', { airport: currentAirport });
+        }
+    })();
 
     // --- FULLSCREEN TOGGLE ---
     if (elements.fsBtn) {
@@ -895,6 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateTheme(currentAirport);
                     window.updateFooterText(currentAirport, data.country || '');
                     socket.emit('join_airport', { airport: currentAirport });
+                    persistAirportSelection(currentAirport);
                     
                     // Clear the board while loading
                     elements.departureList.innerHTML = '';
