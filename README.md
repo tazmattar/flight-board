@@ -23,7 +23,7 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 * **Smart Delay Calculation:** Compares scheduled departure times against current UTC time to generate accurate delay warnings.
 * **Geospatial Filtering:**
     * **Departures:** Visible while at the gate and until they leave the immediate terminal airspace (>80 km).
-    * **Arrivals:** Appear when within realistic radar range (<250 km) and persist until parked.
+    * **Arrivals:** Display from en-route phase through approach/landing, then persist until parked.
 * **Smart Check-In Allocation:** Deterministically assigns check-in desks based on airline and terminal, with airport-specific logic for supported hubs.
 
 ### Visual Design & Dynamic Theming

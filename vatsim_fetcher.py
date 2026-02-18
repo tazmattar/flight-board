@@ -289,7 +289,7 @@ class VatsimFetcher:
             elif status == 'Departing' and dist_km < self.cleanup_dist_dep:
                 airport_data['departures'].append(flight_info)
         elif direction == 'ARR':
-            if status in ['Landed', 'Landing', 'Approaching']:
+            if status in ['Landed', 'Landing', 'Approaching', 'En Route']:
                 airport_data['arrivals'].append(flight_info)
 
     def calculate_times(self, deptime, enroute_time, direction):
