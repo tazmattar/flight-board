@@ -200,6 +200,24 @@ class VatsimFetcher:
         except:
             return datetime.max
 
+    def _arrival_status_priority(self, status_raw):
+        """
+        Lower number means higher display priority in arrivals.
+        """
+        priority = {
+            'Landed': 0,
+            'Landing': 1,
+            'Approaching': 2,
+            'En Route': 3,
+        }
+        return priority.get(status_raw, 99)
+
+    def _arrival_sort_key(self, flight):
+        return (
+            self._arrival_status_priority(flight.get('status_raw', '')),
+            self._get_sortable_time(flight.get('time_display', ''))
+        )
+
     def fetch_flights(self):
         results = {}
         for code in self.configured_airports:
@@ -231,7 +249,7 @@ class VatsimFetcher:
             for code in results:
                 # Use smart sorting for both lists
                 results[code]['departures'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
-                results[code]['arrivals'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
+                results[code]['arrivals'].sort(key=self._arrival_sort_key)
                 
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
@@ -268,7 +286,7 @@ class VatsimFetcher:
 
             # Use smart sorting for both lists
             result['departures'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
-            result['arrivals'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
+            result['arrivals'].sort(key=self._arrival_sort_key)
             
             result['metar'] = self.get_metar(airport_code)
             result['controllers'] = self.get_controllers(data.get('controllers', []), airport_code)
