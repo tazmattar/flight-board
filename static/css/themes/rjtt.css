@@ -38,6 +38,12 @@ body.theme-rjtt .clock-container {
     text-shadow: 0 0 6px rgba(120, 170, 255, 0.15);
 }
 
+/* Keep native dropdown list readable across OS/browser themes */
+body.theme-rjtt .airport-selector select option {
+    background-color: #ffffff;
+    color: #111111;
+}
+
 /* --- 2. TABLE HEADERS --- */
 body.theme-rjtt .section-divider {
     background: linear-gradient(180deg, #0f2658 0%, #0c204b 100%);
