@@ -46,6 +46,8 @@ class CheckinAssignments:
             return self._stansted(airline, seed)
         elif airport_code == 'EGLC':
             return self._london_city(airline, seed)
+        elif airport_code == 'EHAM':
+            return self._schiphol(airline, seed)
         elif airport_code == 'KJFK':
             return self._jfk(airline, seed)
         elif airport_code == 'RJTT':
@@ -192,6 +194,30 @@ class CheckinAssignments:
         # General Aviation / Other
         desk = (seed % 5) + 16
         return f"{desk}"
+
+    # ==================== NETHERLANDS ====================
+
+    def _schiphol(self, airline, seed):
+        """Amsterdam Schiphol (EHAM) check-in assignments"""
+        # Departure Hall 2: KLM group + core SkyTeam operations
+        if airline in [
+            'KLM', 'KLC', 'TRA', 'AFR', 'DAL', 'CES', 'KAL', 'AMX',
+            'AFL', 'SVA', 'MEA', 'ROM'
+        ]:
+            desk = (seed % 8) + 9   # 9-16
+            return f"H2-{desk:02d}"
+
+        # Departure Hall 1: Primarily Schengen/European network carriers
+        if airline in [
+            'DLH', 'SWR', 'AUA', 'SAS', 'LOT', 'TAP', 'IBE', 'VLG',
+            'BAW', 'FIN', 'EIN', 'BEL', 'AEA', 'ITY'
+        ]:
+            desk = (seed % 8) + 1   # 1-8
+            return f"H1-{desk:02d}"
+
+        # Departure Hall 3: Long-haul + independent/non-Schengen mix
+        desk = (seed % 16) + 17      # 17-32
+        return f"H3-{desk:02d}"
     
     # ==================== UNITED STATES ====================
     
