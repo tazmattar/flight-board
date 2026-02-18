@@ -27,3 +27,7 @@ Thumbs.db
 
 # Environment variables (if you add any)
 .env
+
+# Local reference data pending licensing sign-off
+scandi_stand_info/
+static/scandinavian_stands.json
