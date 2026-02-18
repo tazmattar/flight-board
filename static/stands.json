@@ -962,7 +962,6 @@
     {"name": "D93", "lat": 52.311166, "lon": 4.772579, "radius": 35, "type": "contact"},
     {"name": "D94", "lat": 52.311151, "lon": 4.773226, "radius": 35, "type": "contact"},
     {"name": "D95", "lat": 52.311146, "lon": 4.773872, "radius": 35, "type": "contact"},
-    {"name": "DECOBAY", "lat": 52.305746, "lon": 4.798845, "radius": 35, "type": "contact"},
     {"name": "E17", "lat": 52.313362, "lon": 4.766231, "radius": 35, "type": "contact"},
     {"name": "E18", "lat": 52.312039, "lon": 4.769013, "radius": 35, "type": "contact"},
     {"name": "E19", "lat": 52.313959, "lon": 4.766903, "radius": 35, "type": "contact"},
