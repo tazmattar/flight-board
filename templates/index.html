@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400;1,700&family=Cal+Sans&display=swap" rel="stylesheet">
     
     <!-- Core styles (layout, tables, animations) -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=asset_version) }}">
     
     <!-- Dynamic theme loaded by JavaScript -->
     <link id="airportTheme" rel="stylesheet" href="{{ url_for('static', filename='css/themes/lszh.css') }}">
@@ -43,6 +43,12 @@
 
     <!-- NEW WRAPPER -->
     <div class="header-right-group">
+        <div id="trackingChip" class="tracking-chip" hidden>
+            <span class="material-icons tracking-chip-icon">push_pin</span>
+            <span id="trackingChipText" class="tracking-chip-text"></span>
+            <button id="trackingChipStop" class="tracking-chip-stop" type="button" title="Stop tracking">✕</button>
+        </div>
+
         <div class="header-widgets">
             <div class="widget-item" id="atcWidget">
                 <span class="material-icons widget-icon" id="atcIcon">track_changes</span>
@@ -182,8 +188,9 @@
 
     <div id="flightTooltip" class="flight-plan-tooltip"></div>
     
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="/static/js/language_handler.js"></script>
+    <script src="{{ url_for('static', filename='js/flight_tracking.js', v=asset_version) }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js', v=asset_version) }}"></script>
+    <script src="{{ url_for('static', filename='js/language_handler.js', v=asset_version) }}"></script>
 <!-- Airport Search Modal -->
 <div id="airportSearchModal" class="modal">
     <div class="modal-content">

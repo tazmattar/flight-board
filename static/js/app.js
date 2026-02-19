@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     const AIRPORT_STORAGE_KEY = 'flightboard.airport';
+    const TRACKING_STORAGE_KEY = 'flightboard.tracked_callsign';
+    const TRACKING_SWITCH_COOLDOWN_MS = 8000;
+    const TRACKING_MANUAL_HOLD_MS = 20000;
 
     function normalizeIcao(value) {
         return String(value || '').trim().toUpperCase();
@@ -47,10 +50,85 @@ document.addEventListener('DOMContentLoaded', () => {
         departureList: document.getElementById('departureList'),
         arrivalList: document.getElementById('arrivalList'),
         lastUpdate: document.getElementById('lastUpdate'),
-        fsBtn: document.getElementById('fullscreenBtn')
+        fsBtn: document.getElementById('fullscreenBtn'),
+        trackingChip: document.getElementById('trackingChip'),
+        trackingChipText: document.getElementById('trackingChipText'),
+        trackingChipStop: document.getElementById('trackingChipStop')
     };
 
     const socket = io();
+    let flightTracker = null;
+    let lastTouchTrackToggleAt = 0;
+
+    function renderTrackingChip(state) {
+        if (!elements.trackingChip || !elements.trackingChipText) return;
+
+        if (!state || !state.enabled) {
+            elements.trackingChip.hidden = true;
+            elements.trackingChipText.textContent = '';
+            elements.trackingChip.removeAttribute('title');
+            return;
+        }
+
+        const from = state.from || '----';
+        const to = state.to || '----';
+        const text = `Tracking Flight ${state.callsign} (${from}-${to})`;
+
+        elements.trackingChipText.textContent = text;
+        elements.trackingChip.title = text;
+        elements.trackingChip.hidden = false;
+    }
+
+    function refreshTrackedRowHighlights() {
+        if (!flightTracker) return;
+        document.querySelectorAll('tr[data-callsign]').forEach((row) => {
+            const callsign = row.getAttribute('data-callsign');
+            row.classList.toggle('is-tracked', flightTracker.isTrackedCallsign(callsign));
+        });
+    }
+
+    async function switchAirport(nextAirport, options = {}) {
+        const source = options.source || 'manual';
+        const requested = normalizeIcao(nextAirport);
+        if (requested.length !== 4) return false;
+
+        const oldAirport = currentAirport;
+        const changed = requested !== currentAirport;
+
+        if (changed) {
+            socket.emit('leave_airport', { airport: currentAirport });
+            currentAirport = requested;
+        }
+
+        if (options.ensureInSelect !== false) {
+            const ok = await ensureAirportInSelect(currentAirport);
+            if (!ok && currentAirport !== 'LSZH') {
+                currentAirport = 'LSZH';
+                await ensureAirportInSelect(currentAirport);
+            }
+        }
+
+        if (elements.airportSelect) elements.airportSelect.value = currentAirport;
+        updateTheme(currentAirport);
+        window.updateFooterText(currentAirport, options.country || '');
+
+        if (changed) {
+            socket.emit('join_airport', { airport: currentAirport });
+            elements.departureList.innerHTML = '';
+            elements.arrivalList.innerHTML = '';
+            applyPagination('dep', true);
+            applyPagination('arr', true);
+        }
+
+        persistAirportSelection(currentAirport);
+
+        if (flightTracker) {
+            flightTracker.onAirportChanged(source);
+            refreshTrackedRowHighlights();
+        }
+
+        return oldAirport !== currentAirport;
+    }
 
     // --- SOCKET LISTENER ---
     socket.on('connect', () => {
@@ -62,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Flight update received:', data);
         console.log('Country from data:', data.country); // DEBUG
         rawFlightData = data;
+        if (flightTracker) {
+            flightTracker.processFlightData(data, currentAirport);
+        }
         if (data.airport_name) elements.airportName.textContent = data.airport_name;
         // Update ATC and Weather widgets
         updateAtcWidget(data.controllers);
@@ -72,7 +153,27 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderSection('dep');
         renderSection('arr');
+        refreshTrackedRowHighlights();
     });
+
+    if (window.FlightTracker) {
+        flightTracker = new window.FlightTracker({
+            storageKey: TRACKING_STORAGE_KEY,
+            switchCooldownMs: TRACKING_SWITCH_COOLDOWN_MS,
+            manualHoldMs: TRACKING_MANUAL_HOLD_MS,
+            onSwitchAirport: (icao) => switchAirport(icao, { source: 'tracking' }),
+            onStateChange: (state) => renderTrackingChip(state)
+        });
+        flightTracker.init();
+    }
+
+    if (elements.trackingChipStop) {
+        elements.trackingChipStop.addEventListener('click', () => {
+            if (!flightTracker) return;
+            flightTracker.clearTracking();
+            refreshTrackedRowHighlights();
+        });
+    }
 
     // --- Dynamic Data Sources ---
     const airlineMapping = { 
@@ -352,36 +453,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- AIRPORT SWITCHER ---
     elements.airportSelect.addEventListener('change', (e) => {
-        socket.emit('leave_airport', { airport: currentAirport });
-        currentAirport = normalizeIcao(e.target.value);
-        updateTheme(currentAirport);
-        // Country will be updated when flight_update arrives
-        window.updateFooterText(currentAirport, '');
-        socket.emit('join_airport', { airport: currentAirport });
-        elements.departureList.innerHTML = '';
-        elements.arrivalList.innerHTML = '';
-        applyPagination('dep', true);
-        applyPagination('arr', true);
-        persistAirportSelection(currentAirport);
+        const next = normalizeIcao(e.target.value);
+        switchAirport(next, { source: 'manual' });
     });
 
     // Initial theme and footer setup
     (async () => {
         await loadThemeMap();
-        const initialAirport = currentAirport;
-        const ok = await ensureAirportInSelect(currentAirport);
-        if (!ok && currentAirport !== 'LSZH') {
-            currentAirport = 'LSZH';
-            await ensureAirportInSelect(currentAirport);
-        }
-        if (elements.airportSelect) elements.airportSelect.value = currentAirport;
-        updateTheme(currentAirport);
-        window.updateFooterText(currentAirport, '');
-        persistAirportSelection(currentAirport);
-        if (socket.connected && currentAirport !== initialAirport) {
-            socket.emit('leave_airport', { airport: initialAirport });
-            socket.emit('join_airport', { airport: currentAirport });
-        }
+        await switchAirport(currentAirport, { source: 'init' });
     })();
 
     // --- FULLSCREEN TOGGLE ---
@@ -567,11 +646,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const seenIds = new Set();
 
         flights.forEach(flight => {
-            const rowId = `row-${flight.callsign}`;
+            const safeCallsign = String(flight.callsign || '').trim().toUpperCase();
+            const rowId = `row-${type === 'Departures' ? 'dep' : 'arr'}-${safeCallsign}`;
             seenIds.add(rowId);
             let row = document.getElementById(rowId);
             
-            const prefix = flight.callsign.substring(0, 3).toUpperCase();
+            const prefix = safeCallsign.substring(0, 3).toUpperCase();
             const code = airlineMapping[prefix] || prefix;
             
             // Define cargo/special operators that we have stored locally
@@ -658,6 +738,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Add the row to the DOM first
                 container.appendChild(row);
+            }
+
+            row.setAttribute('data-callsign', safeCallsign);
+            row.setAttribute('data-track-origin', String(flight.origin || ''));
+            row.setAttribute('data-track-destination', String(flight.destination || ''));
+            if (flightTracker) {
+                row.classList.toggle('is-tracked', flightTracker.isTrackedCallsign(safeCallsign));
+                if (!row.dataset.trackingBound) {
+                    row.dataset.trackingBound = '1';
+                    const toggleTrackedFlight = () => {
+                        const callsign = row.getAttribute('data-callsign');
+                        if (!callsign || !flightTracker) return;
+                        const origin = row.getAttribute('data-track-origin') || '';
+                        const destination = row.getAttribute('data-track-destination') || '';
+                        flightTracker.toggleTracking({ callsign, origin, destination });
+                        refreshTrackedRowHighlights();
+                        flightTracker.processFlightData(rawFlightData, currentAirport);
+                    };
+
+                    row.addEventListener('click', () => {
+                        // iOS often fires click after touchend; ignore duplicate click toggles.
+                        if (Date.now() - lastTouchTrackToggleAt < 600) return;
+                        toggleTrackedFlight();
+                    });
+
+                    row.addEventListener('touchend', (event) => {
+                        event.preventDefault();
+                        lastTouchTrackToggleAt = Date.now();
+                        toggleTrackedFlight();
+                    });
+                }
             }
 
             // NOW update the flight data attribute (safe because row is in DOM)
@@ -947,18 +1058,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Switch to the new airport
                     airportSelect.value = icao;
-                    
-                    // Trigger airport switch
-                    socket.emit('leave_airport', { airport: currentAirport });
-                    currentAirport = icao;
-                    updateTheme(currentAirport);
-                    window.updateFooterText(currentAirport, data.country || '');
-                    socket.emit('join_airport', { airport: currentAirport });
-                    persistAirportSelection(currentAirport);
-                    
-                    // Clear the board while loading
-                    elements.departureList.innerHTML = '';
-                    elements.arrivalList.innerHTML = '';
+                    await switchAirport(icao, {
+                        source: 'manual',
+                        country: data.country || '',
+                        ensureInSelect: false
+                    });
                     
                     // Close modal after delay
                     setTimeout(() => {

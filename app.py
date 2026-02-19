@@ -256,7 +256,7 @@ update_flights()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', asset_version=int(time.time()))
 
 @app.route('/admin')
 def admin():

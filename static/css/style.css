@@ -209,6 +209,15 @@ html, body {
     height: var(--row-height);
 }
 
+.flight-table tbody tr {
+    cursor: pointer;
+}
+
+.flight-table tbody tr.is-tracked {
+    outline: 1px solid #ffffff;
+    outline-offset: -1px;
+}
+
 /* 5. TEXT STYLING (Standard Columns) */
 .flap-container { 
     font-weight: 700; 
@@ -460,6 +469,11 @@ html, body {
     .atc-popover {
         width: 200px;
     }
+
+    .tracking-chip {
+        max-width: min(60vw, 460px);
+        font-size: 0.85rem;
+    }
 }
 
 /* Small screens / mobile optimization */
@@ -501,6 +515,12 @@ html, body {
     .atc-popover {
         width: 90vw;
         max-width: 250px;
+    }
+
+    .tracking-chip {
+        max-width: 56vw;
+        font-size: 0.75rem;
+        padding: 5px 8px;
     }
 }
 
@@ -671,6 +691,68 @@ html, body {
     flex-wrap: nowrap;
     white-space: nowrap;
     flex: 0 0 auto;
+}
+
+.tracking-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    border-radius: 0;
+    padding: 0;
+    max-width: min(45vw, 520px);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    line-height: 1.1;
+    font-weight: 700;
+}
+
+.tracking-chip[hidden] {
+    display: none;
+}
+
+.tracking-chip-icon {
+    display: none;
+}
+
+.tracking-chip-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.tracking-chip-stop {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.8;
+}
+
+.tracking-chip-stop:hover {
+    opacity: 1;
+}
+
+body.theme-lsgg .tracking-chip,
+body.theme-lfsb .tracking-chip,
+body.theme-rjtt .tracking-chip,
+body.theme-kjfk .tracking-chip {
+    color: #ffffff !important;
+}
+
+body.theme-lszh .tracking-chip,
+body.theme-default .tracking-chip,
+body.theme-egll .tracking-chip,
+body.theme-egkk .tracking-chip,
+body.theme-eglc .tracking-chip,
+body.theme-egss .tracking-chip,
+body.theme-eham .tracking-chip {
+    color: #000000 !important;
 }
 /* Ensure your widget items have no weird margins */
 .widget-item {
