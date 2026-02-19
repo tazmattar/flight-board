@@ -9,6 +9,9 @@ import os
 import re
 import atexit
 import time
+import uuid
+from threading import Lock
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -24,11 +27,16 @@ client_airports = {}
 
 THEME_MAP_PATH = os.path.join(app.static_folder, 'data', 'theme_map.json')
 STANDS_PATH = os.path.join(app.static_folder, 'stands.json')
+TRAFFIC_STATS_PATH = os.path.join(app.root_path, 'data', 'traffic_stats.json')
 THEME_CSS_PREFIX = '/static/css/themes/'
 ICAO_PATTERN = re.compile(r'^[A-Z]{4}$')
 ADMIN_SESSION_KEY = 'admin_authenticated'
 FAILED_LOGIN_ATTEMPTS = {}
 LOGIN_LOCKOUTS = {}
+TRAFFIC_STATS_LOCK = Lock()
+
+MAX_DAILY_STATS_DAYS = 60
+MAX_TRACKED_VISITORS = 20000
 
 DEFAULT_THEME_MAP = {
     'LSZH': {'css': '/static/css/themes/lszh.css', 'class': 'theme-lszh'},
@@ -43,6 +51,36 @@ DEFAULT_THEME_MAP = {
     'RJTT': {'css': '/static/css/themes/rjtt.css', 'class': 'theme-rjtt'}
 }
 
+
+def _today_utc():
+    return datetime.now(timezone.utc).strftime('%Y-%m-%d')
+
+
+def _new_daily_stats(date_str):
+    return {
+        'date': date_str,
+        'page_views': 0,
+        'unique_visitors': 0,
+        'airport_joins': 0,
+        'path_views': {},
+        'airport_joins_by_icao': {}
+    }
+
+
+def _traffic_default():
+    today = _today_utc()
+    return {
+        'totals': {
+            'page_views': 0,
+            'unique_visitors': 0,
+            'airport_joins': 0
+        },
+        'daily': [_new_daily_stats(today)],
+        'visitor_first_seen': {},
+        'visitor_last_seen': {},
+        'updated_at': int(time.time())
+    }
+
 def _read_json(path, fallback):
     try:
         with open(path, 'r', encoding='utf-8') as f:
@@ -55,6 +93,183 @@ def _write_json(path, payload):
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(payload, f, indent=2, ensure_ascii=True)
         f.write('\n')
+
+
+def _normalize_traffic_stats(raw):
+    if not isinstance(raw, dict):
+        return _traffic_default()
+
+    stats = _traffic_default()
+
+    incoming_totals = raw.get('totals', {})
+    if isinstance(incoming_totals, dict):
+        stats['totals']['page_views'] = int(incoming_totals.get('page_views', 0) or 0)
+        stats['totals']['unique_visitors'] = int(incoming_totals.get('unique_visitors', 0) or 0)
+        stats['totals']['airport_joins'] = int(incoming_totals.get('airport_joins', 0) or 0)
+
+    daily = raw.get('daily', [])
+    cleaned_daily = []
+    if isinstance(daily, list):
+        for item in daily:
+            if not isinstance(item, dict):
+                continue
+            date_str = str(item.get('date', '')).strip()
+            if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date_str):
+                continue
+            cleaned_daily.append({
+                'date': date_str,
+                'page_views': int(item.get('page_views', 0) or 0),
+                'unique_visitors': int(item.get('unique_visitors', 0) or 0),
+                'airport_joins': int(item.get('airport_joins', 0) or 0),
+                'path_views': item.get('path_views', {}) if isinstance(item.get('path_views'), dict) else {},
+                'airport_joins_by_icao': item.get('airport_joins_by_icao', {}) if isinstance(item.get('airport_joins_by_icao'), dict) else {}
+            })
+
+    if cleaned_daily:
+        cleaned_daily.sort(key=lambda x: x['date'])
+        stats['daily'] = cleaned_daily[-MAX_DAILY_STATS_DAYS:]
+
+    first_seen = raw.get('visitor_first_seen', {})
+    last_seen = raw.get('visitor_last_seen', {})
+    if isinstance(first_seen, dict):
+        stats['visitor_first_seen'] = {
+            str(k): str(v)
+            for k, v in first_seen.items()
+            if isinstance(k, str) and isinstance(v, str)
+        }
+    if isinstance(last_seen, dict):
+        stats['visitor_last_seen'] = {
+            str(k): str(v)
+            for k, v in last_seen.items()
+            if isinstance(k, str) and isinstance(v, str)
+        }
+
+    stats['updated_at'] = int(raw.get('updated_at', int(time.time())) or int(time.time()))
+    return stats
+
+
+def _load_traffic_stats():
+    raw = _read_json(TRAFFIC_STATS_PATH, _traffic_default())
+    return _normalize_traffic_stats(raw)
+
+
+def _save_traffic_stats(stats):
+    stats['updated_at'] = int(time.time())
+    _write_json(TRAFFIC_STATS_PATH, stats)
+
+
+def _ensure_today_bucket(stats, today):
+    daily = stats.get('daily', [])
+    if not daily:
+        daily = [_new_daily_stats(today)]
+        stats['daily'] = daily
+        return daily[0]
+
+    last = daily[-1]
+    if last.get('date') == today:
+        return last
+
+    for item in daily:
+        if item.get('date') == today:
+            return item
+
+    daily.append(_new_daily_stats(today))
+    stats['daily'] = daily[-MAX_DAILY_STATS_DAYS:]
+    return stats['daily'][-1]
+
+
+def _prune_visitors(stats, today):
+    last_seen = stats.get('visitor_last_seen', {})
+    first_seen = stats.get('visitor_first_seen', {})
+    if len(last_seen) <= MAX_TRACKED_VISITORS:
+        return
+
+    ordered = sorted(last_seen.items(), key=lambda kv: kv[1], reverse=True)
+    keep = {k for k, _ in ordered[:MAX_TRACKED_VISITORS]}
+    stats['visitor_last_seen'] = {k: v for k, v in last_seen.items() if k in keep}
+    stats['visitor_first_seen'] = {k: v for k, v in first_seen.items() if k in keep}
+
+
+def _record_page_view(path, visitor_id):
+    today = _today_utc()
+    with TRAFFIC_STATS_LOCK:
+        stats = _load_traffic_stats()
+        day = _ensure_today_bucket(stats, today)
+
+        stats['totals']['page_views'] += 1
+        day['page_views'] += 1
+        day['path_views'][path] = int(day['path_views'].get(path, 0)) + 1
+
+        first_seen = stats.get('visitor_first_seen', {})
+        last_seen = stats.get('visitor_last_seen', {})
+        is_new_visitor = visitor_id not in first_seen
+        if is_new_visitor:
+            first_seen[visitor_id] = today
+            stats['totals']['unique_visitors'] += 1
+
+        if last_seen.get(visitor_id) != today:
+            day['unique_visitors'] += 1
+        last_seen[visitor_id] = today
+
+        _prune_visitors(stats, today)
+        _save_traffic_stats(stats)
+
+
+def _record_airport_join(airport):
+    normalized = _normalize_icao(airport)
+    if not normalized:
+        return
+    today = _today_utc()
+    with TRAFFIC_STATS_LOCK:
+        stats = _load_traffic_stats()
+        day = _ensure_today_bucket(stats, today)
+        stats['totals']['airport_joins'] += 1
+        day['airport_joins'] += 1
+        day['airport_joins_by_icao'][normalized] = int(day['airport_joins_by_icao'].get(normalized, 0)) + 1
+        _save_traffic_stats(stats)
+
+
+def _get_traffic_summary():
+    with TRAFFIC_STATS_LOCK:
+        stats = _load_traffic_stats()
+
+    today = _today_utc()
+    day = None
+    for item in stats.get('daily', []):
+        if item.get('date') == today:
+            day = item
+            break
+    if day is None:
+        day = _new_daily_stats(today)
+
+    last_7_days = sorted(stats.get('daily', []), key=lambda x: x.get('date', ''))[-7:]
+    recent_airports = {}
+    for item in last_7_days:
+        for icao, count in item.get('airport_joins_by_icao', {}).items():
+            recent_airports[icao] = recent_airports.get(icao, 0) + int(count or 0)
+    top_airports = sorted(recent_airports.items(), key=lambda kv: kv[1], reverse=True)[:10]
+
+    return {
+        'totals': stats.get('totals', {}),
+        'today': {
+            'date': today,
+            'page_views': int(day.get('page_views', 0) or 0),
+            'unique_visitors': int(day.get('unique_visitors', 0) or 0),
+            'airport_joins': int(day.get('airport_joins', 0) or 0),
+            'top_paths': sorted(day.get('path_views', {}).items(), key=lambda kv: kv[1], reverse=True)[:10]
+        },
+        'last_7_days': [
+            {
+                'date': item.get('date'),
+                'page_views': int(item.get('page_views', 0) or 0),
+                'unique_visitors': int(item.get('unique_visitors', 0) or 0),
+                'airport_joins': int(item.get('airport_joins', 0) or 0)
+            }
+            for item in last_7_days
+        ],
+        'top_airports_7d': top_airports,
+        'updated_at': int(stats.get('updated_at', int(time.time())) or int(time.time()))
+    }
 
 def _normalize_icao(code):
     code = str(code or '').strip().upper()
@@ -149,12 +364,41 @@ def _theme_options():
 def _is_admin_authenticated():
     return bool(session.get(ADMIN_SESSION_KEY))
 
+
+def _should_track_page_request():
+    if request.method != 'GET':
+        return False
+    path = request.path or ''
+    if not path:
+        return False
+    if path.startswith('/static/'):
+        return False
+    if path.startswith('/socket.io'):
+        return False
+    if path.startswith('/api/'):
+        return False
+    return True
+
+
+def _get_or_create_visitor_id():
+    visitor_id = str(session.get('visitor_id', '')).strip()
+    if not visitor_id:
+        visitor_id = uuid.uuid4().hex
+        session['visitor_id'] = visitor_id
+    return visitor_id
+
 def _get_client_ip():
     xff = request.headers.get('X-Forwarded-For', '')
     if xff:
         # First hop is the original client.
         return xff.split(',')[0].strip()
     return request.remote_addr or 'unknown'
+
+
+def _is_tracking_excluded_ip():
+    client_ip = _get_client_ip()
+    excluded = app.config.get('TRACKING_EXCLUDE_IPS', set())
+    return client_ip in excluded
 
 def _prune_failed_attempts(key, now_ts):
     window_seconds = int(app.config.get('ADMIN_LOGIN_WINDOW_SECONDS', 300))
@@ -213,6 +457,17 @@ def _protect_admin_routes():
 
     next_url = request.full_path if request.query_string else request.path
     return redirect(url_for('admin_login', next=next_url))
+
+
+@app.before_request
+def _track_page_requests():
+    if not _should_track_page_request():
+        return None
+    if _is_tracking_excluded_ip():
+        return None
+    visitor_id = _get_or_create_visitor_id()
+    _record_page_view(request.path, visitor_id)
+    return None
 
 def _increment_airport(airport):
     active_airport_counts[airport] = active_airport_counts.get(airport, 0) + 1
@@ -383,6 +638,11 @@ def admin_stands(icao):
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
 
+
+@app.route('/api/admin/traffic_stats')
+def admin_traffic_stats():
+    return jsonify(_get_traffic_summary())
+
 @app.route('/api/search_airport', methods=['POST'])
 def search_airport():
     """Search for a dynamic airport by ICAO code and fetch its data"""
@@ -430,6 +690,8 @@ def handle_join(data):
     join_room(airport)
     client_airports[request.sid] = airport
     _increment_airport(airport)
+    if not _is_tracking_excluded_ip():
+        _record_airport_join(airport)
     print(f"Client {request.sid} joined {airport}")
     
     # If it's a dynamic airport not in current_data, fetch it

@@ -52,6 +52,58 @@
       <textarea id="standsEditor" spellcheck="false" placeholder="[]"></textarea>
     </section>
 
+    <section class="panel">
+      <h2>Traffic Stats</h2>
+      <p>Usage metrics collected from board page visits and airport joins.</p>
+      <div class="toolbar">
+        <button id="refreshTrafficBtn" type="button">Refresh Traffic Stats</button>
+      </div>
+      <div class="traffic-grid">
+        <div class="traffic-card">
+          <h3>Total Page Views</h3>
+          <div id="trafficTotalPageViews" class="traffic-value">0</div>
+        </div>
+        <div class="traffic-card">
+          <h3>Total Unique Visitors</h3>
+          <div id="trafficTotalUniqueVisitors" class="traffic-value">0</div>
+        </div>
+        <div class="traffic-card">
+          <h3>Today Page Views</h3>
+          <div id="trafficTodayPageViews" class="traffic-value">0</div>
+        </div>
+        <div class="traffic-card">
+          <h3>Today Unique Visitors</h3>
+          <div id="trafficTodayUniqueVisitors" class="traffic-value">0</div>
+        </div>
+      </div>
+      <div class="traffic-panels">
+        <div>
+          <h3>Top Paths Today</h3>
+          <ul id="trafficTopPaths" class="traffic-list"></ul>
+        </div>
+        <div>
+          <h3>Top Airports (7 Days)</h3>
+          <ul id="trafficTopAirports" class="traffic-list"></ul>
+        </div>
+      </div>
+      <div>
+        <h3>Last 7 Days</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date (UTC)</th>
+                <th>Page Views</th>
+                <th>Unique Visitors</th>
+                <th>Airport Joins</th>
+              </tr>
+            </thead>
+            <tbody id="trafficSevenDayBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <div id="statusBar" class="status">Ready.</div>
   </main>
 

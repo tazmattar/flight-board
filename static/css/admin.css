@@ -160,3 +160,46 @@ td select {
   color: var(--muted);
   font-size: 0.9rem;
 }
+
+.traffic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.traffic-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  background: #0f2640;
+}
+
+.traffic-card h3 {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
+.traffic-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.traffic-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.traffic-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text);
+}
+
+.traffic-list li {
+  margin: 4px 0;
+}

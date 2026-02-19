@@ -6,6 +6,14 @@
   const loadStandsBtn = document.getElementById('loadStandsBtn');
   const saveStandsBtn = document.getElementById('saveStandsBtn');
   const standsEditor = document.getElementById('standsEditor');
+  const refreshTrafficBtn = document.getElementById('refreshTrafficBtn');
+  const trafficTotalPageViews = document.getElementById('trafficTotalPageViews');
+  const trafficTotalUniqueVisitors = document.getElementById('trafficTotalUniqueVisitors');
+  const trafficTodayPageViews = document.getElementById('trafficTodayPageViews');
+  const trafficTodayUniqueVisitors = document.getElementById('trafficTodayUniqueVisitors');
+  const trafficTopPaths = document.getElementById('trafficTopPaths');
+  const trafficTopAirports = document.getElementById('trafficTopAirports');
+  const trafficSevenDayBody = document.getElementById('trafficSevenDayBody');
   const statusBar = document.getElementById('statusBar');
 
   let themeOptions = [];
@@ -155,15 +163,83 @@
     setStatus('Saved ' + data.stands_count + ' stands for ' + icao + '.', 'ok');
   }
 
+  function formatNumber(value) {
+    return Number(value || 0).toLocaleString();
+  }
+
+  function renderTopList(listEl, items, emptyText, formatter) {
+    listEl.innerHTML = '';
+    if (!items || items.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = emptyText;
+      listEl.appendChild(li);
+      return;
+    }
+
+    items.forEach(entry => {
+      const li = document.createElement('li');
+      li.textContent = formatter(entry);
+      listEl.appendChild(li);
+    });
+  }
+
+  function renderSevenDayTable(days) {
+    trafficSevenDayBody.innerHTML = '';
+    if (!days || days.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="4">No data yet.</td>';
+      trafficSevenDayBody.appendChild(tr);
+      return;
+    }
+
+    days.forEach(day => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = [
+        '<td>' + day.date + '</td>',
+        '<td>' + formatNumber(day.page_views) + '</td>',
+        '<td>' + formatNumber(day.unique_visitors) + '</td>',
+        '<td>' + formatNumber(day.airport_joins) + '</td>'
+      ].join('');
+      trafficSevenDayBody.appendChild(tr);
+    });
+  }
+
+  async function loadTrafficStats() {
+    const response = await fetch('/api/admin/traffic_stats');
+    if (!response.ok) throw new Error('Failed to load traffic stats');
+    const data = await response.json();
+
+    trafficTotalPageViews.textContent = formatNumber(data.totals && data.totals.page_views);
+    trafficTotalUniqueVisitors.textContent = formatNumber(data.totals && data.totals.unique_visitors);
+    trafficTodayPageViews.textContent = formatNumber(data.today && data.today.page_views);
+    trafficTodayUniqueVisitors.textContent = formatNumber(data.today && data.today.unique_visitors);
+
+    renderTopList(
+      trafficTopPaths,
+      data.today && data.today.top_paths,
+      'No path views tracked yet.',
+      entry => entry[0] + ': ' + formatNumber(entry[1])
+    );
+    renderTopList(
+      trafficTopAirports,
+      data.top_airports_7d,
+      'No airport joins tracked yet.',
+      entry => entry[0] + ': ' + formatNumber(entry[1])
+    );
+    renderSevenDayTable(data.last_7_days);
+  }
+
   addThemeRowBtn.addEventListener('click', () => createThemeRow('', { css: '/static/css/themes/default.css', class: '' }));
   saveThemesBtn.addEventListener('click', () => saveThemeMap().catch(err => setStatus(err.message, 'error')));
   loadStandsBtn.addEventListener('click', () => loadStands().catch(err => setStatus(err.message, 'error')));
   saveStandsBtn.addEventListener('click', () => saveStands().catch(err => setStatus(err.message, 'error')));
+  refreshTrafficBtn.addEventListener('click', () => loadTrafficStats().then(() => setStatus('Traffic stats refreshed.', 'ok')).catch(err => setStatus(err.message, 'error')));
 
   (async function init() {
     try {
       await loadThemeOptions();
       await loadThemeMap();
+      await loadTrafficStats();
       setStatus('Admin ready.', 'ok');
     } catch (e) {
       setStatus(e.message, 'error');
