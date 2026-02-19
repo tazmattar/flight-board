@@ -55,10 +55,6 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 
 ## Screenshots
 
-### Track Flight Mode (New)
-![Track Flight Mode](screenshots/track-flight.gif)
-If the GIF does not render yet, add your recording as `screenshots/track-flight.gif`.
-
 ### Zurich (LSZH) - Classic Style
 ![Zurich Board](screenshots/LSZH.png)
 
