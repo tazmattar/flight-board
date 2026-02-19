@@ -9,6 +9,7 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 * **Universal Airport Support:** Instantly load *any* airport on the VATSIM network by searching for its ICAO code in the UI.
 * **Direct Link Loading:** Open the board directly to an airport using `?icao=XXXX` (or `?airport=XXXX`) in the URL.
 * **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLL, EGKK, and KJFK.
+* **Track Flight Mode:** Tap/click any visible flight row to track exactly one callsign and follow it with automatic airport switching.
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 60 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
 * **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display.
@@ -16,6 +17,16 @@ It is optimised for use on dedicated display monitors in both portrait and lands
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
     * **Portrait Mode:** Automatically stacks tables vertically for optimal use on vertical monitors.
 * **Auto-Pagination Engine:** Smart pagination detects overflow and splits flights into pages with indicators, automatically cycling through pages when needed.
+
+### Track Flight Mode
+* **Start tracking:** Select any visible departure/arrival row.
+* **One active flight:** Selecting a new row replaces the previous tracked callsign.
+* **Stop tracking:** Select the same row again, or use the `x` action in the header tracking label.
+* **Header indicator:** Shows tracked flight in the format `Tracking Flight BAW123 (EGLL-KJFK)`.
+* **Persistence:** The tracked callsign is saved in local storage and restored after refresh/reconnect.
+* **Auto-switch rule:** The board switches only after the tracked flight reaches a departure/airborne phase (`Departing`, `En Route`, and later statuses).
+* **Pre-departure hold:** It does **not** switch while the flight is at `Check-in`, `Boarding`, `Pushback`, or `Taxiing`.
+* **Switch safety:** Cooldown and leg guards prevent rapid or looping airport switches.
 
 ### Intelligent Logic
 * **UKCP Stand Integration:** Direct integration with the VATSIM UK Controller Panel API to display real-time stand assignments for UK airports (EGLL, EGKK, etc.).
@@ -43,6 +54,10 @@ It is optimised for use on dedicated display monitors in both portrait and lands
     * **Fallback System:** Prioritizes local files for special ops (FedEx, Rega), then falls back to Kiwi.com and Kayak APIs for commercial carriers.
 
 ## Screenshots
+
+### Track Flight Mode (New)
+![Track Flight Mode](screenshots/track-flight.gif)
+If the GIF does not render yet, add your recording as `screenshots/track-flight.gif`.
 
 ### Zurich (LSZH) - Classic Style
 ![Zurich Board](screenshots/LSZH.png)
