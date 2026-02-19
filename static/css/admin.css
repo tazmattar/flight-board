@@ -1,0 +1,162 @@
+:root {
+  --bg: #0f1d2e;
+  --panel: #132742;
+  --panel-2: #183457;
+  --text: #eef5ff;
+  --muted: #a6b9d3;
+  --accent: #f5b700;
+  --danger: #ff5d73;
+  --ok: #21c78d;
+  --line: #2c466b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top left, #1d3b62, var(--bg));
+  min-height: 100vh;
+}
+
+.admin-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1, h2 { margin: 0 0 8px; }
+header p, .panel p { color: var(--muted); margin: 0 0 12px; }
+
+.back-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.admin-header-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.panel {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.toolbar,
+.stand-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+button {
+  background: #1f446f;
+  color: var(--text);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+button:hover { background: #2a578a; }
+
+input,
+select {
+  background: #0f2640;
+  color: var(--text);
+  padding: 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  padding: 8px;
+  white-space: nowrap;
+}
+
+td input,
+td select {
+  width: 100%;
+  min-width: 180px;
+}
+
+.row-remove {
+  background: #5a2330;
+  border-color: #7a2a3a;
+}
+
+#standsEditor {
+  width: 100%;
+  min-height: 300px;
+  background: #0a1e35;
+  color: #d8ebff;
+  padding: 12px;
+  font-family: "JetBrains Mono", Consolas, monospace;
+}
+
+.status {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #12233a;
+  color: var(--muted);
+}
+
+.status.ok {
+  color: var(--ok);
+  border-color: #1f5f50;
+}
+
+.status.error {
+  color: var(--danger);
+  border-color: #6e2a34;
+}
+
+.login-shell {
+  max-width: 520px;
+  padding-top: 60px;
+}
+
+.login-panel h1 {
+  margin-bottom: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.login-form label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}

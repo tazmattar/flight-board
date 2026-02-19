@@ -108,6 +108,32 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 
 ## Configuration
 
+### Admin Utility (Protected)
+
+The project includes an admin utility for managing:
+- theme mapping (`static/data/theme_map.json`)
+- stand data (`static/stands.json`)
+
+Access is intentionally **not linked in the main UI**. Open it directly at:
+- `http://localhost:5000/admin`
+
+Authentication is required for:
+- `/admin`
+- `/api/admin/*`
+
+Configure credentials and lockout policy in `.env`:
+
+```env
+SECRET_KEY=replace-with-a-long-random-secret
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=replace-with-a-strong-password
+ADMIN_MAX_LOGIN_ATTEMPTS=5
+ADMIN_LOGIN_WINDOW_SECONDS=300
+ADMIN_LOCKOUT_SECONDS=900
+```
+
+If login failures exceed the configured threshold within the time window, access is temporarily locked and returns HTTP `429`.
+
 ### Adding Logos Manually
 To ensure cargo or special operators (e.g., FedEx, Rega) have logos:
 1.  Save the logo as a PNG file (e.g., `FX.png` for FedEx).

@@ -1,0 +1,42 @@
+{
+  "EGLC": {
+    "css": "/static/css/themes/eglc.css",
+    "class": "theme-eglc"
+  },
+  "EGKK": {
+    "css": "/static/css/themes/egkk.css",
+    "class": "theme-egkk"
+  },
+  "EGLL": {
+    "css": "/static/css/themes/egll.css",
+    "class": "theme-egll"
+  },
+  "EGSS": {
+    "css": "/static/css/themes/egss.css",
+    "class": "theme-egss"
+  },
+  "EHAM": {
+    "css": "/static/css/themes/eham.css",
+    "class": "theme-eham"
+  },
+  "KJFK": {
+    "css": "/static/css/themes/kjfk.css",
+    "class": "theme-kjfk"
+  },
+  "LFSB": {
+    "css": "/static/css/themes/lfsb.css",
+    "class": "theme-lfsb"
+  },
+  "LSGG": {
+    "css": "/static/css/themes/lsgg.css",
+    "class": "theme-lsgg"
+  },
+  "LSZH": {
+    "css": "/static/css/themes/lszh.css",
+    "class": "theme-lszh"
+  },
+  "RJTT": {
+    "css": "/static/css/themes/rjtt.css",
+    "class": "theme-rjtt"
+  }
+}

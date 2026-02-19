@@ -31,3 +31,6 @@ Thumbs.db
 # Local reference data pending licensing sign-off
 scandi_stand_info/
 static/scandinavian_stands.json
+
+# Local planning docs
+ROADMAP.md

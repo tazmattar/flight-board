@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+  <main class="admin-shell login-shell">
+    <section class="panel login-panel">
+      <h1>Admin Login</h1>
+      <p>Sign in to access the flight board admin utility.</p>
+      {% if error %}
+      <div class="status error">{{ error }}</div>
+      {% endif %}
+      <form method="post" class="login-form">
+        {% if request.args.get('next') %}
+        <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+        {% endif %}
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" required autocomplete="username">
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password">
+
+        <button type="submit">Login</button>
+      </form>
+      <a class="back-link" href="/">Back to Board</a>
+    </section>
+  </main>
+</body>
+</html>

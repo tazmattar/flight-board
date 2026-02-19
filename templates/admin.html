@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Board Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+  <main class="admin-shell">
+    <header>
+      <h1>Flight Board Admin</h1>
+      <p>Manage theme mapping and stand data from the browser.</p>
+      <div class="admin-header-links">
+        <a class="back-link" href="/">Back to Board</a>
+        <form method="post" action="/admin/logout">
+          <button type="submit" class="row-remove">Logout</button>
+        </form>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Theme Mapping</h2>
+      <p>Map an ICAO code to a CSS theme file and body class.</p>
+      <div class="toolbar">
+        <button id="addThemeRowBtn" type="button">Add Airport Theme</button>
+        <button id="saveThemesBtn" type="button">Save Theme Map</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ICAO</th>
+              <th>Theme CSS</th>
+              <th>Body Class</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="themeTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Stand Data</h2>
+      <p>Load/edit one airport's stand array as JSON.</p>
+      <div class="stand-controls">
+        <input id="standsIcaoInput" type="text" maxlength="4" placeholder="ICAO (e.g. EHAM)">
+        <button id="loadStandsBtn" type="button">Load</button>
+        <button id="saveStandsBtn" type="button">Save</button>
+      </div>
+      <textarea id="standsEditor" spellcheck="false" placeholder="[]"></textarea>
+    </section>
+
+    <div id="statusBar" class="status">Ready.</div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

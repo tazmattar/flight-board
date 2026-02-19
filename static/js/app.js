@@ -83,6 +83,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const airportMapping = {}; 
     const airportJapaneseMapping = {};
     const euMembers = new Set();
+    const defaultThemeMap = {
+        LSZH: { css: '/static/css/themes/lszh.css', class: 'theme-lszh' },
+        LSGG: { css: '/static/css/themes/lsgg.css', class: 'theme-lsgg' },
+        LFSB: { css: '/static/css/themes/lfsb.css', class: 'theme-lfsb' },
+        EGLL: { css: '/static/css/themes/egll.css', class: 'theme-egll' },
+        EGLC: { css: '/static/css/themes/eglc.css', class: 'theme-eglc' },
+        EGKK: { css: '/static/css/themes/egkk.css', class: 'theme-egkk' },
+        EGSS: { css: '/static/css/themes/egss.css', class: 'theme-egss' },
+        EHAM: { css: '/static/css/themes/eham.css', class: 'theme-eham' },
+        KJFK: { css: '/static/css/themes/kjfk.css', class: 'theme-kjfk' },
+        RJTT: { css: '/static/css/themes/rjtt.css', class: 'theme-rjtt' }
+    };
+    let themeMap = { ...defaultThemeMap };
+
+    async function loadThemeMap() {
+        try {
+            const response = await fetch('/api/theme_map');
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data && typeof data === 'object') {
+                themeMap = data;
+            }
+        } catch (e) {
+            console.warn('Theme map API unavailable, using defaults.', e);
+        }
+    }
 
     async function loadDatabases() {
         // This is the missing block that fixes your logos
@@ -166,57 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDatabases();
     
     function updateTheme(airportCode) {
-        // Remove all existing theme classes
-        document.body.classList.remove('theme-lszh', 'theme-lsgg', 'theme-lfsb', 'theme-egll','theme-eglc', 'theme-kjfk', 'theme-default', 'theme-egkk', 'theme-egss', 'theme-eham', 'theme-rjtt');
-        
-        // Theme mapping for configured airports
-        const themeMap = {
-            'LSZH': {
-                css: '/static/css/themes/lszh.css',
-                class: 'theme-lszh'
-            },
-            'LSGG': {
-                css: '/static/css/themes/lsgg.css',
-                class: 'theme-lsgg'
-            },
-            'LFSB': {
-                css: '/static/css/themes/lfsb.css',
-                class: 'theme-lfsb'
-            },
-            'EGLL': {
-                css: '/static/css/themes/egll.css',
-                class: 'theme-egll'
-            },
-            'EGLC': {
-                css: '/static/css/themes/eglc.css',
-                class: 'theme-eglc'
-            },
-            'EGKK': {
-                css: '/static/css/themes/egkk.css',
-                class: 'theme-egkk'
-            },
-            'EGSS': {
-                css: '/static/css/themes/egss.css',
-                class: 'theme-egss'
-            },
-            'EHAM': {
-                css: '/static/css/themes/eham.css',
-                class: 'theme-eham'
-            },
-            'KJFK': {
-                css: '/static/css/themes/kjfk.css',
-                class: 'theme-kjfk'
-            },
-            'RJTT': {
-                css: '/static/css/themes/rjtt.css',
-                class: 'theme-rjtt'
-            }
-        };
+        Array.from(document.body.classList)
+            .filter(cls => cls.indexOf('theme-') === 0)
+            .forEach(cls => document.body.classList.remove(cls));
         
         const themeLink = document.getElementById('airportTheme');
         
         // Check if this is a configured airport with a specific theme
-        if (themeMap[airportCode]) {
+        if (themeMap[airportCode] && themeMap[airportCode].css) {
             const theme = themeMap[airportCode];
             themeLink.href = theme.css;
             if (theme.class) {
@@ -384,6 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial theme and footer setup
     (async () => {
+        await loadThemeMap();
         const initialAirport = currentAirport;
         const ok = await ensureAirportInSelect(currentAirport);
         if (!ok && currentAirport !== 'LSZH') {
