@@ -4,7 +4,7 @@
 
 ### Git State
 - Branch: `main`, remote in sync
-- Latest commit: `0d308a7`
+- Latest commit: `d4389cd`
 
 ---
 
@@ -74,6 +74,29 @@ geofencing** driven purely by each stand's `radius` field in `static/stands.json
 **Important pattern**: any airport with stands in `stands.json` must also have an
 entry in `configured_airports` with `has_stands: True`, otherwise geofencing is
 silently skipped. The admin UI hot-reloads stands on save (no restart needed).
+
+---
+
+### 5. Tracking row outline fixed for light themes; airport join stats fairness (commit d4389cd)
+
+`static/css/style.css`, `static/css/themes/eham.css`, `static/js/app.js`, `app.py`
+
+**Fix 1 — Tracked row outline invisible on white backgrounds**
+- Was: `outline: 1px solid #ffffff` hardcoded — invisible on EHAM's white board
+- Fixed: changed to `var(--tracking-outline, #ffffff)` in `style.css`
+- EHAM theme sets `--tracking-outline: #888888` (grey) in its root block
+- Any future light-background theme just needs to set the same variable
+
+**Fix 2 — LSZH airport join stats inflated by default page loads**
+- Was: every new visitor defaulting to LSZH triggered a `join_airport` socket
+  event → recorded as a tally, giving LSZH an unfair advantage in stats
+- Fixed: `getInitialAirport()` now returns `{ airport, explicit }`. If the
+  airport came from a URL param or localStorage it's `explicit: true`; the
+  hardcoded LSZH fallback is `explicit: false`
+- Server only calls `_record_airport_join()` when `explicit=True`
+- After first connect, `initialAirportExplicit` flips to `true` so reconnects
+  (e.g. mobile resume) are counted as returning-visitor intent
+- Explicit dropdown switches always counted (unchanged)
 
 ---
 
