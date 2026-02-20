@@ -9,6 +9,13 @@
   const standsJsonToggle   = document.getElementById('standsJsonToggle');
   const standsJsonEditor   = document.getElementById('standsJsonEditor');
   const applyJsonBtn       = document.getElementById('applyJsonBtn');
+  const importCsvBtn       = document.getElementById('importCsvBtn');
+  const csvFileInput       = document.getElementById('csvFileInput');
+  const importBanner       = document.getElementById('importBanner');
+  const importSummary      = document.getElementById('importSummary');
+  const importSkipBtn      = document.getElementById('importSkipBtn');
+  const importOverwriteBtn = document.getElementById('importOverwriteBtn');
+  const importCancelBtn    = document.getElementById('importCancelBtn');
 
   const themeTableBody     = document.getElementById('themeTableBody');
   const addThemeRowBtn     = document.getElementById('addThemeRowBtn');
@@ -209,6 +216,148 @@
     standsTableBody.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
   saveStandsBtn.addEventListener('click',  () => saveStands().catch(e => setStatus(e.message, 'error')));
+
+  // ── CSV import ───────────────────────────────────────────────────────────
+  let _pendingImport = null; // { newStands, duplicateNames }
+
+  function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        inQuotes = !inQuotes;
+      } else if (ch === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  }
+
+  function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim() && !l.startsWith('#'));
+    if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row.');
+
+    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+    const col = name => headers.indexOf(name);
+
+    const nameIdx   = col('name');
+    const latIdx    = col('lat');
+    const lonIdx    = col('lon');
+    const radiusIdx = col('radius');
+    const typeIdx   = col('type');
+
+    if (nameIdx === -1 || latIdx === -1 || lonIdx === -1) {
+      throw new Error('CSV must include columns: name, lat, lon (radius and type are optional).');
+    }
+
+    const stands = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVLine(lines[i]);
+      const name = cols[nameIdx] || '';
+      const lat  = parseFloat(cols[latIdx]);
+      const lon  = parseFloat(cols[lonIdx]);
+      if (!name || isNaN(lat) || isNaN(lon)) continue;
+
+      const radius = radiusIdx !== -1 ? (parseFloat(cols[radiusIdx]) || 40) : 40;
+      const type   = typeIdx   !== -1 ? (cols[typeIdx] || 'contact')        : 'contact';
+      stands.push({ name, lat, lon, radius, type });
+    }
+
+    if (stands.length === 0) throw new Error('No valid stands found in CSV.');
+    return stands;
+  }
+
+  function getExistingNames() {
+    return new Set(
+      Array.from(standsTableBody.querySelectorAll('tr')).map(row => {
+        const input = row.querySelector('input');
+        return input ? input.value.trim().toLowerCase() : '';
+      }).filter(Boolean)
+    );
+  }
+
+  function applyImport(overwrite) {
+    if (!_pendingImport) return;
+    const { newStands, duplicateNames } = _pendingImport;
+
+    if (overwrite && duplicateNames.size > 0) {
+      // Remove existing rows whose names are being overwritten
+      Array.from(standsTableBody.querySelectorAll('tr')).forEach(row => {
+        const input = row.querySelector('input');
+        if (input && duplicateNames.has(input.value.trim().toLowerCase())) row.remove();
+      });
+      newStands.forEach(s => standsTableBody.appendChild(createStandRow(s)));
+    } else {
+      // Skip duplicates — only add stands whose name isn't already present
+      newStands
+        .filter(s => !duplicateNames.has(s.name.toLowerCase()))
+        .forEach(s => standsTableBody.appendChild(createStandRow(s)));
+    }
+
+    updateStandsCount();
+    importBanner.hidden = true;
+    _pendingImport = null;
+    csvFileInput.value = '';
+
+    const added = overwrite ? newStands.length : newStands.length - duplicateNames.size;
+    setStatus(`Imported ${added} stand(s). Review the table then click Save Stands.`, 'ok');
+  }
+
+  function hideBanner() {
+    importBanner.hidden = true;
+    _pendingImport = null;
+    csvFileInput.value = '';
+  }
+
+  importCsvBtn.addEventListener('click', () => csvFileInput.click());
+
+  csvFileInput.addEventListener('change', () => {
+    const file = csvFileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const stands = parseCSV(e.target.result);
+        const existingNames = getExistingNames();
+        const duplicateNames = new Set(
+          stands.map(s => s.name.toLowerCase()).filter(n => existingNames.has(n))
+        );
+
+        if (duplicateNames.size === 0) {
+          // No conflicts — apply immediately
+          stands.forEach(s => standsTableBody.appendChild(createStandRow(s)));
+          updateStandsCount();
+          csvFileInput.value = '';
+          setStatus(`Imported ${stands.length} stand(s) with no duplicates. Click Save Stands to apply.`, 'ok');
+          return;
+        }
+
+        // Show banner for conflict resolution
+        _pendingImport = { newStands: stands, duplicateNames };
+        const dupList = [...duplicateNames].slice(0, 10).join(', ');
+        const extra   = duplicateNames.size > 10 ? ` and ${duplicateNames.size - 10} more` : '';
+        importSummary.textContent =
+          `Parsed ${stands.length} stand(s) — ${duplicateNames.size} duplicate name(s) found: ${dupList}${extra}.`;
+        importBanner.hidden = false;
+        importBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (err) {
+        setStatus('CSV error: ' + err.message, 'error');
+        csvFileInput.value = '';
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  importSkipBtn.addEventListener('click',      () => applyImport(false));
+  importOverwriteBtn.addEventListener('click', () => applyImport(true));
+  importCancelBtn.addEventListener('click',    hideBanner);
 
   // ── Themes ────────────────────────────────────────────────────────────────
   function createThemeRow(icao, config) {

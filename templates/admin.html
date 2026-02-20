@@ -33,9 +33,20 @@
         <input id="standsIcaoInput" type="text" maxlength="4" placeholder="ICAO (e.g. EHAM)">
         <button id="loadStandsBtn" type="button">Load Stands</button>
         <button id="addStandRowBtn" type="button">Add Stand</button>
+        <button id="importCsvBtn" type="button">Import CSV</button>
+        <input id="csvFileInput" type="file" accept=".csv,text/csv" hidden>
         <button id="saveStandsBtn" type="button" class="btn-primary">Save Stands</button>
         <span id="standsCountLabel" class="stands-count"></span>
       </div>
+      <div id="importBanner" class="import-banner" hidden>
+        <span id="importSummary"></span>
+        <div class="import-banner-actions">
+          <button id="importSkipBtn" type="button">Skip Duplicates</button>
+          <button id="importOverwriteBtn" type="button">Overwrite Duplicates</button>
+          <button id="importCancelBtn" type="button" class="btn-danger">Cancel</button>
+        </div>
+      </div>
+      <p class="import-hint">CSV format: <code>name,lat,lon,radius,type</code> — header row required; radius and type are optional.</p>
       <div class="table-wrap">
         <table id="standsTable">
           <colgroup>

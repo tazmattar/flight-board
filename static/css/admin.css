@@ -200,6 +200,43 @@ td select {
   min-width: 0;
 }
 
+/* ── CSV import banner ── */
+.import-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #221a06;
+  border: 1px solid #7a5a10;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.import-banner[hidden] { display: none; }
+
+.import-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.import-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0 0 10px;
+}
+
+.import-hint code {
+  background: #0a1e35;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", Consolas, monospace;
+}
+
 /* ── Raw JSON toggle ── */
 .json-toggle {
   margin-top: 16px;
