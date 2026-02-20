@@ -110,3 +110,9 @@ body.theme-eham .col-status[data-status="CLOSED"] .flap-container {
     color: #c00000 !important;
     font-weight: 700;
 }
+
+body.theme-eham .col-status[data-status="Boarding"] .flap-container {
+    background-color: transparent;
+    color: var(--schiphol-green) !important;
+    font-weight: 700;
+}
