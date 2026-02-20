@@ -21,44 +21,95 @@ body {
 }
 
 .admin-shell {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
+  margin: 0;
+  padding: 24px 32px;
 }
 
-h1, h2 { margin: 0 0 8px; }
-header p, .panel p { color: var(--muted); margin: 0 0 12px; }
+h1, h2, h3 { margin: 0 0 8px; }
 
-.back-link {
-  display: inline-block;
-  margin-top: 8px;
-  color: var(--accent);
-  text-decoration: none;
+.panel-desc {
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+
+/* ── Header ── */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .admin-header-links {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 8px;
 }
 
+.back-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 0;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 10px 24px;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: -2px;
+  transition: color 0.15s;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+  background: transparent;
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Panels ── */
 .panel {
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 16px;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 20px;
 }
 
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Toolbar / Controls ── */
 .toolbar,
 .stand-controls {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
+.stands-count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ── Buttons ── */
 button,
 input,
 select,
@@ -71,12 +122,33 @@ textarea {
 button {
   background: #1f446f;
   color: var(--text);
-  padding: 8px 12px;
+  padding: 8px 14px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 button:hover { background: #2a578a; }
 
+.btn-primary {
+  background: #1a5e42;
+  border-color: #1f7352;
+}
+.btn-primary:hover { background: #1f7352; }
+
+.btn-danger {
+  background: #5a2330;
+  border-color: #7a2a3a;
+}
+.btn-danger:hover { background: #6d2b38; }
+
+.row-remove {
+  background: #5a2330;
+  border-color: #7a2a3a;
+  padding: 6px 10px;
+}
+.row-remove:hover { background: #6d2b38; }
+
+/* ── Form inputs ── */
 input,
 select {
   background: #0f2640;
@@ -84,6 +156,7 @@ select {
   padding: 8px;
 }
 
+/* ── Tables ── */
 .table-wrap {
   overflow-x: auto;
 }
@@ -97,57 +170,95 @@ th,
 td {
   border-bottom: 1px solid var(--line);
   text-align: left;
-  padding: 8px;
+  padding: 7px 8px;
   white-space: nowrap;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 td input,
 td select {
   width: 100%;
-  min-width: 180px;
+  min-width: 160px;
 }
 
-.row-remove {
-  background: #5a2330;
-  border-color: #7a2a3a;
+/* Stands table: tighter column widths */
+#standsTable .col-name  { width: 100px; }
+#standsTable .col-coord { width: 135px; }
+#standsTable .col-radius { width: 100px; }
+#standsTable .col-type  { width: 115px; }
+#standsTable .col-action { width: 90px; }
+
+#standsTable td input,
+#standsTable td select {
+  min-width: 0;
 }
 
-#standsEditor {
-  width: 100%;
-  min-height: 300px;
+/* ── Raw JSON toggle ── */
+.json-toggle {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.json-toggle summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+  user-select: none;
+  background: #0f2640;
+}
+
+.json-toggle summary:hover { color: var(--text); }
+
+.json-toggle-inner {
+  padding: 12px;
   background: #0a1e35;
+}
+
+#standsJsonEditor {
+  width: 100%;
+  min-height: 220px;
+  background: #081828;
   color: #d8ebff;
   padding: 12px;
   font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  border-color: var(--line);
+  border-radius: 6px;
+  resize: vertical;
 }
 
+/* ── Status bar ── */
 .status {
   margin-top: 16px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid var(--line);
   background: #12233a;
   color: var(--muted);
+  font-size: 0.9rem;
 }
 
-.status.ok {
-  color: var(--ok);
-  border-color: #1f5f50;
-}
+.status.ok    { color: var(--ok);    border-color: #1f5f50; }
+.status.error { color: var(--danger); border-color: #6e2a34; }
 
-.status.error {
-  color: var(--danger);
-  border-color: #6e2a34;
-}
-
+/* ── Login page ── */
 .login-shell {
   max-width: 520px;
   padding-top: 60px;
 }
 
-.login-panel h1 {
-  margin-bottom: 10px;
-}
+.login-panel h1 { margin-bottom: 10px; }
 
 .login-form {
   display: flex;
@@ -161,45 +272,46 @@ td select {
   font-size: 0.9rem;
 }
 
+/* ── Traffic Stats ── */
 .traffic-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .traffic-card {
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 10px;
+  padding: 12px 14px;
   background: #0f2640;
 }
 
 .traffic-card h3 {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--muted);
   margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .traffic-value {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--text);
 }
 
 .traffic-panels {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 12px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .traffic-list {
-  margin: 0;
+  margin: 6px 0 0;
   padding-left: 18px;
   color: var(--text);
 }
 
-.traffic-list li {
-  margin: 4px 0;
-}
+.traffic-list li { margin: 4px 0; }

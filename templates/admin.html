@@ -8,23 +8,74 @@
 </head>
 <body>
   <main class="admin-shell">
-    <header>
-      <h1>Flight Board Admin</h1>
-      <p>Manage theme mapping and stand data from the browser.</p>
+    <header class="admin-header">
+      <div>
+        <h1>Flight Board Admin</h1>
+      </div>
       <div class="admin-header-links">
         <a class="back-link" href="/">Back to Board</a>
         <form method="post" action="/admin/logout">
-          <button type="submit" class="row-remove">Logout</button>
+          <button type="submit" class="btn-danger">Logout</button>
         </form>
       </div>
     </header>
 
-    <section class="panel">
-      <h2>Theme Mapping</h2>
-      <p>Map an ICAO code to a CSS theme file and body class.</p>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="stands">Stand Data</button>
+      <button class="tab-btn" data-tab="themes">Theme Mapping</button>
+      <button class="tab-btn" data-tab="traffic">Traffic Stats</button>
+    </nav>
+
+    <!-- STANDS PANEL -->
+    <section class="panel tab-panel active" id="tab-stands">
+      <p class="panel-desc">Load and edit stand/gate coordinates for an airport. Changes apply immediately after saving.</p>
+      <div class="stand-controls">
+        <input id="standsIcaoInput" type="text" maxlength="4" placeholder="ICAO (e.g. EHAM)">
+        <button id="loadStandsBtn" type="button">Load Stands</button>
+        <button id="addStandRowBtn" type="button">Add Stand</button>
+        <button id="saveStandsBtn" type="button" class="btn-primary">Save Stands</button>
+        <span id="standsCountLabel" class="stands-count"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="standsTable">
+          <colgroup>
+            <col class="col-name">
+            <col class="col-coord">
+            <col class="col-coord">
+            <col class="col-radius">
+            <col class="col-type">
+            <col class="col-action">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Radius (m)</th>
+              <th>Type</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="standsTableBody"></tbody>
+        </table>
+      </div>
+      <details class="json-toggle" id="standsJsonToggle">
+        <summary>Raw JSON editor</summary>
+        <div class="json-toggle-inner">
+          <textarea id="standsJsonEditor" spellcheck="false" placeholder="[]"></textarea>
+          <div class="toolbar">
+            <button id="applyJsonBtn" type="button">Apply JSON to Table</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- THEMES PANEL -->
+    <section class="panel tab-panel" id="tab-themes">
+      <p class="panel-desc">Map an ICAO code to a CSS theme file and body class.</p>
       <div class="toolbar">
-        <button id="addThemeRowBtn" type="button">Add Airport Theme</button>
-        <button id="saveThemesBtn" type="button">Save Theme Map</button>
+        <button id="addThemeRowBtn" type="button">Add Airport</button>
+        <button id="saveThemesBtn" type="button" class="btn-primary">Save Theme Map</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -41,39 +92,28 @@
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Stand Data</h2>
-      <p>Load/edit one airport's stand array as JSON.</p>
-      <div class="stand-controls">
-        <input id="standsIcaoInput" type="text" maxlength="4" placeholder="ICAO (e.g. EHAM)">
-        <button id="loadStandsBtn" type="button">Load</button>
-        <button id="saveStandsBtn" type="button">Save</button>
-      </div>
-      <textarea id="standsEditor" spellcheck="false" placeholder="[]"></textarea>
-    </section>
-
-    <section class="panel">
-      <h2>Traffic Stats</h2>
-      <p>Usage metrics collected from board page visits and airport joins.</p>
+    <!-- TRAFFIC PANEL -->
+    <section class="panel tab-panel" id="tab-traffic">
+      <p class="panel-desc">Usage metrics collected from board page visits and airport joins.</p>
       <div class="toolbar">
-        <button id="refreshTrafficBtn" type="button">Refresh Traffic Stats</button>
+        <button id="refreshTrafficBtn" type="button">Refresh</button>
       </div>
       <div class="traffic-grid">
         <div class="traffic-card">
           <h3>Total Page Views</h3>
-          <div id="trafficTotalPageViews" class="traffic-value">0</div>
+          <div id="trafficTotalPageViews" class="traffic-value">—</div>
         </div>
         <div class="traffic-card">
           <h3>Total Unique Visitors</h3>
-          <div id="trafficTotalUniqueVisitors" class="traffic-value">0</div>
+          <div id="trafficTotalUniqueVisitors" class="traffic-value">—</div>
         </div>
         <div class="traffic-card">
-          <h3>Today Page Views</h3>
-          <div id="trafficTodayPageViews" class="traffic-value">0</div>
+          <h3>Today's Page Views</h3>
+          <div id="trafficTodayPageViews" class="traffic-value">—</div>
         </div>
         <div class="traffic-card">
-          <h3>Today Unique Visitors</h3>
-          <div id="trafficTodayUniqueVisitors" class="traffic-value">0</div>
+          <h3>Today's Unique Visitors</h3>
+          <div id="trafficTodayUniqueVisitors" class="traffic-value">—</div>
         </div>
       </div>
       <div class="traffic-panels">
@@ -86,21 +126,19 @@
           <ul id="trafficTopAirports" class="traffic-list"></ul>
         </div>
       </div>
-      <div>
-        <h3>Last 7 Days</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date (UTC)</th>
-                <th>Page Views</th>
-                <th>Unique Visitors</th>
-                <th>Airport Joins</th>
-              </tr>
-            </thead>
-            <tbody id="trafficSevenDayBody"></tbody>
-          </table>
-        </div>
+      <h3>Last 7 Days</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date (UTC)</th>
+              <th>Page Views</th>
+              <th>Unique Visitors</th>
+              <th>Airport Joins</th>
+            </tr>
+          </thead>
+          <tbody id="trafficSevenDayBody"></tbody>
+        </table>
       </div>
     </section>
 
