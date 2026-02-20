@@ -858,13 +858,13 @@ body.theme-eham .tracking-chip {
     cursor: help;
 }
 
-/* Mobile/tablet touch tuning (including iPad): reduce text density and
-   create more visual separation between Time and Status columns. */
-@media (max-width: 1024px) and (hover: none) and (pointer: coarse) {
+/* Mobile/tablet tuning (including iPad): reduce text density and
+   create stronger separation between Time and Status columns. */
+@media (max-width: 1366px) and (pointer: coarse), (max-width: 1024px) {
     :root {
-        --font-size-cell: 0.9rem;
-        --font-size-header: 0.8rem;
-        --row-height: 34px;
+        --font-size-cell: 0.82rem;
+        --font-size-header: 0.72rem;
+        --row-height: 32px;
     }
 
     .fids-header {
@@ -903,67 +903,96 @@ body.theme-eham .tracking-chip {
     }
 
     .section-divider {
-        font-size: 1.2rem;
-        padding: 10px 12px;
+        font-size: 1.05rem;
+        padding: 8px 10px;
     }
 
     .page-ind {
-        font-size: 0.8rem;
+        font-size: 0.72rem;
+    }
+
+    .flight-table colgroup col:nth-child(1) {
+        width: 13% !important;
+    }
+
+    .flight-table colgroup col:nth-child(2) {
+        width: 21% !important;
+    }
+
+    .flight-table colgroup col:nth-child(3) {
+        width: 10% !important;
+    }
+
+    .flight-table colgroup col:nth-child(4) {
+        width: 10% !important;
+    }
+
+    .flight-table colgroup col:nth-child(5) {
+        width: 8% !important;
+    }
+
+    .flight-table colgroup col:nth-child(6) {
+        width: 12% !important;
+    }
+
+    .flight-table colgroup col:nth-child(7) {
+        width: 26% !important;
     }
 
     .flight-table th:nth-child(6),
     .flight-table td:nth-child(6) {
-        padding-right: 16px;
+        padding-right: 20px;
     }
 
-    .flight-table th:nth-child(7) {
-        padding-left: 14px;
+    .flight-table th:nth-child(7),
+    .flight-table td:nth-child(7) {
+        padding-left: 16px;
     }
 
     .flight-table td.col-status {
-        border-left: 2px solid #1f1f1f;
+        border-left: 3px solid #1f1f1f;
     }
 
     .fids-footer {
-        height: 84px;
-        padding: 10px 16px;
+        height: 78px;
+        padding: 8px 12px;
     }
 
     .footer-group {
-        gap: 12px;
+        gap: 10px;
     }
 
     .huge-arrow {
-        font-size: 38px;
+        font-size: 32px;
     }
 
     .main-label {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .main-label .en {
-        font-size: 14px;
+        font-size: 12px;
     }
 
     .security-time .label {
-        font-size: 0.75rem;
+        font-size: 0.68rem;
         line-height: 1.1;
     }
 
     .security-time .time {
-        font-size: 20px;
+        font-size: 16px;
     }
 
     .footer-divider {
-        height: 36px;
-        margin: 0 12px;
+        height: 30px;
+        margin: 0 8px;
     }
 
     .footer-logos img {
-        height: 24px;
+        height: 20px;
     }
 
     .footer-logos img.simfixr-logo {
-        height: 32px;
+        height: 26px;
     }
 }
