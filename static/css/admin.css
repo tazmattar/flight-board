@@ -22,7 +22,7 @@ body {
 
 .admin-shell {
   margin: 0;
-  padding: 24px 32px;
+  padding: 24px 32px 72px; /* bottom pad keeps content clear of fixed status bar */
 }
 
 h1, h2, h3 { margin: 0 0 8px; }
@@ -238,24 +238,28 @@ td select {
   resize: vertical;
 }
 
-/* ── Status bar ── */
+/* ── Status bar (fixed at viewport bottom) ── */
 .status {
-  margin-top: 16px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  padding: 10px 32px;
+  border-top: 1px solid var(--line);
   background: #12233a;
   color: var(--muted);
   font-size: 0.9rem;
 }
 
-.status.ok    { color: var(--ok);    border-color: #1f5f50; }
-.status.error { color: var(--danger); border-color: #6e2a34; }
+.status.ok    { color: var(--ok);    border-color: #1f5f50; background: #0d2920; }
+.status.error { color: var(--danger); border-color: #6e2a34; background: #1f0f15; }
 
 /* ── Login page ── */
 .login-shell {
   max-width: 520px;
-  padding-top: 60px;
+  margin: 0 auto;
+  padding-top: 80px;
 }
 
 .login-panel h1 { margin-bottom: 10px; }
