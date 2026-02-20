@@ -495,9 +495,13 @@ class VatsimFetcher:
                 neutral_squawks = {'2000', '2200', '1200', '7000', '0000'}
                 is_non_neutral_squawk = pilot.get('transponder') not in neutral_squawks
 
-                # Stationary aircraft should never be shown as Taxiing.
+                # Stationary aircraft: only show Boarding if at a known stand.
+                # If the airport has stand data but no match, the aircraft is
+                # not at a gate (e.g. holding on a taxiway) — show Taxiing.
                 if gs < 1:
                     if minutes_online < 5: return 'Check-in'
+                    if gate_found is None and self.stands.get(airport_code):
+                        return 'Taxiing'
                     return 'Boarding'
 
                 # Low-speed ground movement: pushback if near a stand or squawking.
