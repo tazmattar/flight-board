@@ -43,7 +43,7 @@ body.theme-eham .section-divider {
 
 /* Flight table: Alternating dark rows with white text */
 body.theme-eham .flight-table th {
-    background: var(--schiphol-board-bg);
+    background: var(--schiphol-row-alt);
     color: #000000;
     font-weight: normal;
     text-transform: none;
