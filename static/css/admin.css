@@ -230,6 +230,14 @@ td select {
   margin: 0 0 10px;
 }
 
+#csvFileInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 .import-hint code {
   background: #0a1e35;
   padding: 1px 5px;
