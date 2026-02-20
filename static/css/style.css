@@ -858,9 +858,9 @@ body.theme-eham .tracking-chip {
     cursor: help;
 }
 
-/* Mobile/tablet tuning (including iPad): reduce text density and
-   create stronger separation between Time and Status columns. */
-@media (max-width: 1366px) and (pointer: coarse), (max-width: 1024px) {
+/* Mobile/tablet landscape tuning (including iPad):
+   keep split boards side-by-side while fitting columns cleanly. */
+@media (max-width: 1366px) and (pointer: coarse) and (orientation: landscape) {
     :root {
         --font-size-cell: 0.82rem;
         --font-size-header: 0.72rem;
@@ -916,8 +916,17 @@ body.theme-eham .tracking-chip {
     }
 
     .split-top-row {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        gap: 12px;
+    }
+
+    .flight-table th {
+        padding: 9px 6px;
+        letter-spacing: 0.4px;
+    }
+
+    .flight-table td {
+        padding: 6px 6px;
     }
 
     .flight-table colgroup col:nth-child(1) {
