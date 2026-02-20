@@ -33,6 +33,7 @@ class VatsimFetcher:
             'EGSS': { 'name': 'London Stansted', 'ceiling': 7000, 'has_stands': True },
             'KJFK': { 'name': 'New York JFK', 'ceiling': 5000, 'has_stands': True },
             'RJTT': { 'name': 'Tokyo Haneda', 'ceiling': 6000, 'has_stands': True  },
+            'EHAM': { 'name': 'Amsterdam Schiphol', 'ceiling': 6000, 'has_stands': True },
         }
         
         # Load Geofencing Stands (Coordinate based)
