@@ -447,8 +447,7 @@ class VatsimFetcher:
         gate_display = gate or 'TBA'
         if direction == 'DEP':
             if raw_status == 'Check-in': gate_display = 'TBA'
-            elif raw_status == 'Pushback': gate_display = gate or 'TBA'  # show stand the aircraft just left
-            elif raw_status in ['Taxiing', 'Departing', 'En Route']: gate_display = 'CLOSED'
+            elif raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']: gate_display = 'CLOSED'
         
         # STATUS OVERRIDE ("At Gate") & REALITY CHECK
         display_status = raw_status
@@ -500,11 +499,12 @@ class VatsimFetcher:
                 # not at a gate (e.g. holding on a taxiway) — show Taxiing.
                 if gs < 1:
                     if minutes_online < 5: return 'Check-in'
-                    if gate_found is None and self.stands.get(airport_code):
+                    if self.stands.get(airport_code) and not gate_found:
                         return 'Taxiing'
                     return 'Boarding'
 
                 # Low-speed ground movement: pushback if near a stand or squawking.
+                # GS 1-4 near a stand = departing the stand (pushback).
                 if gs < 5:
                     if gate_found or is_non_neutral_squawk: return 'Pushback'
                     return 'Taxiing'
