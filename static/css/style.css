@@ -858,15 +858,84 @@ body.theme-eham .tracking-chip {
     cursor: help;
 }
 
+/* Touch-device table density tuning (both portrait and landscape). */
+@media (max-width: 1366px) and (pointer: coarse) {
+    :root {
+        --font-size-cell: 0.74rem;
+        --font-size-header: 0.64rem;
+        --row-height: 30px;
+    }
+
+    .flight-table th {
+        padding: 8px 5px;
+        letter-spacing: 0.2px;
+    }
+
+    .flight-table td {
+        padding: 5px 5px;
+    }
+}
+
+/* Touch portrait: keep stacked boards and rebalance widths for readability. */
+@media (max-width: 1366px) and (pointer: coarse) and (orientation: portrait) {
+    .split-top-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .flight-table th:nth-child(1),
+    .flight-table colgroup col:nth-child(1) {
+        width: 13% !important;
+    }
+
+    .flight-table th:nth-child(2),
+    .flight-table colgroup col:nth-child(2) {
+        width: 24% !important;
+    }
+
+    .flight-table th:nth-child(3),
+    .flight-table colgroup col:nth-child(3) {
+        width: 10% !important;
+    }
+
+    .flight-table th:nth-child(4),
+    .flight-table colgroup col:nth-child(4) {
+        width: 10% !important;
+    }
+
+    .flight-table th:nth-child(5),
+    .flight-table colgroup col:nth-child(5) {
+        width: 8% !important;
+    }
+
+    .flight-table th:nth-child(6),
+    .flight-table colgroup col:nth-child(6) {
+        width: 10% !important;
+    }
+
+    .flight-table th:nth-child(7),
+    .flight-table colgroup col:nth-child(7) {
+        width: 25% !important;
+    }
+
+    .flight-table th:nth-child(6),
+    .flight-table td:nth-child(6) {
+        padding-right: 10px;
+    }
+
+    .flight-table th:nth-child(7),
+    .flight-table td:nth-child(7) {
+        padding-left: 8px;
+    }
+
+    .flight-table td.col-status {
+        border-left: 2px solid #1f1f1f;
+    }
+}
+
 /* Mobile/tablet landscape tuning (including iPad):
    keep split boards side-by-side while fitting columns cleanly. */
 @media (max-width: 1366px) and (pointer: coarse) and (orientation: landscape) {
-    :root {
-        --font-size-cell: 0.82rem;
-        --font-size-header: 0.72rem;
-        --row-height: 32px;
-    }
-
     .fids-header {
         padding: 8px 12px;
         gap: 12px;
@@ -920,15 +989,6 @@ body.theme-eham .tracking-chip {
         gap: 12px;
     }
 
-    .flight-table th {
-        padding: 9px 6px;
-        letter-spacing: 0.4px;
-    }
-
-    .flight-table td {
-        padding: 6px 6px;
-    }
-
     .flight-table colgroup col:nth-child(1) {
         width: 12% !important;
     }
@@ -959,16 +1019,16 @@ body.theme-eham .tracking-chip {
 
     .flight-table th:nth-child(6),
     .flight-table td:nth-child(6) {
-        padding-right: 20px;
+        padding-right: 10px;
     }
 
     .flight-table th:nth-child(7),
     .flight-table td:nth-child(7) {
-        padding-left: 16px;
+        padding-left: 8px;
     }
 
     .flight-table td.col-status {
-        border-left: 3px solid #1f1f1f;
+        border-left: 2px solid #1f1f1f;
     }
 
     .fids-footer {
