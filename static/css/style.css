@@ -928,9 +928,6 @@ body.theme-eham .tracking-chip {
         padding-left: 8px;
     }
 
-    .flight-table td.col-status {
-        border-left: 2px solid #1f1f1f;
-    }
 }
 
 /* Mobile/tablet landscape tuning (including iPad):
@@ -1027,9 +1024,6 @@ body.theme-eham .tracking-chip {
         padding-left: 8px;
     }
 
-    .flight-table td.col-status {
-        border-left: 2px solid #1f1f1f;
-    }
 
     .fids-footer {
         height: 78px;
