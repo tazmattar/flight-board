@@ -111,9 +111,14 @@
     return tr;
   }
 
+  function naturalSort(a, b) {
+    return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+  }
+
   function renderStandsTable(stands) {
+    const sorted = [...stands].sort(naturalSort);
     standsTableBody.innerHTML = '';
-    stands.forEach(stand => standsTableBody.appendChild(createStandRow(stand)));
+    sorted.forEach(stand => standsTableBody.appendChild(createStandRow(stand)));
     updateStandsCount();
   }
 
@@ -300,7 +305,8 @@
         .forEach(s => standsTableBody.appendChild(createStandRow(s)));
     }
 
-    updateStandsCount();
+    // Re-render with full sort so imported rows slot into the right positions
+    renderStandsTable(collectStands());
     importBanner.hidden = true;
     _pendingImport = null;
     csvFileInput.value = '';
@@ -331,9 +337,9 @@
         );
 
         if (duplicateNames.size === 0) {
-          // No conflicts — apply immediately
+          // No conflicts — merge and re-sort
           stands.forEach(s => standsTableBody.appendChild(createStandRow(s)));
-          updateStandsCount();
+          renderStandsTable(collectStands());
           csvFileInput.value = '';
           setStatus(`Imported ${stands.length} stand(s) with no duplicates. Click Save Stands to apply.`, 'ok');
           return;
