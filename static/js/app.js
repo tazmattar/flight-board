@@ -12,16 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function getInitialAirport() {
         const params = new URLSearchParams(window.location.search);
         const paramValue = normalizeIcao(params.get('icao') || params.get('airport'));
-        if (paramValue.length === 4) return paramValue;
+        if (paramValue.length === 4) return { airport: paramValue, explicit: true };
 
         try {
             const stored = normalizeIcao(localStorage.getItem(AIRPORT_STORAGE_KEY));
-            if (stored.length === 4) return stored;
+            if (stored.length === 4) return { airport: stored, explicit: true };
         } catch (e) {
             console.warn('LocalStorage unavailable, falling back to default.');
         }
 
-        return 'LSZH';
+        return { airport: 'LSZH', explicit: false };
     }
 
     function persistAirportSelection(icao) {
@@ -38,7 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    let currentAirport = getInitialAirport();
+    const _initial = getInitialAirport();
+    let currentAirport = _initial.airport;
+    let initialAirportExplicit = _initial.explicit;
     let rawFlightData = { departures: [], arrivals: [] };
     
     // Global flag to track the display cycle (Status vs Delay)
@@ -133,7 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- SOCKET LISTENER ---
     socket.on('connect', () => {
         console.log('Connected via WebSockets. Joining:', currentAirport);
-        socket.emit('join_airport', { airport: currentAirport });
+        socket.emit('join_airport', { airport: currentAirport, explicit: initialAirportExplicit });
+        initialAirportExplicit = true; // subsequent reconnects count as returning visitor
     });
 
     socket.on('flight_update', (data) => {

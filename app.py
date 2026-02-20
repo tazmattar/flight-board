@@ -690,7 +690,7 @@ def handle_join(data):
     join_room(airport)
     client_airports[request.sid] = airport
     _increment_airport(airport)
-    if not _is_tracking_excluded_ip():
+    if not _is_tracking_excluded_ip() and data.get('explicit', True):
         _record_airport_join(airport)
     print(f"Client {request.sid} joined {airport}")
     

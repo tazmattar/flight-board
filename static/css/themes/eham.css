@@ -11,6 +11,7 @@ body.theme-eham {
     --schiphol-green: #298C43;
     --schiphol-board-bg: #FFFFFF;
     --schiphol-row-alt: #F1F1F1;
+    --tracking-outline: #888888;
 }
 
 /* Header styling: "Flight departures | Vertrekken" on Yellow background */

@@ -214,7 +214,7 @@ html, body {
 }
 
 .flight-table tbody tr.is-tracked {
-    outline: 1px solid #ffffff;
+    outline: 1px solid var(--tracking-outline, #ffffff);
     outline-offset: -1px;
 }
 
