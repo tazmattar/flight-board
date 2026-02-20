@@ -4,7 +4,7 @@
 
 ### Git State
 - Branch: `main`, remote in sync
-- Latest commit: `138448f`
+- Latest commit: `0d308a7`
 
 ---
 
@@ -60,15 +60,32 @@ geofencing** driven purely by each stand's `radius` field in `static/stands.json
 
 ---
 
+### 4. EHAM gate assignment fixed (commit 0d308a7)
+
+`vatsim_fetcher.py`
+
+**Bug — EHAM missing from `configured_airports`**
+- EHAM was not in the `configured_airports` dict, so `has_stands` was always
+  `False` for Schiphol. `find_stand()` was never called despite 269 stands in
+  stands.json.
+- Fixed: added `'EHAM': { 'name': 'Amsterdam Schiphol', 'ceiling': 6000, 'has_stands': True }`
+- Verified: AEE341 was 4.6m from B31 centre — coordinates accurate (Google Earth)
+
+**Important pattern**: any airport with stands in `stands.json` must also have an
+entry in `configured_airports` with `has_stands: True`, otherwise geofencing is
+silently skipped. The admin UI hot-reloads stands on save (no restart needed).
+
+---
+
 ## Known Remaining Issues
 
-### RJTT, KJFK, EHAM stand coordinate accuracy
+### RJTT, KJFK stand coordinate accuracy
 Stands at these airports were originally imported from OSM and many coordinates
 are offset from real parking positions by 30–80m. With a default radius of 40m
 this means aircraft at the correct gate don't always get a match.
 
 **Recommended fix**: replace OSM-derived coordinates with accurate data from
-AIP charts or Google Earth, imported via the admin CSV import tool.
+Google Earth or AIP charts, imported via the admin CSV import tool.
 
 As a quick stopgap, radii for individual stands can be increased to 60–80m via
 the admin stand editor to catch aircraft parked slightly off-centre.
@@ -82,6 +99,7 @@ keep matching data-driven via `stands.json` only.
 - Stand matching: radius-only geofencing in `find_stand()` (Priority 2)
 - UK airports only: UKCP API checked first (Priority 1), geofencing as fallback
 - `static/stands.json` is the single source of truth for stand coordinates/radii
-- Admin API: `GET/POST /api/admin/stands/<icao>` — hot-reloads stands on save
+- Admin API: `GET/POST /api/admin/stands/<icao>` — hot-reloads stands on save (no restart needed)
+- Any airport with stands must be in `configured_airports` with `has_stands: True`
 - `data/` directory (traffic stats) and `static/stands.json` are runtime files,
   not committed to git
