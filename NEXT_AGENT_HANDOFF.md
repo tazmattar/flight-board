@@ -4,7 +4,7 @@
 
 ### Git State
 - Branch: `main`, remote in sync
-- Latest commit: `d4389cd`
+- Latest commit: `bb77ca0`
 
 ---
 
@@ -38,25 +38,30 @@ geofencing** driven purely by each stand's `radius` field in `static/stands.json
 
 ---
 
-### 3. Three stand/gate assignment bugs fixed (commit 138448f)
+### 3. Stand/gate assignment bugs fixed (commits 138448f, 78f265b, 4badb7b)
 
 `vatsim_fetcher.py`
 
-**Bug 1 — `find_stand()` threshold too strict**
-- Was: `groundspeed > 5` — VATSIM commonly reports 6–10 knots for truly parked
-  aircraft, so geofencing was skipped and no gate was ever assigned
-- Fixed: raised to `groundspeed > 15`
+**GS threshold** — raised from `> 5` to `> 15` so geofencing runs for slow-taxiing
+aircraft that VATSIM reports at 6–10 knots while parked.
 
-**Bug 2 — Stationary aircraft incorrectly shown as Taxiing**
-- Was: hardcoded `return 'Taxiing'` for any `gs < 1` aircraft at an airport that
-  has stand data but no gate match (comment in code even said `# Hardcoded`)
-- Fixed: `gs < 1` now always returns `Check-in` (< 5 min online) or `Boarding`
-  regardless of gate match. A stationary aircraft is never Taxiing.
+**GS=0 on taxiway** — if airport has stand data but no stand matched, a stationary
+aircraft now returns `Taxiing` (not `Boarding`). Boarding requires being at a
+matched stand or the airport having no stand data at all.
 
-**Bug 3 — Gate display showed CLOSED during Pushback**
-- Was: `gate_display = 'CLOSED'` for Pushback, Taxiing, Departing, En Route
-- Fixed: Pushback now shows the stand name (aircraft just left it). Only Taxiing,
-  Departing, and En Route show CLOSED.
+**Pushback gate** — Pushback now shows `CLOSED` (was showing stand name). Gate
+shows CLOSED for Pushback, Taxiing, Departing, En Route.
+
+**Status/gate logic summary:**
+| GS | Stand match? | Status | Gate |
+|---|---|---|---|
+| 0, < 5 min online | any | Check-in | TBA |
+| 0 | no (airport has stands) | Taxiing | CLOSED |
+| 0 | yes | Boarding | stand name |
+| 1–4 | yes or squawking | Pushback | CLOSED |
+| 1–4 | no | Taxiing | CLOSED |
+| 5–44 | — | Taxiing | CLOSED |
+| 45+ | — | Departing | CLOSED |
 
 ---
 
@@ -64,12 +69,9 @@ geofencing** driven purely by each stand's `radius` field in `static/stands.json
 
 `vatsim_fetcher.py`
 
-**Bug — EHAM missing from `configured_airports`**
-- EHAM was not in the `configured_airports` dict, so `has_stands` was always
-  `False` for Schiphol. `find_stand()` was never called despite 269 stands in
-  stands.json.
-- Fixed: added `'EHAM': { 'name': 'Amsterdam Schiphol', 'ceiling': 6000, 'has_stands': True }`
-- Verified: AEE341 was 4.6m from B31 centre — coordinates accurate (Google Earth)
+EHAM was missing from `configured_airports`, so `has_stands` was always `False`
+and `find_stand()` was never called despite 269 stands in stands.json.
+Fixed: added `'EHAM': { 'name': 'Amsterdam Schiphol', 'ceiling': 6000, 'has_stands': True }`.
 
 **Important pattern**: any airport with stands in `stands.json` must also have an
 entry in `configured_airports` with `has_stands: True`, otherwise geofencing is
@@ -77,26 +79,29 @@ silently skipped. The admin UI hot-reloads stands on save (no restart needed).
 
 ---
 
-### 5. Tracking row outline fixed for light themes; airport join stats fairness (commit d4389cd)
+### 5. Tracking row outline & airport join stats (commit d4389cd)
 
-`static/css/style.css`, `static/css/themes/eham.css`, `static/js/app.js`, `app.py`
+- Tracked row outline uses `var(--tracking-outline, #ffffff)`; EHAM overrides to
+  `#888888` for visibility on white background
+- New visitors defaulting to LSZH no longer inflate its airport join count;
+  `getInitialAirport()` returns `{ airport, explicit }` — only explicit selections
+  (URL param, localStorage, dropdown change) are recorded
 
-**Fix 1 — Tracked row outline invisible on white backgrounds**
-- Was: `outline: 1px solid #ffffff` hardcoded — invisible on EHAM's white board
-- Fixed: changed to `var(--tracking-outline, #ffffff)` in `style.css`
-- EHAM theme sets `--tracking-outline: #888888` (grey) in its root block
-- Any future light-background theme just needs to set the same variable
+---
 
-**Fix 2 — LSZH airport join stats inflated by default page loads**
-- Was: every new visitor defaulting to LSZH triggered a `join_airport` socket
-  event → recorded as a tally, giving LSZH an unfair advantage in stats
-- Fixed: `getInitialAirport()` now returns `{ airport, explicit }`. If the
-  airport came from a URL param or localStorage it's `explicit: true`; the
-  hardcoded LSZH fallback is `explicit: false`
-- Server only calls `_record_airport_join()` when `explicit=True`
-- After first connect, `initialAirportExplicit` flips to `true` so reconnects
-  (e.g. mobile resume) are counted as returning-visitor intent
-- Explicit dropdown switches always counted (unchanged)
+### 6. EHAM theme refinements (commits c01892a, 19e1f85, 0bbf45b, bb77ca0, + CSS)
+
+`static/css/themes/eham.css`, `static/js/app.js`
+
+- **Boarding status** — green text (`--schiphol-green` / `#298C43`) on transparent
+  background, matching real Schiphol FIDS
+- **Gate column** — yellow (`--schiphol-yellow`) fill with black bold text; 3px
+  inset padding enforced with `!important` to survive all responsive breakpoints.
+  `col-gate` class added to gate `<td>` in JS (no styling in base CSS — safe for
+  all other themes)
+- **Column header row** — light grey (`--schiphol-row-alt` / `#F1F1F1`) background
+  with black text
+- **SimFixr logo** — increased to 56px desktop / 36px mobile
 
 ---
 
@@ -124,5 +129,6 @@ keep matching data-driven via `stands.json` only.
 - `static/stands.json` is the single source of truth for stand coordinates/radii
 - Admin API: `GET/POST /api/admin/stands/<icao>` — hot-reloads stands on save (no restart needed)
 - Any airport with stands must be in `configured_airports` with `has_stands: True`
+- `col-gate` class on gate `<td>` is a styling hook — no base CSS, theme-scoped only
 - `data/` directory (traffic stats) and `static/stands.json` are runtime files,
   not committed to git
