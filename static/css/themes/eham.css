@@ -116,3 +116,9 @@ body.theme-eham .col-status[data-status="Boarding"] .flap-container {
     color: var(--schiphol-green) !important;
     font-weight: 700;
 }
+
+body.theme-eham td.col-gate .flap-container {
+    background-color: var(--schiphol-yellow);
+    color: #000000 !important;
+    font-weight: 700;
+}
