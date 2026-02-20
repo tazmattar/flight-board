@@ -152,7 +152,7 @@ class VatsimFetcher:
             #    print(f"[DEBUG] No UKCP stand for {callsign}") 
 
         # --- PRIORITY 2: GEOFENCING (Existing logic) ---
-        if groundspeed > 5 or altitude > 10000: return None
+        if groundspeed > 15 or altitude > 10000: return None
         if pilot_lat is None or pilot_lon is None: return None
         
         airport_stands = self.stands.get(airport_code, [])
@@ -446,7 +446,8 @@ class VatsimFetcher:
         gate_display = gate or 'TBA'
         if direction == 'DEP':
             if raw_status == 'Check-in': gate_display = 'TBA'
-            elif raw_status in ['Pushback', 'Taxiing', 'Departing', 'En Route']: gate_display = 'CLOSED'
+            elif raw_status == 'Pushback': gate_display = gate or 'TBA'  # show stand the aircraft just left
+            elif raw_status in ['Taxiing', 'Departing', 'En Route']: gate_display = 'CLOSED'
         
         # STATUS OVERRIDE ("At Gate") & REALITY CHECK
         display_status = raw_status
@@ -490,14 +491,18 @@ class VatsimFetcher:
                     try: minutes_online = (datetime.utcnow() - datetime.fromisoformat(pilot['logon_time'][:19])).total_seconds() / 60
                     except: pass
                 
+                neutral_squawks = {'2000', '2200', '1200', '7000', '0000'}
+                is_non_neutral_squawk = pilot.get('transponder') not in neutral_squawks
+
+                # Stationary aircraft should never be shown as Taxiing.
                 if gs < 1:
-                    if gate_found: return 'Check-in' if minutes_online < 5 else 'Boarding'
-                    if len(self.stands.get(airport_code, [])) > 0: return 'Taxiing' # Hardcoded
-                    # Dynamic airport heuristics
                     if minutes_online < 5: return 'Check-in'
-                    if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'}: return 'Taxiing'
-                    return 'Taxiing' if minutes_online > 35 else 'Boarding'
-                if gs < 5: return 'Pushback' if pilot.get('transponder') not in {'2000','2200','1200','7000','0000'} else ('Boarding' if gate_found else 'Taxiing')
+                    return 'Boarding'
+
+                # Low-speed ground movement: pushback if near a stand or squawking.
+                if gs < 5:
+                    if gate_found or is_non_neutral_squawk: return 'Pushback'
+                    return 'Taxiing'
                 elif gs < 45: return 'Taxiing'
                 else: return 'Departing'
             else: return 'En Route'
