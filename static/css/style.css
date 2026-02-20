@@ -911,12 +911,21 @@ body.theme-eham .tracking-chip {
         font-size: 0.72rem;
     }
 
+    .page-container {
+        padding: 8px 10px;
+    }
+
+    .split-top-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
     .flight-table colgroup col:nth-child(1) {
-        width: 13% !important;
+        width: 12% !important;
     }
 
     .flight-table colgroup col:nth-child(2) {
-        width: 21% !important;
+        width: 24% !important;
     }
 
     .flight-table colgroup col:nth-child(3) {
@@ -932,11 +941,11 @@ body.theme-eham .tracking-chip {
     }
 
     .flight-table colgroup col:nth-child(6) {
-        width: 12% !important;
+        width: 11% !important;
     }
 
     .flight-table colgroup col:nth-child(7) {
-        width: 26% !important;
+        width: 25% !important;
     }
 
     .flight-table th:nth-child(6),
