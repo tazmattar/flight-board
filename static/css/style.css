@@ -857,3 +857,113 @@ body.theme-eham .tracking-chip {
 .flight-cell {
     cursor: help;
 }
+
+/* Mobile/tablet touch tuning (including iPad): reduce text density and
+   create more visual separation between Time and Status columns. */
+@media (max-width: 1024px) and (hover: none) and (pointer: coarse) {
+    :root {
+        --font-size-cell: 0.9rem;
+        --font-size-header: 0.8rem;
+        --row-height: 34px;
+    }
+
+    .fids-header {
+        padding: 8px 12px;
+        gap: 12px;
+    }
+
+    .airport-selector {
+        gap: 6px;
+    }
+
+    .airport-selector select {
+        font-size: 1.45rem;
+        max-width: 42vw;
+    }
+
+    .clock-container {
+        font-size: 1.45rem;
+        letter-spacing: 1px;
+    }
+
+    .header-right-group {
+        gap: 10px;
+    }
+
+    .header-widgets {
+        gap: 10px;
+    }
+
+    .widget-icon {
+        font-size: 1.35rem;
+    }
+
+    .widget-text {
+        font-size: 1rem;
+    }
+
+    .section-divider {
+        font-size: 1.2rem;
+        padding: 10px 12px;
+    }
+
+    .page-ind {
+        font-size: 0.8rem;
+    }
+
+    .flight-table th:nth-child(6),
+    .flight-table td:nth-child(6) {
+        padding-right: 16px;
+    }
+
+    .flight-table th:nth-child(7) {
+        padding-left: 14px;
+    }
+
+    .flight-table td.col-status {
+        border-left: 2px solid #1f1f1f;
+    }
+
+    .fids-footer {
+        height: 84px;
+        padding: 10px 16px;
+    }
+
+    .footer-group {
+        gap: 12px;
+    }
+
+    .huge-arrow {
+        font-size: 38px;
+    }
+
+    .main-label {
+        font-size: 24px;
+    }
+
+    .main-label .en {
+        font-size: 14px;
+    }
+
+    .security-time .label {
+        font-size: 0.75rem;
+        line-height: 1.1;
+    }
+
+    .security-time .time {
+        font-size: 20px;
+    }
+
+    .footer-divider {
+        height: 36px;
+        margin: 0 12px;
+    }
+
+    .footer-logos img {
+        height: 24px;
+    }
+
+    .footer-logos img.simfixr-logo {
+        height: 32px;
+    }
+}
