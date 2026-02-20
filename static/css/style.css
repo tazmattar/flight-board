@@ -386,7 +386,7 @@ html, body {
     opacity: 0.9;
 }
 .footer-logos img.simfixr-logo {
-    height: 40px;
+    height: 56px;
 }
 
 /* MEDIA QUERIES */
@@ -1065,6 +1065,6 @@ body.theme-eham .tracking-chip {
     }
 
     .footer-logos img.simfixr-logo {
-        height: 26px;
+        height: 36px;
     }
 }
