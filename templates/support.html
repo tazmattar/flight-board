@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Flightboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=JetBrains+Mono:wght@500;700&family=B612:wght@400;700&family=Cal+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/support.css', v=asset_version) }}">
+</head>
+<body>
+    <main class="support-shell">
+        <section class="support-card">
+            <div class="support-header">
+                <a class="back-link" href="{{ url_for('index') }}">
+                    <span class="material-icons" aria-hidden="true">arrow_back</span>
+                    <span>Back to Flightboard</span>
+                </a>
+                <div class="support-badge">
+                    <span class="material-icons" aria-hidden="true">favorite</span>
+                    <span class="material-icons" aria-hidden="true">local_cafe</span>
+                    <span>Support</span>
+                </div>
+            </div>
+
+            <h1>VATSIM Flight Information Display System (FIDS)</h1>
+            <p class="lede">Bringing real-world airport board immersion to VATSIM.</p>
+
+            <div class="support-copy">
+                <p>Hello fellow aviation geeks,</p>
+                <p>I built the VATSIM Flight Information Display System (FIDS) to add that extra layer of immersion: the feeling of standing in a terminal at Zurich, Heathrow, or JFK and watching the departures board update in real time.</p>
+                <p>What started as a personal passion project has grown into a tool used by over a thousand simmers globally. Seeing people run the board on second monitors, iPads, and dedicated Raspberry Pi kiosks has been incredibly rewarding.</p>
+                <p>I host the flight board myself on a home enterprise-grade server cluster (Proxmox/Ceph). I love keeping it free and open source, but running 24/7 servers and a gigabit fiber connection does add up in electricity and internet costs.</p>
+                <p>If the flight board adds a little extra joy to your sim experience, a coffee helps keep the servers humming, the lights on, and the flight statuses updating.</p>
+                <p>Thank you for your support, and see you on the network.</p>
+            </div>
+
+            <div class="support-actions">
+                {% if bmc_url %}
+                <a class="bmc-button" href="{{ bmc_url }}" target="_blank" rel="noopener noreferrer">
+                    <span class="material-icons" aria-hidden="true">local_cafe</span>
+                    <span>Buy Me a Coffee</span>
+                </a>
+                {% else %}
+                <div class="bmc-missing">
+                    Buy Me a Coffee link not configured yet. Set <code>BUY_ME_A_COFFEE_URL</code> in your environment.
+                </div>
+                {% endif %}
+                <a class="secondary-link" href="https://github.com/tazmattar/flight-board" target="_blank" rel="noopener noreferrer">
+                    View Source on GitHub
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

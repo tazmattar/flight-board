@@ -351,6 +351,36 @@ html, body {
 .footer-divider { width: 2px; height: 50px; background: #333; margin: 0 30px; }
 .security-time .time { font-size: 28px; font-weight: 700; }
 .fs-footer-btn { background: transparent; border: 1px solid #333; color: #666; cursor: pointer; padding: 5px; }
+.footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.support-footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: 1px solid #333;
+    border-radius: 999px;
+    color: #d5d5d5;
+    background: rgba(255, 255, 255, 0.02);
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.support-footer-btn .material-icons {
+    font-size: 16px;
+    color: #e58b8b;
+}
+.support-footer-btn:hover,
+.support-footer-btn:focus-visible {
+    border-color: #666;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    outline: none;
+}
 .airline-logo { height: 20px; width: auto; filter: grayscale(100%) brightness(200%); }
 .flight-cell { display: flex; align-items: center; gap: 10px; }
 
@@ -1066,5 +1096,14 @@ body.theme-eham .tracking-chip {
 
     .footer-logos img.simfixr-logo {
         height: 36px;
+    }
+
+    .support-footer-btn {
+        padding: 5px 8px;
+        font-size: 0.78rem;
+    }
+
+    .support-footer-btn .material-icons {
+        font-size: 14px;
     }
 }

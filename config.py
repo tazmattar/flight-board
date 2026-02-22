@@ -12,6 +12,7 @@ class Config:
     ADMIN_MAX_LOGIN_ATTEMPTS = int(os.getenv('ADMIN_MAX_LOGIN_ATTEMPTS', 5))
     ADMIN_LOGIN_WINDOW_SECONDS = int(os.getenv('ADMIN_LOGIN_WINDOW_SECONDS', 300))
     ADMIN_LOCKOUT_SECONDS = int(os.getenv('ADMIN_LOCKOUT_SECONDS', 900))
+    BUY_ME_A_COFFEE_URL = os.getenv('BUY_ME_A_COFFEE_URL', 'https://buymeacoffee.com/tazmattar').strip()
     TRACKING_EXCLUDE_IPS = {
         ip.strip() for ip in os.getenv(
             'TRACKING_EXCLUDE_IPS',

@@ -178,7 +178,13 @@
             <span class="label" id="securityLabel">Actual waiting time<br>at security control</span>
             <span class="time" id="securityTime">9 <small>minutes</small></span>
         </div>
-        <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+        <div class="footer-actions">
+            <a href="{{ url_for('support') }}" class="support-footer-btn" title="Support Flightboard">
+                <span class="material-icons" aria-hidden="true">favorite</span>
+                <span>Support</span>
+            </a>
+            <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+        </div>
     </div>
 </footer>
 
