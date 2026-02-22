@@ -96,37 +96,6 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * GitHub Airline Codes Database (Logo mapping)
 * **Theme System:** Modular CSS architecture with dynamic loading
 
-## Installation
-
-### Prerequisites
-* Python 3.8 or higher
-* pip (Python package installer)
-
-### Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/tazmattar/flight-board.git
-    cd flight-board
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *If requirements.txt is missing:*
-    ```bash
-    pip install flask flask-socketio requests apscheduler eventlet python-dotenv
-    ```
-
-3.  **Run the application:**
-    ```bash
-    python app.py
-    ```
-
-4.  **Access the board:**
-    Open a web browser and navigate to `http://localhost:5000`
-
 ## Configuration
 
 ### Admin Utility (Protected)
