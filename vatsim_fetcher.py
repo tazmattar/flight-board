@@ -6,6 +6,8 @@ import os
 from datetime import datetime, timedelta
 from checkin_assignments import CheckinAssignments
 
+CUSTOM_AIRPORTS_PATH = os.path.join('data', 'custom_airports.json')
+
 # UKCP Stand API Integration
 try:
     from ukcp_stand_fetcher import UKCPStandFetcher
@@ -21,6 +23,9 @@ class VatsimFetcher:
         # Load airport database on init
         print("Loading airport database...")
         self.airport_db = self.load_airport_database()
+
+        # Load custom airport overrides
+        self.custom_airports = self._load_custom_airports()
         
         # Pre-configured airports
         self.configured_airports = {
@@ -60,6 +65,17 @@ class VatsimFetcher:
             if response.ok: return response.json()
         except: return {}
         return {}
+
+    def _load_custom_airports(self):
+        try:
+            with open(CUSTOM_AIRPORTS_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+
+    def reload_custom_airports(self):
+        self.custom_airports = self._load_custom_airports()
     
     def get_airport_info(self, icao):
         icao = icao.upper()
@@ -88,6 +104,18 @@ class VatsimFetcher:
                 'has_stands': is_ukcp,
                 'country': data.get('country', '')
             }
+
+        if icao in self.custom_airports:
+            data = self.custom_airports[icao]
+            return {
+                'name': data.get('name', icao),
+                'lat': data.get('lat'),
+                'lon': data.get('lon'),
+                'ceiling': data.get('ceiling', 6000),
+                'has_stands': data.get('has_stands', False),
+                'country': data.get('country', '')
+            }
+
         return None
     
     def load_stands(self):

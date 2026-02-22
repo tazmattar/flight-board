@@ -24,6 +24,7 @@
       <button class="tab-btn active" data-tab="stands">Stand Data</button>
       <button class="tab-btn" data-tab="themes">Theme Mapping</button>
       <button class="tab-btn" data-tab="traffic">Traffic Stats</button>
+      <button class="tab-btn" data-tab="custom-airports">Custom Airports</button>
     </nav>
 
     <!-- STANDS PANEL -->
@@ -149,6 +150,42 @@
             </tr>
           </thead>
           <tbody id="trafficSevenDayBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CUSTOM AIRPORTS PANEL -->
+    <section class="panel tab-panel" id="tab-custom-airports">
+      <p class="panel-desc">Manually define airports missing from the external database (e.g. historic or decommissioned airports). Changes apply immediately after saving.</p>
+      <div class="toolbar">
+        <button id="addCustomAirportRowBtn" type="button">Add Airport</button>
+        <button id="saveCustomAirportsBtn" type="button" class="btn-primary">Save</button>
+      </div>
+      <div class="table-wrap">
+        <table id="customAirportsTable">
+          <colgroup>
+            <col class="col-icao">
+            <col class="col-name">
+            <col class="col-country">
+            <col class="col-coord">
+            <col class="col-coord">
+            <col class="col-radius">
+            <col class="col-type">
+            <col class="col-action">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>ICAO</th>
+              <th>Name</th>
+              <th>Country</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Ceiling (ft)</th>
+              <th>Has Stands</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="customAirportsTableBody"></tbody>
         </table>
       </div>
     </section>

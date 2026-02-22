@@ -21,6 +21,10 @@
   const addThemeRowBtn     = document.getElementById('addThemeRowBtn');
   const saveThemesBtn      = document.getElementById('saveThemesBtn');
 
+  const customAirportsTableBody   = document.getElementById('customAirportsTableBody');
+  const addCustomAirportRowBtn    = document.getElementById('addCustomAirportRowBtn');
+  const saveCustomAirportsBtn     = document.getElementById('saveCustomAirportsBtn');
+
   const refreshTrafficBtn         = document.getElementById('refreshTrafficBtn');
   const trafficTotalPageViews     = document.getElementById('trafficTotalPageViews');
   const trafficTotalUniqueVisitors= document.getElementById('trafficTotalUniqueVisitors');
@@ -443,6 +447,124 @@
   addThemeRowBtn.addEventListener('click', () => createThemeRow('', { css: '/static/css/themes/default.css', class: '' }));
   saveThemesBtn.addEventListener('click',  () => saveThemeMap().catch(e => setStatus(e.message, 'error')));
 
+  // ── Custom Airports ───────────────────────────────────────────────────────
+  function createCustomAirportRow(icao, entry) {
+    const tr = document.createElement('tr');
+
+    const icaoInput = document.createElement('input');
+    icaoInput.maxLength = 4;
+    icaoInput.placeholder = 'ICAO';
+    icaoInput.value = normalizeIcao(icao);
+    icaoInput.addEventListener('input', () => {
+      const pos = icaoInput.selectionStart;
+      icaoInput.value = icaoInput.value.toUpperCase();
+      icaoInput.setSelectionRange(pos, pos);
+    });
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Airport Name';
+    nameInput.value = (entry && entry.name) || '';
+
+    const countryInput = document.createElement('input');
+    countryInput.type = 'text';
+    countryInput.maxLength = 4;
+    countryInput.placeholder = 'HK';
+    countryInput.value = (entry && entry.country) || '';
+
+    const latInput = document.createElement('input');
+    latInput.type = 'number';
+    latInput.step = '0.000001';
+    latInput.placeholder = '22.308900';
+    latInput.value = (entry && entry.lat !== undefined) ? entry.lat : '';
+
+    const lonInput = document.createElement('input');
+    lonInput.type = 'number';
+    lonInput.step = '0.000001';
+    lonInput.placeholder = '114.197100';
+    lonInput.value = (entry && entry.lon !== undefined) ? entry.lon : '';
+
+    const ceilingInput = document.createElement('input');
+    ceilingInput.type = 'number';
+    ceilingInput.step = '100';
+    ceilingInput.min = '0';
+    ceilingInput.placeholder = '6000';
+    ceilingInput.value = (entry && entry.ceiling !== undefined) ? entry.ceiling : 6000;
+
+    const hasStandsSelect = document.createElement('select');
+    ['false', 'true'].forEach(val => {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val === 'true' ? 'Yes' : 'No';
+      hasStandsSelect.appendChild(opt);
+    });
+    hasStandsSelect.value = (entry && entry.has_stands) ? 'true' : 'false';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'row-remove';
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', () => tr.remove());
+
+    [icaoInput, nameInput, countryInput, latInput, lonInput, ceilingInput, hasStandsSelect, removeBtn].forEach(el => {
+      const td = document.createElement('td');
+      td.appendChild(el);
+      tr.appendChild(td);
+    });
+
+    return tr;
+  }
+
+  function collectCustomAirports() {
+    const map = {};
+    Array.from(customAirportsTableBody.querySelectorAll('tr')).forEach(row => {
+      const inputs = row.querySelectorAll('input, select');
+      const icao = normalizeIcao(inputs[0].value);
+      if (!icao || icao.length !== 4) return;
+      const lat = parseFloat(inputs[3].value);
+      const lon = parseFloat(inputs[4].value);
+      if (isNaN(lat) || isNaN(lon)) return;
+      map[icao] = {
+        name: String(inputs[1].value || '').trim() || icao,
+        country: String(inputs[2].value || '').trim(),
+        lat,
+        lon,
+        ceiling: parseInt(inputs[5].value, 10) || 6000,
+        has_stands: inputs[6].value === 'true'
+      };
+    });
+    return map;
+  }
+
+  async function loadCustomAirports() {
+    const response = await fetch('/api/admin/custom_airports');
+    if (!response.ok) throw new Error('Failed to load custom airports');
+    const data = await response.json();
+    customAirportsTableBody.innerHTML = '';
+    Object.keys(data).sort().forEach(icao => {
+      customAirportsTableBody.appendChild(createCustomAirportRow(icao, data[icao]));
+    });
+  }
+
+  async function saveCustomAirports() {
+    const response = await fetch('/api/admin/custom_airports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ custom_airports: collectCustomAirports() })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Save failed');
+    setStatus('Custom airports saved (' + data.count + ' entries).', 'ok');
+    await loadCustomAirports();
+  }
+
+  addCustomAirportRowBtn.addEventListener('click', () => {
+    const tr = createCustomAirportRow('', {});
+    customAirportsTableBody.appendChild(tr);
+    tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+  saveCustomAirportsBtn.addEventListener('click', () => saveCustomAirports().catch(e => setStatus(e.message, 'error')));
+
   // ── Traffic Stats ─────────────────────────────────────────────────────────
   function formatNumber(value) {
     return Number(value || 0).toLocaleString();
@@ -520,6 +642,7 @@
       await loadThemeOptions();
       await loadThemeMap();
       await loadTrafficStats();
+      await loadCustomAirports();
       setStatus('Admin ready.', 'ok');
     } catch (e) {
       setStatus(e.message, 'error');

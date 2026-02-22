@@ -28,6 +28,7 @@ client_airports = {}
 THEME_MAP_PATH = os.path.join(app.static_folder, 'data', 'theme_map.json')
 STANDS_PATH = os.path.join(app.static_folder, 'stands.json')
 TRAFFIC_STATS_PATH = os.path.join(app.root_path, 'data', 'traffic_stats.json')
+CUSTOM_AIRPORTS_PATH = os.path.join(app.root_path, 'data', 'custom_airports.json')
 THEME_CSS_PREFIX = '/static/css/themes/'
 ICAO_PATTERN = re.compile(r'^[A-Z]{4}$')
 ADMIN_SESSION_KEY = 'admin_authenticated'
@@ -642,6 +643,62 @@ def admin_stands(icao):
 @app.route('/api/admin/traffic_stats')
 def admin_traffic_stats():
     return jsonify(_get_traffic_summary())
+
+
+def _validate_custom_airports(payload):
+    if not isinstance(payload, dict):
+        raise ValueError('Custom airports must be an object keyed by ICAO code.')
+
+    cleaned = {}
+    for icao, entry in payload.items():
+        normalized = _normalize_icao(icao)
+        if not normalized:
+            raise ValueError(f'Invalid ICAO code: {icao}')
+        if not isinstance(entry, dict):
+            raise ValueError(f'Entry for {normalized} must be an object.')
+
+        name = str(entry.get('name', '') or '').strip()
+        country = str(entry.get('country', '') or '').strip()
+
+        try:
+            lat = float(entry['lat'])
+            lon = float(entry['lon'])
+        except (KeyError, TypeError, ValueError):
+            raise ValueError(f'Entry for {normalized} must have numeric lat and lon.')
+
+        ceiling = int(entry.get('ceiling', 6000) or 6000)
+        has_stands = bool(entry.get('has_stands', False))
+
+        cleaned[normalized] = {
+            'name': name or normalized,
+            'country': country,
+            'lat': lat,
+            'lon': lon,
+            'ceiling': ceiling,
+            'has_stands': has_stands
+        }
+
+    return dict(sorted(cleaned.items()))
+
+
+@app.route('/api/admin/custom_airports', methods=['GET', 'POST'])
+def admin_custom_airports():
+    if request.method == 'GET':
+        data = _read_json(CUSTOM_AIRPORTS_PATH, {})
+        return jsonify(data if isinstance(data, dict) else {})
+
+    payload = request.json or {}
+    incoming = payload.get('custom_airports')
+    if incoming is None:
+        return jsonify({'error': 'Missing custom_airports payload'}), 400
+
+    try:
+        validated = _validate_custom_airports(incoming)
+        _write_json(CUSTOM_AIRPORTS_PATH, validated)
+        flight_fetcher.reload_custom_airports()
+        return jsonify({'success': True, 'count': len(validated)})
+    except ValueError as exc:
+        return jsonify({'error': str(exc)}), 400
 
 @app.route('/api/search_airport', methods=['POST'])
 def search_airport():
