@@ -184,6 +184,19 @@ document.addEventListener('DOMContentLoaded', () => {
         'GWI': '4U', 'EDW': 'WK', 'ITY': 'AZ', 'FDX': 'FX', 'UPS': '5X', 
         'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA', 'SHT': 'BA'
     };
+    // Brand-level logo aliases for airlines operating multiple AOCs/ICAO prefixes.
+    // These map to the logo code we want to display, which may differ from the
+    // airline's actual IATA code used operationally.
+    const airlineLogoAliasGroups = {
+        BA: ['SHT'],
+        W6: ['WAU', 'WAZ', 'WMT', 'WUK', 'WVL', 'WZZ']
+    };
+    const airlineLogoAliases = Object.entries(airlineLogoAliasGroups).reduce((acc, [logoCode, prefixes]) => {
+        prefixes.forEach(prefix => {
+            acc[String(prefix).toUpperCase()] = logoCode;
+        });
+        return acc;
+    }, {});
     const airportMapping = {}; 
     const airportJapaneseMapping = {};
     const euMembers = new Set();
@@ -655,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let row = document.getElementById(rowId);
             
             const prefix = safeCallsign.substring(0, 3).toUpperCase();
-            const code = airlineMapping[prefix] || prefix;
+            const code = airlineLogoAliases[prefix] || airlineMapping[prefix] || prefix;
             
             // Define cargo/special operators that we have stored locally
             const localOnlyAirlines = ['FX', 'FDX', 'UPS', '5X', 'REGA', 'SAZ'];
