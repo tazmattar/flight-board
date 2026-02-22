@@ -350,7 +350,7 @@ html, body {
 .main-label .en { font-size: 18px; font-weight: 400; color: #ccc; }
 .footer-divider { width: 2px; height: 50px; background: #333; margin: 0 30px; }
 .security-time .time { font-size: 28px; font-weight: 700; }
-.fs-footer-btn { background: transparent; border: 1px solid #333; color: #666; cursor: pointer; padding: 5px; }
+.fs-footer-btn { background: transparent; border: 1px solid #aaa; color: #fff; cursor: pointer; padding: 5px; }
 .footer-actions {
     display: flex;
     align-items: center;
