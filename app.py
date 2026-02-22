@@ -516,7 +516,7 @@ def index():
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    return render_template('admin.html', asset_version=int(time.time()))
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():

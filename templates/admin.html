@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flight Board Admin</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v=asset_version) }}">
 </head>
 <body>
   <main class="admin-shell">
@@ -193,6 +193,6 @@
     <div id="statusBar" class="status">Ready.</div>
   </main>
 
-  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin.js', v=asset_version) }}"></script>
 </body>
 </html>
