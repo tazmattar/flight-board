@@ -791,6 +791,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const flightCell = document.getElementById(`${rowId}-cell`);
             if (flightCell) {
                 flightCell.setAttribute('data-route', flight.route || 'No route');
+                flightCell.setAttribute('data-speed', flight.groundspeed ?? '');
+                flightCell.setAttribute('data-altitude', flight.altitude ?? '');
+                flightCell.setAttribute('data-squawk', flight.squawk || '');
             }
 
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
@@ -1116,18 +1119,27 @@ document.addEventListener('DOMContentLoaded', () => {
             this.value = this.value.toUpperCase().slice(0, 4);
         });
     }
-    // --- FLIGHT PLAN TOOLTIP LOGIC ---
+    // --- FLIGHT TOOLTIP LOGIC ---
     const tooltip = document.getElementById('flightTooltip');
 
     document.addEventListener('mouseover', (e) => {
-        // Check if we are hovering over a flight cell (or its children)
         const cell = e.target.closest('.flight-cell');
-        
-        if (cell && cell.hasAttribute('data-route')) {
-            const route = cell.getAttribute('data-route');
-            if (route && route !== 'No route available') {
+
+        if (cell) {
+            const speed = cell.getAttribute('data-speed');
+            const altitude = cell.getAttribute('data-altitude');
+            const squawk = cell.getAttribute('data-squawk');
+
+            const lines = [];
+            if (speed !== null && speed !== '') lines.push(`Speed:    ${speed} kts`);
+            if (altitude !== null && altitude !== '') lines.push(`Altitude: ${parseInt(altitude).toLocaleString()} ft`);
+            if (squawk) lines.push(`Squawk:   ${squawk}`);
+
+            if (lines.length) {
+                tooltip.textContent = lines.join('\n');
                 tooltip.style.display = 'block';
-                tooltip.textContent = route;
+            } else {
+                tooltip.style.display = 'none';
             }
         } else {
             tooltip.style.display = 'none';

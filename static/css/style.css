@@ -878,6 +878,7 @@ body.theme-eham .tracking-chip {
     max-width: 400px;
     z-index: 9999;
     pointer-events: none; /* Allows mouse to pass through */
+    white-space: pre;
     box-shadow: 0 4px 15px rgba(0,0,0,0.8);
     white-space: normal;
     line-height: 1.4;
