@@ -1131,9 +1131,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const squawk = cell.getAttribute('data-squawk');
 
             const lines = [];
-            if (speed !== null && speed !== '') lines.push(`Speed:    ${speed} kts`);
-            if (altitude !== null && altitude !== '') lines.push(`Altitude: ${parseInt(altitude).toLocaleString()} ft`);
-            if (squawk) lines.push(`Squawk:   ${squawk}`);
+            if (speed !== null && speed !== '') lines.push(`Gnd Speed: ${speed} kts`);
+            if (altitude !== null && altitude !== '') lines.push(`Altitude:  ${parseInt(altitude).toLocaleString()} ft`);
+            if (squawk) lines.push(`Squawk:    ${squawk}`);
 
             if (lines.length) {
                 tooltip.textContent = lines.join('\n');
