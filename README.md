@@ -55,7 +55,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * **EGKK (Gatwick):** Distinctive Gatwick Yellow and Black styling.
     * **EGSS (Stansted):** Stansted Yellow with Black text.
     * **EHAM (Amsterdam):** Schiphol-inspired theme based on real FIDS reference.
-    * **KJFK (New York):** Retro "Solari" split-flap style with the custom B612 font.
+    * **KJFK (New York):** JFK Yellow and Black.
     * **RJTT (Tokyo Haneda):** Black header with Green accent lines.
 * **Hybrid Display Style:**
     * **Flight Data:** Rendered as clean, high-visibility text.
@@ -108,7 +108,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 | EGKK | London Gatwick | North/South | 184 | Gatwick Yellow |
 | EGSS | London Stansted | Main terminal | 144 | Stansted Yellow |
 | EHAM | Amsterdam Schiphol | D, E, F piers | 276 | Schiphol Grey |
-| KJFK | New York JFK | T1, T4, T5, T7, T8 | 205 | Solari Split-Flap |
+| KJFK | New York JFK | T1, T4, T5, T7, T8 | 205 | JFK Yellow and Black |
 | RJTT | Tokyo Haneda | T1, T2, T3 | 238 | Haneda Dark |
 
 *Note: Any other airport can be loaded via the "+" button in the UI.*
