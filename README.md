@@ -1,14 +1,20 @@
-# VATSIM Flight Information Display System 
+# VATSIM Flight Information Display System
 A professional, real-time Flight Information Display System (FIDS) designed for VATSIM operations. This application replicates the visual style and functionality of modern airport information screens found at major international airports.
 
 It is optimised for use on dedicated display monitors in both portrait and landscape orientations.
+
+## Support
+
+If the flight board adds a little extra joy to your sim experience, a coffee helps keep the servers humming and the flight statuses updating.
+
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/tazmattar)
 
 ## Features
 
 ### Core Functionality
 * **Universal Airport Support:** Instantly load *any* airport on the VATSIM network by searching for its ICAO code in the UI.
 * **Direct Link Loading:** Open the board directly to an airport using `?icao=XXXX` (or `?airport=XXXX`) in the URL.
-* **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLL, EGKK, and KJFK.
+* **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLC, EGLL, EGKK, EGSS, EHAM, KJFK, and RJTT.
 * **Track Flight Mode:** Tap/click any visible flight row to track exactly one callsign and follow it with automatic airport switching.
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 60 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
@@ -44,9 +50,13 @@ It is optimised for use on dedicated display monitors in both portrait and lands
     * **LSZH (Zurich):** High-contrast White/Black header with Yellow accents.
     * **LSGG (Geneva):** Geneva Blue headers with White text.
     * **LFSB (Basel):** Immersive "EuroAirport Blue" background.
+    * **EGLC (London City):** Classic City Airport Yellow with Black text.
     * **EGLL (Heathrow):** Classic Heathrow Yellow header with Black text.
     * **EGKK (Gatwick):** Distinctive Gatwick Yellow and Black styling.
+    * **EGSS (Stansted):** Stansted Yellow with Black text.
+    * **EHAM (Amsterdam):** Schiphol-inspired theme based on real FIDS reference.
     * **KJFK (New York):** Retro "Solari" split-flap style with the custom B612 font.
+    * **RJTT (Tokyo Haneda):** Black header with Green accent lines.
 * **Hybrid Display Style:**
     * **Flight Data:** Rendered as clean, high-visibility text.
     * **Status Column:** Rendered as solid, edge-to-edge colored blocks for instant readability.
@@ -67,7 +77,7 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 ### London Heathrow (EGLL) - Yellow Theme
 ![Heathrow Board](screenshots/EGLL.png)
 
-### London Gatwick (EGLL) - Yellow Theme
+### London Gatwick (EGKK) - Yellow Theme
 ![Gatwick Board](screenshots/EGKK.png)
 
 ### London City (EGLC) - Yellow Theme
@@ -96,8 +106,8 @@ It is optimised for use on dedicated display monitors in both portrait and lands
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/vatsim-flight-board.git](https://github.com/yourusername/vatsim-flight-board.git)
-    cd vatsim-flight-board
+    git clone https://github.com/tazmattar/flight-board.git
+    cd flight-board
     ```
 
 2.  **Install dependencies:**
@@ -141,6 +151,7 @@ ADMIN_PASSWORD=replace-with-a-strong-password
 ADMIN_MAX_LOGIN_ATTEMPTS=5
 ADMIN_LOGIN_WINDOW_SECONDS=300
 ADMIN_LOCKOUT_SECONDS=900
+BUY_ME_A_COFFEE_URL=https://buymeacoffee.com/your-username
 ```
 
 If login failures exceed the configured threshold within the time window, access is temporarily locked and returns HTTP `429`.
@@ -158,12 +169,16 @@ You can add specific logic for new airports in `checkin_assignments.py` (for des
 
 | ICAO | Name | Terminals | Stands | Theme |
 |------|------|-----------|--------|-------|
-| LSZH | Zurich Airport | Multiple piers | 152 | White/Black/Yellow |
+| LSZH | Zurich Airport | Multiple piers | 153 | White/Black/Yellow |
 | LSGG | Geneva Airport | Main + French | 31 | Geneva Blue |
-| LFSB | EuroAirport Basel | French/Swiss | 79 | EuroAirport Blue |
-| EGLL | London Heathrow | T2, T3, T4, T5 | 248 | Heathrow Yellow |
-| EGKK | London Gatwick | North/South | UKCP | Gatwick Yellow |
-| KJFK | New York JFK | T1, T4, T5, T7, T8 | 35 | Solari Split-Flap |
+| LFSB | EuroAirport Basel | French/Swiss | 68 | EuroAirport Blue |
+| EGLC | London City Airport | Single terminal | 20 | City Yellow |
+| EGLL | London Heathrow | T2, T3, T4, T5 | 250 | Heathrow Yellow |
+| EGKK | London Gatwick | North/South | 184 | Gatwick Yellow |
+| EGSS | London Stansted | Main terminal | 144 | Stansted Yellow |
+| EHAM | Amsterdam Schiphol | D, E, F piers | 276 | Schiphol Grey |
+| KJFK | New York JFK | T1, T4, T5, T7, T8 | 205 | Solari Split-Flap |
+| RJTT | Tokyo Haneda | T1, T2, T3 | 238 | Haneda Dark |
 
 *Note: Any other airport can be loaded via the "+" button in the UI.*
 
@@ -180,11 +195,11 @@ This project is open-source and available under the MIT License.
 
 ## Roadmap
 
-- [x] Add more European airports (EGKK added)
+- [x] Add more European airports (EGKK, EGLC, EGSS, EHAM added)
 - [x] Add North American airports (KJFK added)
 - [x] Implement custom themes for major hub airports
 - [x] Universal Airport Search (Dynamic loading)
-- [ ] Asian Pacific airports (VHHH, WSSS, YSSY)
+- [x] Asian Pacific airports (RJTT added)
 - [x] Add METAR/weather display widget
 - [x] Add ATC/controller widget with live popover
 - [ ] Aircraft type silhouettes/icons
