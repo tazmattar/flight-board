@@ -151,7 +151,6 @@ ADMIN_PASSWORD=replace-with-a-strong-password
 ADMIN_MAX_LOGIN_ATTEMPTS=5
 ADMIN_LOGIN_WINDOW_SECONDS=300
 ADMIN_LOCKOUT_SECONDS=900
-BUY_ME_A_COFFEE_URL=https://buymeacoffee.com/your-username
 ```
 
 If login failures exceed the configured threshold within the time window, access is temporarily locked and returns HTTP `429`.
