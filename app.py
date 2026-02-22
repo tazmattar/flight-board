@@ -511,15 +511,7 @@ update_flights()
 
 @app.route('/')
 def index():
-    return render_template('index.html', asset_version=int(time.time()))
-
-@app.route('/support')
-def support():
-    return render_template(
-        'support.html',
-        asset_version=int(time.time()),
-        bmc_url=app.config.get('BUY_ME_A_COFFEE_URL', '')
-    )
+    return render_template('index.html', asset_version=int(time.time()), bmc_url=app.config.get('BUY_ME_A_COFFEE_URL', ''))
 
 @app.route('/admin')
 def admin():
