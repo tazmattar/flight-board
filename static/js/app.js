@@ -952,7 +952,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
                 });
                 const times = `${pad(start.getUTCHours())}:${pad(start.getUTCMinutes())}\u2013${pad(end.getUTCHours())}:${pad(end.getUTCMinutes())}z`;
-                return `<span class="event-ticker-item"><span class="event-ticker-bullet">&#9654;</span>${ev.name} &mdash; ${day} ${times}</span>`;
+                return `<span class="event-ticker-item">${ev.name} &mdash; ${day} ${times}</span>`;
             }).join('');
 
             // Duplicate content for seamless CSS loop

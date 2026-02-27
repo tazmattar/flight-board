@@ -1143,14 +1143,8 @@ body.theme-eham .tracking-chip {
     font-weight: 400;
     color: rgba(255, 255, 255, 0.4);
     padding: 0 44px;
-    letter-spacing: 0.2px;
-}
-
-.event-ticker-bullet {
-    color: var(--fids-yellow);
-    margin-right: 6px;
-    font-size: 0.55rem;
-    vertical-align: middle;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 @keyframes ticker-scroll {
