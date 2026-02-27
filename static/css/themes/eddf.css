@@ -29,13 +29,17 @@ body.theme-eddf .airport-selector select option {
     color: #111111;
 }
 
-/* Section Dividers */
+/* Section Dividers — Departures / Arrivals titles and pagination numbers */
 body.theme-eddf .section-divider {
     background-color: var(--eddf-black);
-    color: var(--eddf-yellow);
+    color: #ffffff;
     border-bottom: 2px solid var(--eddf-grey);
     text-transform: uppercase;
     letter-spacing: 2px;
+}
+
+body.theme-eddf .page-ind {
+    color: #ffffff;
 }
 
 /* Table Headers */
