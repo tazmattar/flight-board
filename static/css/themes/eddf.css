@@ -81,6 +81,13 @@ body.theme-eddf .flap-container::after {
     transform: translateY(-50%);
 }
 
+/* Gate column — narrowest column, strip horizontal padding right down */
+body.theme-eddf .col-gate .flap-container {
+    padding-left: 1px;
+    padding-right: 1px;
+    letter-spacing: 0;
+}
+
 /* --- STATUS COLUMN OVERRIDES --- */
 /* Strip background colours from style.css; reset all status text to white */
 body.theme-eddf .col-status .flap-container {
