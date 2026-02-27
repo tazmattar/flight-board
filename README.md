@@ -14,7 +14,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 ### Core Functionality
 * **Universal Airport Support:** Instantly load *any* airport on the VATSIM network by searching for its ICAO code in the UI.
 * **Direct Link Loading:** Open the board directly to an airport using `?icao=XXXX` (or `?airport=XXXX`) in the URL.
-* **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLC, EGLL, EGKK, EGSS, EHAM, KJFK, and RJTT.
+* **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLC, EGLL, EGKK, EGSS, EHAM, EDDF, KJFK, and RJTT.
 * **Track Flight Mode:** Tap/click any visible flight row to track exactly one callsign and follow it with automatic airport switching.
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 60 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
@@ -55,6 +55,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * **EGKK (Gatwick):** Distinctive Gatwick Yellow and Black styling.
     * **EGSS (Stansted):** Stansted Yellow with Black text.
     * **EHAM (Amsterdam):** Schiphol-inspired theme based on real FIDS reference.
+    * **EDDF (Frankfurt):** Authentic Solari split-flap display aesthetic with animated mechanical character flips, Lufthansa Blue footer, and terminal indicators.
     * **KJFK (New York):** JFK Yellow and Black.
     * **RJTT (Tokyo Haneda):** Black header with Green accent lines.
 * **Hybrid Display Style:**
@@ -108,6 +109,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 | EGKK | London Gatwick | North/South | 184 | Gatwick Yellow |
 | EGSS | London Stansted | Main terminal | 144 | Stansted Yellow |
 | EHAM | Amsterdam Schiphol | D, E, F piers | 276 | Schiphol Grey |
+| EDDF | Frankfurt Airport | T1 (A/B/C/Z), T2 (D/E) | 170 | Solari Split-Flap Dark |
 | KJFK | New York JFK | T1, T4, T5, T7, T8 | 205 | JFK Yellow and Black |
 | RJTT | Tokyo Haneda | T1, T2, T3 | 238 | Haneda Dark |
 
@@ -131,6 +133,7 @@ This project is open-source and available under the MIT License.
 - [x] Implement custom themes for major hub airports
 - [x] Universal Airport Search (Dynamic loading)
 - [x] Asian Pacific airports (RJTT added)
+- [x] Solari split-flap display theme (EDDF added)
 - [x] Add METAR/weather display widget
 - [x] Add ATC/controller widget with live popover
 - [ ] Aircraft type silhouettes/icons
