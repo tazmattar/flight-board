@@ -1147,6 +1147,11 @@ body.theme-eham .tracking-chip {
     text-transform: uppercase;
 }
 
+.event-ticker-gap {
+    display: inline-block;
+    width: 100vw;
+}
+
 @keyframes ticker-scroll {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }

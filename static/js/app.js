@@ -955,20 +955,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span class="event-ticker-item">${ev.name} &mdash; ${day} ${times}</span>`;
             }).join('');
 
-            // Duplicate content for seamless CSS loop
-            track.innerHTML = items + items;
+            // Structure: [items][gap][items][gap]
+            // The gap is one full viewport width, ensuring the two copies
+            // are never on screen at the same time regardless of content length.
+            const gap = `<span class="event-ticker-gap"></span>`;
+            track.innerHTML = items + gap + items + gap;
 
-            // Reset animation so it restarts cleanly on airport switch
+            // Show ticker before measuring so scrollWidth is accurate
+            ticker.style.display = '';
+
+            // Reset animation, measure loop distance (half of total track), set duration
             track.style.animation = 'none';
             track.offsetHeight; // force reflow
+            const loopWidth = track.scrollWidth / 2;
+            const duration = Math.max(15, loopWidth / 70);
             track.style.animation = '';
-
-            // Scale speed to content length (~70 px/s)
-            const singleWidth = track.scrollWidth / 2;
-            const duration = Math.max(12, singleWidth / 70);
             track.style.animationDuration = `${duration}s`;
-
-            ticker.style.display = '';
         } catch (e) {
             ticker.style.display = 'none';
         }
