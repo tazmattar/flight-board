@@ -144,10 +144,10 @@ body.theme-eddf .security-time .label {
     color: #888888;
 }
 
-/* Widgets */
-body.theme-eddf .widget-icon, 
+/* Widgets — no !important on widget-icon so radar-pulse animation can override colour */
+body.theme-eddf .widget-icon,
 body.theme-eddf .widget-text {
-    color: var(--eddf-yellow) !important;
+    color: var(--eddf-yellow);
 }
 
 /* Destination text — inherits white from .flap-container */
