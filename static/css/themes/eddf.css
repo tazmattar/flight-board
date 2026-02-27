@@ -82,9 +82,10 @@ body.theme-eddf .flap-container::after {
 }
 
 /* --- STATUS COLUMN OVERRIDES --- */
-/* Strip the solid background blocks from style.css to maintain the flap look */
+/* Strip background colours from style.css; reset all status text to white */
 body.theme-eddf .col-status .flap-container {
     background-color: var(--eddf-flap-bg) !important;
+    color: #e0e0e0 !important;
     width: 100%;
     justify-content: flex-start;
 }
@@ -100,9 +101,6 @@ body.theme-eddf .col-status[data-status="CLOSED"] .flap-container {
     color: #ff3333 !important; /* Red text */
 }
 
-body.theme-eddf .col-status[data-status="En Route"] .flap-container {
-    color: #888888 !important; /* Dimmed */
-}
 
 /* Fix Airline Logos for the dark flap background */
 body.theme-eddf .airline-logo {
