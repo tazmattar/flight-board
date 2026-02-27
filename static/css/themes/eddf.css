@@ -54,7 +54,7 @@ body.theme-eddf .flight-table td {
 
 /* --- THE MECHANICAL FLAPS --- */
 body.theme-eddf .flap-container {
-    color: var(--eddf-yellow) !important;
+    color: #e0e0e0 !important;
     background-color: var(--eddf-flap-bg);
     display: inline-flex;
     align-items: center;
@@ -75,8 +75,8 @@ body.theme-eddf .flap-container::after {
     top: 50%;
     left: 0;
     right: 0;
-    height: 2px;
-    background: rgba(0, 0, 0, 0.85);
+    height: 1px;
+    background: rgba(0, 0, 0, 0.4);
     pointer-events: none;
     transform: translateY(-50%);
 }
@@ -134,10 +134,7 @@ body.theme-eddf .widget-text {
     color: var(--eddf-yellow) !important;
 }
 
-/* Destination text */
-body.theme-eddf .flap-dest {
-    color: var(--eddf-yellow) !important;
-}
+/* Destination text — inherits white from .flap-container */
 
 /* =============================================
    SPLIT-FLAP ANIMATION
