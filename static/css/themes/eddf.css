@@ -86,9 +86,11 @@ body.theme-eddf .flap-container::after {
     transform: translateY(-50%);
 }
 
-/* Narrow the status column (no background block needed) and give space to destination */
-body.theme-eddf .flight-table col:nth-child(7) { width: 20% !important; } /* Status: 25→20 */
+/* Column width adjustments for EDDF split-flap layout */
+body.theme-eddf .flight-table col:nth-child(1) { width: 16% !important; } /* Flight: 13→16 */
 body.theme-eddf .flight-table col:nth-child(2) { width: 28% !important; } /* Dest:   23→28 */
+body.theme-eddf .flight-table col:nth-child(3) { width:  8% !important; } /* A/C:    11→8  */
+body.theme-eddf .flight-table col:nth-child(7) { width: 20% !important; } /* Status: 25→20 */
 
 /* Gate column — narrowest column, strip horizontal padding right down */
 body.theme-eddf .col-gate .flap-container {
