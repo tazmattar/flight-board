@@ -14,13 +14,14 @@ body.theme-eddf {
 body.theme-eddf .fids-header {
     background-color: #ffffff;
     border-bottom: 3px solid #e0e0e0;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 body.theme-eddf .airport-selector select,
 body.theme-eddf .clock-container {
     color: #111111 !important;
     background: transparent;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* Force native dropdown options to be readable */
