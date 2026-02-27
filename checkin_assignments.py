@@ -52,6 +52,8 @@ class CheckinAssignments:
             return self._jfk(airline, seed)
         elif airport_code == 'RJTT':
             return self._haneda(airline, seed)
+        elif airport_code == 'EDDF':
+            return self._frankfurt(airline, seed)
         else:
             # Generic fallback for unknown airports
             return self._generic(seed)
@@ -285,8 +287,46 @@ class CheckinAssignments:
         row = chr(65 + (seed % 10)) # A, B, C...
         return f"T3-{row}"
     
+    # ==================== GERMANY ====================
+
+    def _frankfurt(self, airline, seed):
+        """Frankfurt Airport (EDDF) check-in assignments"""
+        # Terminal 1, Hall A: Lufthansa group + Star Alliance
+        # (A01–A28 in real life)
+        if airline in [
+            'DLH', 'GEC', 'SWR', 'AUA', 'SAS', 'BEL', 'LOT', 'TAP',
+            'ACA', 'THA', 'ANA', 'SIA', 'ETH', 'SAA', 'OAL', 'CTN',
+            'ADR', 'LNI', 'MSR', 'AVA'
+        ]:
+            desk = (seed % 28) + 1
+            return f"A{desk:02d}"
+
+        # Terminal 2: SkyTeam + low-cost carriers
+        # (real T2 opened 1994, used by SkyTeam & budget ops)
+        if airline in [
+            'KLM', 'AFR', 'DAL', 'AFL', 'CSN', 'CES', 'AMX', 'KQA',
+            'MEA', 'RYR', 'EZY', 'EJU', 'WZZ', 'RUK', 'TRA', 'EXS'
+        ]:
+            desk = (seed % 50) + 201
+            return f"{desk}"
+
+        # Terminal 1, Hall B: Long-haul non-Star Alliance
+        # (B01–B76 in real life)
+        if airline in [
+            'BAW', 'AAL', 'UAL', 'QFA', 'CPA', 'JAL', 'KAL', 'UAE',
+            'QTR', 'ETD', 'SVA', 'MAS', 'EIN', 'VIR', 'PIA', 'ICE',
+            'THY', 'IBE', 'TKA'
+        ]:
+            desk = (seed % 36) + 1
+            return f"B{desk:02d}"
+
+        # Terminal 1, Hall C: European / charter / regional
+        # (C01–C99 in real life)
+        desk = (seed % 60) + 1
+        return f"C{desk:02d}"
+
     # ==================== GENERIC FALLBACK ====================
-    
+
     def _generic(self, seed):
         """Generic check-in assignment for airports without specific logic"""
         desk = (seed % 20) + 1
