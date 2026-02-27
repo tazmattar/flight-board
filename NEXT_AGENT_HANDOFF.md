@@ -1,112 +1,100 @@
 # Agent Handoff Notes
 
-## Session Summary (2026-02-20)
+## Session Summary (2026-02-27)
 
 ### Git State
 - Branch: `main`, remote in sync
-- Latest commit: `bb77ca0`
+- Latest commit: `7d29ecc`
 
 ---
 
 ## Changes Made This Session
 
-### 1. Rolled back OSM/buffer work
-All commits from the morning's OSM buffer/metadata session (10:24–10:58) were
-reverted via `git reset --hard 8d82df8`. The rollback target was the last known-
-good commit (mobile CSS fixes, 09:04). The stand matching is back to **radius-only
-geofencing** driven purely by each stand's `radius` field in `static/stands.json`.
+### 1. EDDF (Frankfurt) theme — full implementation
+
+**Files:** `static/css/themes/eddf.css` (new), `static/data/theme_map.json`, `static/js/app.js`, `templates/index.html`
+
+- Added `EDDF` to the airport `<select>` dropdown in `index.html`
+- Added `EDDF` to `defaultThemeMap` in `app.js` (fallback if `/api/theme_map` is unavailable)
+- `eddf.css` implements a classic **Solari split-flap aesthetic**:
+  - Deep black background (`#050505`), Lufthansa yellow (`#F9A800`) for header/footer accents
+  - Table text is **off-white** (`#e0e0e0`) — not yellow
+  - Status column uses colour-coded text only (no background blocks):
+    - Boarding → bright green `#00e600`
+    - Delayed / Cancelled / CLOSED → red `#ff3333`
+    - All other statuses → white `#e0e0e0`
+  - Subtle 1px split-line at 50% of each `.flap-container` via `::after`
+  - Gate column has minimal padding (`1px`) and no letter-spacing to avoid cutoff
+  - **Pulsing animations disabled** (`badge-pulse`, status opacity transition) — split-flap handles all transitions
+  - **ATC widget pulse re-enabled** — `!important` removed from `.widget-icon` colour so the `radar-pulse` animation can override it to green when ATC is online
 
 ---
 
-### 2. Admin UI rebuilt (commits 825fa26 → dec22c0 → e9c1e71 → 4bc6539 → 65deb39)
+### 2. Split-flap animation module
 
-`templates/admin.html`, `static/css/admin.css`, `static/js/admin.js`
+**File:** `static/js/split_flap.js` (new)
 
-- **Full-width layout** — removed `max-width` constraint
-- **Tab navigation** — Stand Data / Theme Mapping / Traffic Stats tabs
-- **Table-based stand editor** — editable rows (Name, Lat, Lon, Radius, Type)
-  with Add/Remove per row; replaces the raw textarea-only editor
-- **Raw JSON fallback** — collapsible section for bulk paste/edit; syncs with table
-- **CSV import** — Import CSV button, parses `name,lat,lon,radius,type` (header
-  required; radius/type optional). Duplicate detection on name field with three
-  choices: Skip, Overwrite, Cancel. Imported rows are natural-sorted into position.
-- **Natural sort** — stands always sort by name using `localeCompare numeric:true`
-  (A1, A2, A10 not A1, A10, A2) on load, import, and JSON apply
-- **Fixed status bar** — now `position: fixed` at viewport bottom so save
-  confirmations are always visible regardless of scroll depth
-- **Login page** — re-centred (margin: auto on `.login-shell`)
+- Loaded before `app.js` in `index.html`
+- Exposes `window.SplitFlap.animateContainer(container, newText)`
+- **Only activates when `body.theme-eddf` is present** — all other themes get plain `textContent` updates (and any leftover spans are cleaned up on theme switch)
+- Each `.flap-container` is broken into individual `.sf-char` `<span>` elements
+- Characters cycle through the Solari glyph order (`SPACE → A-Z → 0-9 → punctuation`) before landing on target
+- Long journeys capped at `MAX_STEPS = 10` to keep animation snappy
+- Left-to-right stagger wave: 28 ms offset per character position
+- `app.js` integration:
+  - `updateFlapText()` delegates to `SplitFlap.animateContainer` when available
+  - `updateStatusWithFade()` uses split-flap path for EDDF (instant colour change, animated text); keeps opacity-fade for all other themes
+- `@keyframes sf-flip` in `eddf.css`: `scaleY` collapses to 0 at midpoint with `brightness(2)` flash — simulates the metal flap catching light
 
 ---
 
-### 3. Stand/gate assignment bugs fixed (commits 138448f, 78f265b, 4badb7b)
+### 3. Cache-busting for dynamically loaded theme CSS
 
-`vatsim_fetcher.py`
+**Files:** `templates/index.html`, `static/js/app.js`
 
-**GS threshold** — raised from `> 5` to `> 15` so geofencing runs for slow-taxiing
-aircraft that VATSIM reports at 6–10 knots while parked.
-
-**GS=0 on taxiway** — if airport has stand data but no stand matched, a stationary
-aircraft now returns `Taxiing` (not `Boarding`). Boarding requires being at a
-matched stand or the airport having no stand data at all.
-
-**Pushback gate** — Pushback now shows `CLOSED` (was showing stand name). Gate
-shows CLOSED for Pushback, Taxiing, Departing, En Route.
-
-**Status/gate logic summary:**
-| GS | Stand match? | Status | Gate |
-|---|---|---|---|
-| 0, < 5 min online | any | Check-in | TBA |
-| 0 | no (airport has stands) | Taxiing | CLOSED |
-| 0 | yes | Boarding | stand name |
-| 1–4 | yes or squawking | Pushback | CLOSED |
-| 1–4 | no | Taxiing | CLOSED |
-| 5–44 | — | Taxiing | CLOSED |
-| 45+ | — | Departing | CLOSED |
+- `asset_version` (Unix timestamp, set server-side) is exposed as `window.ASSET_VERSION` via an inline `<script>` tag in `index.html`
+- `updateTheme()` in `app.js` appends `?v=<ASSET_VERSION>` when setting `themeLink.href`
+- Prevents Cloudflare from serving stale cached versions of theme CSS after updates
 
 ---
 
-### 4. EHAM gate assignment fixed (commit 0d308a7)
+### 4. EDDF check-in desk logic
 
-`vatsim_fetcher.py`
+**File:** `checkin_assignments.py`
 
-EHAM was missing from `configured_airports`, so `has_stands` was always `False`
-and `find_stand()` was never called despite 269 stands in stands.json.
-Fixed: added `'EHAM': { 'name': 'Amsterdam Schiphol', 'ceiling': 6000, 'has_stands': True }`.
+Added `_frankfurt()` method and routing in `get_checkin_desk()`:
 
-**Important pattern**: any airport with stands in `stands.json` must also have an
-entry in `configured_airports` with `has_stands: True`, otherwise geofencing is
-silently skipped. The admin UI hot-reloads stands on save (no restart needed).
-
----
-
-### 5. Tracking row outline & airport join stats (commit d4389cd)
-
-- Tracked row outline uses `var(--tracking-outline, #ffffff)`; EHAM overrides to
-  `#888888` for visibility on white background
-- New visitors defaulting to LSZH no longer inflate its airport join count;
-  `getInitialAirport()` returns `{ airport, explicit }` — only explicit selections
-  (URL param, localStorage, dropdown change) are recorded
+| Hall / Terminal | Desk format | Airlines |
+|---|---|---|
+| Terminal 1, Hall A | `A01`–`A28` | Lufthansa group + Star Alliance (DLH, SWR, AUA, SAS, BEL, LOT, TAP, ACA, THA, ANA, SIA…) |
+| Terminal 1, Hall B | `B01`–`B36` | Long-haul non-Star (BAW, AAL, UAL, QFA, CPA, JAL, KAL, UAE, QTR, ETD…) |
+| Terminal 2 | `201`–`250` | SkyTeam + low-cost (KLM, AFR, DAL, AFL, RYR, EZY, EJU, WZZ…) |
+| Terminal 1, Hall C | `C01`–`C60` | European / charter / regional (fallback) |
 
 ---
 
-### 6. EHAM theme refinements (commits c01892a, 19e1f85, 0bbf45b, bb77ca0, + CSS)
+### 5. Service management fix
 
-`static/css/themes/eham.css`, `static/js/app.js`
-
-- **Boarding status** — green text (`--schiphol-green` / `#298C43`) on transparent
-  background, matching real Schiphol FIDS
-- **Gate column** — yellow (`--schiphol-yellow`) fill with black bold text; 3px
-  inset padding enforced with `!important` to survive all responsive breakpoints.
-  `col-gate` class added to gate `<td>` in JS (no styling in base CSS — safe for
-  all other themes)
-- **Column header row** — light grey (`--schiphol-row-alt` / `#F1F1F1`) background
-  with black text
-- **SimFixr logo** — increased to 56px desktop / 36px mobile
+- Discovered two conflicting systemd service files: `flightboard.service` (the real one, always enabled) and `flight-board.service` (a duplicate that was never the active one)
+- `flight-board.service` was **disabled and deleted**
+- Correct restart command: `systemctl restart flightboard`
+- The Cloudflare tunnel (`cloudflared.service`) runs separately and reconnects automatically — do not restart it unless the tunnel itself is broken
 
 ---
 
-## Known Remaining Issues
+## Architecture Reminders (carried forward)
+- Stand matching: radius-only geofencing in `find_stand()` (Priority 2)
+- UK airports only: UKCP API checked first (Priority 1), geofencing as fallback
+- `static/stands.json` is the single source of truth for stand coordinates/radii
+- Admin API: `GET/POST /api/admin/stands/<icao>` — hot-reloads stands on save (no restart needed)
+- Any airport with stands must be in `configured_airports` with `has_stands: True`
+- `col-gate` class on gate `<td>` is a styling hook — no base CSS, theme-scoped only
+- `data/` directory (traffic stats, custom_airports.json) and `static/stands.json` are runtime files, **not committed to git**
+- `static/data/theme_map.json` is also runtime — don't commit it
 
+---
+
+## Known Remaining Issues (carried forward)
 ### RJTT, KJFK stand coordinate accuracy
 Stands at these airports were originally imported from OSM and many coordinates
 are offset from real parking positions by 30–80m. With a default radius of 40m
@@ -114,21 +102,3 @@ this means aircraft at the correct gate don't always get a match.
 
 **Recommended fix**: replace OSM-derived coordinates with accurate data from
 Google Earth or AIP charts, imported via the admin CSV import tool.
-
-As a quick stopgap, radii for individual stands can be increased to 60–80m via
-the admin stand editor to catch aircraft parked slightly off-centre.
-
-Do **not** add a global buffer fallback or per-source special behaviour —
-keep matching data-driven via `stands.json` only.
-
----
-
-## Architecture Reminders
-- Stand matching: radius-only geofencing in `find_stand()` (Priority 2)
-- UK airports only: UKCP API checked first (Priority 1), geofencing as fallback
-- `static/stands.json` is the single source of truth for stand coordinates/radii
-- Admin API: `GET/POST /api/admin/stands/<icao>` — hot-reloads stands on save (no restart needed)
-- Any airport with stands must be in `configured_airports` with `has_stands: True`
-- `col-gate` class on gate `<td>` is a styling hook — no base CSS, theme-scoped only
-- `data/` directory (traffic stats) and `static/stands.json` are runtime files,
-  not committed to git
