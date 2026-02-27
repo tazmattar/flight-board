@@ -23,6 +23,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
     * **Portrait Mode:** Automatically stacks tables vertically for optimal use on vertical monitors.
 * **Auto-Pagination Engine:** Smart pagination detects overflow and splits flights into pages with indicators, automatically cycling through pages when needed.
+* **Event Ticker:** A slim scrolling ticker bar appears above the footer whenever the current airport has an active or upcoming VATSIM event (within 24 hours), sourced from the VATSIM Events API. Automatically hidden when no events are scheduled.
 
 ### Track Flight Mode
 * **Start tracking:** Select any visible departure/arrival row.
@@ -92,7 +93,9 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 * **Backend:** Python 3.8+, Flask, Flask-SocketIO
 * **Scheduler:** APScheduler (Background data fetching)
 * **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript (ES6+)
-* **Data Sources:** * VATSIM Data API v3
+* **Data Sources:**
+    * VATSIM Data API v3
+    * VATSIM Events API (Event ticker)
     * UKCP API (Stand assignments)
     * GitHub Airline Codes Database (Logo mapping)
 * **Theme System:** Modular CSS architecture with dynamic loading
@@ -136,6 +139,7 @@ This project is open-source and available under the MIT License.
 - [x] Solari split-flap display theme (EDDF added)
 - [x] Add METAR/weather display widget
 - [x] Add ATC/controller widget with live popover
+- [x] VATSIM event ticker (live event detection per airport)
 - [ ] Aircraft type silhouettes/icons
 
 ## Bonus - Running as a Dedicated Kiosk Display
