@@ -319,13 +319,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if this is a configured airport with a specific theme
         if (themeMap[airportCode] && themeMap[airportCode].css) {
             const theme = themeMap[airportCode];
-            themeLink.href = theme.css;
+            const v = window.ASSET_VERSION || Date.now();
+            themeLink.href = theme.css + '?v=' + v;
             if (theme.class) {
                 document.body.classList.add(theme.class);
             }
         } else {
             // Dynamic airport - use default theme
-            themeLink.href = '/static/css/themes/default.css';
+            const v = window.ASSET_VERSION || Date.now();
+            themeLink.href = '/static/css/themes/default.css?v=' + v;
             document.body.classList.add('theme-default');
         }
         
