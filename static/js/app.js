@@ -333,6 +333,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update flags (works for both configured and dynamic airports)
         updateFlags(airportCode);
+
+        // Move flags to left group for EDDF to free up center space
+        const flagContainer = document.getElementById('flagContainer');
+        const footerLeft = document.querySelector('.footer-group.left');
+        const footerCenterLeft = document.querySelector('.footer-group.center-left');
+        if (airportCode === 'EDDF') {
+            if (flagContainer && footerLeft && flagContainer.parentElement !== footerLeft) {
+                footerLeft.appendChild(flagContainer);
+            }
+        } else {
+            if (flagContainer && footerCenterLeft && flagContainer.parentElement !== footerCenterLeft) {
+                footerCenterLeft.appendChild(flagContainer);
+            }
+        }
+
         syncAirportNameCycle();
         applyDestinationNameMode();
 

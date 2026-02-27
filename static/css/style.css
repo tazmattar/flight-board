@@ -1108,3 +1108,8 @@ body.theme-eham .tracking-chip {
         font-size: 14px;
     }
 }
+
+/* EDDF terminal indicators — hidden by default, shown only via eddf.css */
+.eddf-terminals {
+    display: none;
+}

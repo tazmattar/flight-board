@@ -134,6 +134,82 @@ body.theme-eddf .airline-logo {
     filter: brightness(1.5);
 }
 
+/* --- FOOTER OVERRIDES --- */
+/* Hide the standard gate icon box for EDDF */
+body.theme-eddf .gate-icon-box {
+    display: none !important;
+}
+
+/* Show the custom terminal indicators */
+body.theme-eddf .eddf-terminals {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    border: 2px solid #ffffff;
+    padding: 6px 15px;
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+body.theme-eddf .eddf-term {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Coloured circles per terminal */
+body.theme-eddf .term-num {
+    color: #ffffff;
+    font-family: var(--font-ui);
+    font-weight: 900;
+    font-size: 11px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    line-height: 1;
+}
+
+body.theme-eddf .eddf-term:nth-child(1) .term-num {
+    background-color: #e8451a; /* orangey-red */
+}
+
+body.theme-eddf .eddf-term:nth-child(2) .term-num {
+    background-color: #4db8e8; /* light blue */
+}
+
+body.theme-eddf .term-letters {
+    color: #ffffff;
+    font-family: var(--font-ui);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+/* Subtle divider between T1 and T2 */
+body.theme-eddf .eddf-term:first-child::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin-left: 5px;
+}
+
+/* Pull the arrow slightly closer to save space */
+body.theme-eddf .huge-arrow {
+    margin-right: -5px;
+}
+
+/* Flags relocated to left group via JS */
+body.theme-eddf .footer-group.left #flagContainer {
+    margin-left: 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    padding-left: 15px;
+}
+
 /* --- FOOTER --- */
 body.theme-eddf .fids-footer {
     background-color: var(--eddf-blue);
