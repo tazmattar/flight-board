@@ -4,29 +4,29 @@
    ============================================= */
 
 body.theme-eddf {
-    /* Lufthansa Yellow & Deep Black */
-    --eddf-yellow: #F9A800; 
+    --eddf-yellow: #F9A800;
+    --eddf-blue: #0506F7;
     --eddf-black: #050505;
     --eddf-flap-bg: #151515;
     --eddf-grey: #2a2a2a;
 }
 
 body.theme-eddf .fids-header {
-    background-color: var(--eddf-black);
-    border-bottom: 4px solid var(--eddf-yellow);
+    background-color: #ffffff;
+    border-bottom: 3px solid #e0e0e0;
 }
 
 body.theme-eddf .airport-selector select,
 body.theme-eddf .clock-container {
-    color: var(--eddf-yellow) !important;
+    color: #111111 !important;
     background: transparent;
-    font-family: 'JetBrains Mono', monospace; 
+    font-family: 'JetBrains Mono', monospace;
 }
 
 /* Force native dropdown options to be readable */
 body.theme-eddf .airport-selector select option {
-    background-color: var(--eddf-black);
-    color: var(--eddf-yellow);
+    background-color: #ffffff;
+    color: #111111;
 }
 
 /* Section Dividers */
@@ -131,27 +131,34 @@ body.theme-eddf .airline-logo {
 
 /* --- FOOTER --- */
 body.theme-eddf .fids-footer {
-    background-color: var(--eddf-black);
-    border-top: 4px solid var(--eddf-yellow);
+    background-color: var(--eddf-blue);
+    border-top: none;
 }
 
 body.theme-eddf .footer-group .main-label,
 body.theme-eddf .gate-icon-box,
 body.theme-eddf .huge-arrow,
 body.theme-eddf .security-time .time {
-    color: var(--eddf-yellow);
-    border-color: var(--eddf-yellow);
+    color: #ffffff;
+    border-color: #ffffff;
 }
 
 body.theme-eddf .footer-group .main-label .en,
 body.theme-eddf .security-time .label {
-    color: #888888;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+body.theme-eddf .fids-footer a,
+body.theme-eddf .fids-footer .support-footer-btn,
+body.theme-eddf .fids-footer .fs-footer-btn {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Widgets — no !important on widget-icon so radar-pulse animation can override colour */
 body.theme-eddf .widget-icon,
 body.theme-eddf .widget-text {
-    color: var(--eddf-yellow);
+    color: #111111;
 }
 
 /* Destination text — inherits white from .flap-container */
