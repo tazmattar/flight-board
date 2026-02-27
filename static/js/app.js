@@ -201,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const airportJapaneseMapping = {};
     const euMembers = new Set();
     const defaultThemeMap = {
+        EDDF: { css: '/static/css/themes/eddf.css', class: 'theme-eddf' },
         LSZH: { css: '/static/css/themes/lszh.css', class: 'theme-lszh' },
         LSGG: { css: '/static/css/themes/lsgg.css', class: 'theme-lsgg' },
         LFSB: { css: '/static/css/themes/lfsb.css', class: 'theme-lfsb' },
@@ -872,21 +873,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }   
 
-    // --- STANDARD: Plain text rendering (No animation) ---
+    // --- STANDARD: Plain text rendering, or split-flap animation for EDDF ---
     function updateFlapText(container, newText) {
-        if (container) {
-            container.textContent = String(newText || "");
+        if (!container) return;
+        if (window.SplitFlap) {
+            window.SplitFlap.animateContainer(container, String(newText || ''));
+        } else {
+            container.textContent = String(newText || '');
         }
     }
 
-    // --- SPECIAL: Smooth opacity fade for status changes ---
+    // --- SPECIAL: Smooth opacity fade for status changes (split-flap for EDDF) ---
     function updateStatusWithFade(container, statusCell, newText, newColorClass) {
         if (!container) return;
-        
-        // Trigger fade out
+
+        if (window.SplitFlap && document.body.classList.contains('theme-eddf')) {
+            // Colour change is instant; text animates via split-flap
+            statusCell.setAttribute('data-status', newColorClass);
+            window.SplitFlap.animateContainer(container, newText);
+            return;
+        }
+
+        // Standard opacity fade for all other themes
         container.classList.add('status-updating');
-        
-        // After fade out completes, update text and color, then fade back in
         setTimeout(() => {
             container.textContent = newText;
             statusCell.setAttribute('data-status', newColorClass);

@@ -1,0 +1,162 @@
+/* =============================================
+   FRANKFURT (EDDF) THEME
+   Classic Solari Split-Flap Display
+   ============================================= */
+
+body.theme-eddf {
+    /* Lufthansa Yellow & Deep Black */
+    --eddf-yellow: #F9A800; 
+    --eddf-black: #050505;
+    --eddf-flap-bg: #151515;
+    --eddf-grey: #2a2a2a;
+}
+
+body.theme-eddf .fids-header {
+    background-color: var(--eddf-black);
+    border-bottom: 4px solid var(--eddf-yellow);
+}
+
+body.theme-eddf .airport-selector select,
+body.theme-eddf .clock-container {
+    color: var(--eddf-yellow) !important;
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace; 
+}
+
+/* Force native dropdown options to be readable */
+body.theme-eddf .airport-selector select option {
+    background-color: var(--eddf-black);
+    color: var(--eddf-yellow);
+}
+
+/* Section Dividers */
+body.theme-eddf .section-divider {
+    background-color: var(--eddf-black);
+    color: var(--eddf-yellow);
+    border-bottom: 2px solid var(--eddf-grey);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Table Headers */
+body.theme-eddf .flight-table th {
+    background: var(--eddf-black);
+    color: #888888;
+    border-bottom: 2px solid var(--eddf-grey);
+    font-weight: 600;
+}
+
+/* Table Body / Rows */
+body.theme-eddf .flight-table td {
+    background-color: var(--eddf-black);
+    border-bottom: 2px solid #000; /* Dark gap between rows */
+}
+
+/* --- THE MECHANICAL FLAPS --- */
+body.theme-eddf .flap-container {
+    color: var(--eddf-yellow) !important;
+    background-color: var(--eddf-flap-bg);
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 3px;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.05);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+/* The horizontal split line across the middle of every flap */
+body.theme-eddf .flap-container::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+/* --- STATUS COLUMN OVERRIDES --- */
+/* Strip the solid background blocks from style.css to maintain the flap look */
+body.theme-eddf .col-status .flap-container {
+    background-color: var(--eddf-flap-bg) !important;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* Change text colors instead of background colors for status */
+body.theme-eddf .col-status[data-status="Boarding"] .flap-container {
+    color: #00e600 !important; /* Bright green text */
+}
+
+body.theme-eddf .col-status[data-status*="Delayed"] .flap-container,
+body.theme-eddf .col-status[data-status="Cancelled"] .flap-container,
+body.theme-eddf .col-status[data-status="CLOSED"] .flap-container {
+    color: #ff3333 !important; /* Red text */
+}
+
+body.theme-eddf .col-status[data-status="En Route"] .flap-container {
+    color: #888888 !important; /* Dimmed */
+}
+
+/* Fix Airline Logos for the dark flap background */
+body.theme-eddf .airline-logo {
+    filter: brightness(1.5);
+}
+
+/* --- FOOTER --- */
+body.theme-eddf .fids-footer {
+    background-color: var(--eddf-black);
+    border-top: 4px solid var(--eddf-yellow);
+}
+
+body.theme-eddf .footer-group .main-label,
+body.theme-eddf .gate-icon-box,
+body.theme-eddf .huge-arrow,
+body.theme-eddf .security-time .time {
+    color: var(--eddf-yellow);
+    border-color: var(--eddf-yellow);
+}
+
+body.theme-eddf .footer-group .main-label .en,
+body.theme-eddf .security-time .label {
+    color: #888888;
+}
+
+/* Widgets */
+body.theme-eddf .widget-icon, 
+body.theme-eddf .widget-text {
+    color: var(--eddf-yellow) !important;
+}
+
+/* Destination text */
+body.theme-eddf .flap-dest {
+    color: var(--eddf-yellow) !important;
+}
+
+/* =============================================
+   SPLIT-FLAP ANIMATION
+   Individual character spans injected by split_flap.js
+   ============================================= */
+
+body.theme-eddf .sf-char {
+    display: inline-block;
+    white-space: pre;           /* preserves spaces as character-width slots */
+    transform-origin: 50% 50%;
+}
+
+body.theme-eddf .sf-char.sf-flapping {
+    animation: sf-flip 55ms ease-in-out forwards;
+}
+
+@keyframes sf-flip {
+    0%   { transform: scaleY(1);   opacity: 1;    filter: brightness(1);   }
+    45%  { transform: scaleY(0);   opacity: 0.45; filter: brightness(2.0); }
+    55%  { transform: scaleY(0);   opacity: 0.45; filter: brightness(2.0); }
+    100% { transform: scaleY(1);   opacity: 1;    filter: brightness(1);   }
+}
