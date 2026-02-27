@@ -159,6 +159,11 @@ body.theme-eddf .fids-footer .fs-footer-btn {
     border-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Tracking chip — black text on white header */
+body.theme-eddf .tracking-chip {
+    color: #111111 !important;
+}
+
 /* Widgets — no !important on widget-icon so radar-pulse animation can override colour */
 body.theme-eddf .widget-icon,
 body.theme-eddf .widget-text {
