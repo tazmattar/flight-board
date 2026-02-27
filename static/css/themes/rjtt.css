@@ -131,6 +131,16 @@ body.theme-rjtt .col-status[data-status*="Delayed"]::before {
     box-shadow: 0 0 6px rgba(243, 193, 43, 0.45);
 }
 
+/* --- EVENT TICKER --- */
+body.theme-rjtt .event-ticker {
+    background-color: #0c1f46;
+    border-top: 1px solid var(--haneda-divider);
+}
+
+body.theme-rjtt .event-ticker-item {
+    color: rgba(255, 255, 255, 0.45);
+}
+
 /* --- 6. FOOTER --- */
 body.theme-rjtt .fids-footer {
     background: linear-gradient(180deg, #0c1f46 0%, var(--haneda-header-bg) 100%);

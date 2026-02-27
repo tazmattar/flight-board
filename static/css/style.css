@@ -1113,3 +1113,47 @@ body.theme-eham .tracking-chip {
 .eddf-terminals {
     display: none;
 }
+
+/* ---- EVENT TICKER ---- */
+.event-ticker {
+    height: 22px;
+    background-color: var(--bg-black);
+    border-top: 1px solid var(--border-dim);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.event-ticker-window {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+.event-ticker-track {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    white-space: nowrap;
+    animation: ticker-scroll linear infinite;
+}
+
+.event-ticker-item {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 0 44px;
+    letter-spacing: 0.2px;
+}
+
+.event-ticker-bullet {
+    color: var(--fids-yellow);
+    margin-right: 6px;
+    font-size: 0.55rem;
+    vertical-align: middle;
+}
+
+@keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}

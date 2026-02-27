@@ -210,6 +210,20 @@ body.theme-eddf .footer-group.left #flagContainer {
     padding-left: 15px;
 }
 
+/* --- EVENT TICKER --- */
+body.theme-eddf .event-ticker {
+    background-color: var(--eddf-blue);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body.theme-eddf .event-ticker-item {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+body.theme-eddf .event-ticker-bullet {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 /* --- FOOTER --- */
 body.theme-eddf .fids-footer {
     background-color: var(--eddf-blue);

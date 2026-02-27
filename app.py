@@ -11,7 +11,8 @@ import atexit
 import time
 import uuid
 from threading import Lock
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+import requests
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -24,6 +25,24 @@ current_data = {}
 # Track active airport rooms so dynamic airports can be refreshed
 active_airport_counts = {}
 client_airports = {}
+
+# VATSIM events cache (refreshed every 15 minutes)
+_events_cache = {'data': [], 'fetched_at': 0}
+EVENTS_CACHE_TTL = 15 * 60
+
+def fetch_vatsim_events():
+    """Fetch upcoming VATSIM events, cached for 15 minutes."""
+    now = time.time()
+    if now - _events_cache['fetched_at'] < EVENTS_CACHE_TTL:
+        return _events_cache['data']
+    try:
+        resp = requests.get('https://vatsim.net/api/events', timeout=8)
+        resp.raise_for_status()
+        _events_cache['data'] = resp.json()
+        _events_cache['fetched_at'] = now
+    except Exception as e:
+        app.logger.warning(f'VATSIM events fetch failed: {e}')
+    return _events_cache['data']
 
 THEME_MAP_PATH = os.path.join(app.static_folder, 'data', 'theme_map.json')
 STANDS_PATH = os.path.join(app.static_folder, 'stands.json')
@@ -734,6 +753,41 @@ def search_airport():
         })
     else:
         return jsonify({'error': f'Failed to fetch data for {icao}'}), 500
+
+@app.route('/api/events')
+def get_events():
+    """Return active/upcoming VATSIM events for the given airport ICAO."""
+    icao = request.args.get('icao', '').upper().strip()
+    all_events = fetch_vatsim_events()
+
+    now = datetime.utcnow()
+    cutoff = now + timedelta(hours=24)
+
+    relevant = []
+    for ev in all_events:
+        try:
+            # Strip Z or offset so fromisoformat works across Python 3.7-3.10
+            raw_start = ev.get('startTime', '').rstrip('Z').split('+')[0]
+            raw_end   = ev.get('endTime',   '').rstrip('Z').split('+')[0]
+            start = datetime.fromisoformat(raw_start)
+            end   = datetime.fromisoformat(raw_end)
+        except (KeyError, ValueError):
+            continue
+        # Skip events that have ended or start more than 24 h from now
+        if end < now or start > cutoff:
+            continue
+        # Airport filter
+        if icao:
+            icao_list = [a.get('icao', '').upper() for a in ev.get('airports', [])]
+            if icao not in icao_list:
+                continue
+        relevant.append({
+            'name':  ev.get('name', ''),
+            'start': ev.get('startTime', ''),
+            'end':   ev.get('endTime', ''),
+        })
+
+    return jsonify({'events': relevant})
 
 @socketio.on('join_airport')
 def handle_join(data):

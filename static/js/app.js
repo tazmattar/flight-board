@@ -348,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        updateEventTicker(airportCode);
         syncAirportNameCycle();
         applyDestinationNameMode();
 
@@ -927,6 +928,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateClock(); 
     setInterval(updateClock, 1000);
+
+    async function updateEventTicker(airportCode) {
+        const ticker = document.getElementById('eventTicker');
+        const track  = document.getElementById('eventTickerTrack');
+        if (!ticker || !track) return;
+
+        try {
+            const resp = await fetch(`/api/events?icao=${encodeURIComponent(airportCode)}`);
+            if (!resp.ok) throw new Error('fetch failed');
+            const { events } = await resp.json();
+
+            if (!events || events.length === 0) {
+                ticker.style.display = 'none';
+                return;
+            }
+
+            const pad = n => String(n).padStart(2, '0');
+            const items = events.map(ev => {
+                const start = new Date(ev.start);
+                const end   = new Date(ev.end);
+                const day   = start.toLocaleDateString('en-GB', {
+                    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
+                });
+                const times = `${pad(start.getUTCHours())}:${pad(start.getUTCMinutes())}\u2013${pad(end.getUTCHours())}:${pad(end.getUTCMinutes())}z`;
+                return `<span class="event-ticker-item"><span class="event-ticker-bullet">&#9654;</span>${ev.name} &mdash; ${day} ${times}</span>`;
+            }).join('');
+
+            // Duplicate content for seamless CSS loop
+            track.innerHTML = items + items;
+
+            // Reset animation so it restarts cleanly on airport switch
+            track.style.animation = 'none';
+            track.offsetHeight; // force reflow
+            track.style.animation = '';
+
+            // Scale speed to content length (~70 px/s)
+            const singleWidth = track.scrollWidth / 2;
+            const duration = Math.max(12, singleWidth / 70);
+            track.style.animationDuration = `${duration}s`;
+
+            ticker.style.display = '';
+        } catch (e) {
+            ticker.style.display = 'none';
+        }
+    }
 
     function updateSecurityTime(data) {
         const securityEl = document.getElementById('securityTime');

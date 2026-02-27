@@ -79,6 +79,16 @@ body.theme-eham .status-boarding {
     padding: 2px 4px;
 }
 
+/* Event ticker */
+body.theme-eham .event-ticker {
+    background-color: var(--schiphol-panel-grey);
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+body.theme-eham .event-ticker-item {
+    color: rgba(255, 255, 255, 0.55);
+}
+
 /* Footer: Grey with white text */
 body.theme-eham .fids-footer {
     background-color: var(--schiphol-panel-grey);

@@ -38,6 +38,19 @@ body.theme-lsgg .flight-table th {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+body.theme-lsgg .event-ticker {
+    background-color: var(--geneva-blue);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body.theme-lsgg .event-ticker-item {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+body.theme-lsgg .event-ticker-bullet {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 body.theme-lsgg .fids-footer {
     background-color: var(--geneva-blue);
     border-top: 4px solid #ffffff;
