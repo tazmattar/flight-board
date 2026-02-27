@@ -32,5 +32,6 @@ Thumbs.db
 scandi_stand_info/
 static/scandinavian_stands.json
 
-# Local planning docs
-ROADMAP.md
+# Markdown docs (except README)
+*.md
+!README.md
