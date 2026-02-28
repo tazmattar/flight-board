@@ -10,10 +10,10 @@ const SplitFlap = (() => {
     // Classic Solari glyph order: blank → A-Z → 0-9 → punctuation
     const CHAR_SET = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:/ ';
 
-    const FLIP_MS       = 65;   // Duration of one individual flap (ms)
-    const INTER_MS      = 12;   // Gap between consecutive flaps on the same cell
-    const STAGGER_MS    = 40;   // Delay offset per character position (wave effect)
-    const MAX_STEPS     = 18;   // Cap on intermediate chars before settling
+    const FLIP_MS       = 55;   // Duration of one individual flap (ms)
+    const INTER_MS      = 10;   // Gap between consecutive flaps on the same cell
+    const STAGGER_MS    = 25;   // Delay offset per character position (wave effect)
+    const MAX_STEPS     = 10;   // Cap on intermediate chars before settling
 
     // ── helpers ──────────────────────────────────────────────────────────────
 

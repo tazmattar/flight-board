@@ -212,6 +212,26 @@ body.theme-eddf .huge-arrow {
     }
 }
 
+/* Portrait column widths — must override both col and th, and sum to exactly 100%
+   Base EDDF landscape totals 104% when combined with portrait style.css th widths,
+   causing squashing. These !important rules win over all other portrait overrides. */
+@media (min-height: 1500px), (orientation: portrait) {
+    body.theme-eddf .flight-table colgroup col:nth-child(1),
+    body.theme-eddf .flight-table th:nth-child(1) { width: 14% !important; } /* Flight  */
+    body.theme-eddf .flight-table colgroup col:nth-child(2),
+    body.theme-eddf .flight-table th:nth-child(2) { width: 26% !important; } /* Dest    */
+    body.theme-eddf .flight-table colgroup col:nth-child(3),
+    body.theme-eddf .flight-table th:nth-child(3) { width:  7% !important; } /* A/C     */
+    body.theme-eddf .flight-table colgroup col:nth-child(4),
+    body.theme-eddf .flight-table th:nth-child(4) { width: 10% !important; } /* Check-In*/
+    body.theme-eddf .flight-table colgroup col:nth-child(5),
+    body.theme-eddf .flight-table th:nth-child(5) { width:  7% !important; } /* Gate    */
+    body.theme-eddf .flight-table colgroup col:nth-child(6),
+    body.theme-eddf .flight-table th:nth-child(6) { width: 10% !important; } /* Time    */
+    body.theme-eddf .flight-table colgroup col:nth-child(7),
+    body.theme-eddf .flight-table th:nth-child(7) { width: 26% !important; } /* Status  */
+}
+
 /* Flags relocated to left group via JS */
 body.theme-eddf .footer-group.left #flagContainer {
     margin-left: 10px;
@@ -287,9 +307,10 @@ body.theme-eddf .sf-char.sf-flapping {
     animation: sf-flip 55ms ease-in-out forwards;
 }
 
+/* filter: brightness() removed — it forces software compositing on weak GPUs (e.g. Pi 4B) */
 @keyframes sf-flip {
-    0%   { transform: scaleY(1);   opacity: 1;    filter: brightness(1);   }
-    45%  { transform: scaleY(0);   opacity: 0.45; filter: brightness(2.0); }
-    55%  { transform: scaleY(0);   opacity: 0.45; filter: brightness(2.0); }
-    100% { transform: scaleY(1);   opacity: 1;    filter: brightness(1);   }
+    0%   { transform: scaleY(1); opacity: 1;    }
+    45%  { transform: scaleY(0); opacity: 0.45; }
+    55%  { transform: scaleY(0); opacity: 0.45; }
+    100% { transform: scaleY(1); opacity: 1;    }
 }
