@@ -12,6 +12,7 @@ body.theme-eham {
     --schiphol-board-bg: #FFFFFF;
     --schiphol-row-alt: #F1F1F1;
     --tracking-outline: #888888;
+    --row-height: 34px;
 }
 
 /* Header styling: "Flight departures | Vertrekken" on Yellow background */
@@ -21,6 +22,11 @@ body.theme-eham .fids-header {
     border-bottom: 3px solid #000;
     font-family: 'Roboto Condensed', sans-serif;
     text-transform: none;
+}
+
+/* Safari on iOS/iPadOS doesn't inherit color onto <select> — set it explicitly */
+body.theme-eham .airport-selector select {
+    color: #000000;
 }
 
 /* Main board background*/
@@ -103,7 +109,7 @@ body.theme-eham .fids-footer * {
 
 /* Status column: minimal, text-only like RJTT */
 body.theme-eham .flight-table td.col-status {
-    padding: 8px 10px !important;
+    padding: 4px 10px !important;
 }
 
 body.theme-eham .col-status .flap-container {
