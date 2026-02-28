@@ -27,13 +27,15 @@ const SplitFlap = (() => {
         const p = new URLSearchParams(location.search).get('lite');
         if      (p === '1') localStorage.setItem(LITE_KEY, '1');
         else if (p === '0') localStorage.removeItem(LITE_KEY);
-        if (localStorage.getItem(LITE_KEY) === '1') {
-            document.body.classList.add('sf-lite-mode');
-        }
+        if (isLiteMode()) document.body.classList.add('sf-lite-mode');
     })();
 
+    // Portrait orientation automatically enables lite mode — no configuration
+    // needed on Pi kiosk displays. ?lite=1 forces it on in landscape too.
+    // ?lite=0 clears any stored override and returns to portrait-auto behaviour.
     function isLiteMode() {
-        return localStorage.getItem(LITE_KEY) === '1';
+        if (localStorage.getItem(LITE_KEY) === '1') return true;
+        return window.matchMedia('(orientation: portrait)').matches;
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

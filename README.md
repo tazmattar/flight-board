@@ -240,21 +240,17 @@ sleep 2
 
 The CSS automatically adapts to stack Departures/Arrivals vertically in portrait mode.
 
-### Optional: EDDF Lite Animation Mode (Raspberry Pi)
+### EDDF Lite Animation Mode (Raspberry Pi)
 
 The Frankfurt (EDDF) theme uses a Solari split-flap character animation. On lower-powered devices like the Raspberry Pi 4B, this can be sluggish due to the volume of simultaneous CSS animations.
 
-Appending `?lite=1` to the URL switches to a lightweight per-cell fade instead — visually clean, GPU-friendly, and stored in `localStorage` so it persists across reloads. The full desktop animation is completely unaffected.
+**Lite mode activates automatically in portrait orientation** — no configuration needed. Since a Pi kiosk display is typically portrait and a desktop is landscape, the right mode is selected automatically whenever you load the board, regardless of which airport you switch to.
 
-**Enable on the Pi** — update your kiosk autostart URL:
-```bash
---app=http://YOUR_SERVER_IP:5000/?airport=EDDF&lite=1
-```
+Lite mode replaces the per-character animation with a simple per-cell opacity fade — visually clean, GPU-friendly, and invisible to desktop users.
 
-**Disable** (e.g. when testing on desktop):
-```
-http://YOUR_SERVER_IP:5000/?lite=0
-```
+To override the automatic behaviour:
+- `?lite=1` — force lite mode on (e.g. landscape kiosk)
+- `?lite=0` — clear any stored override and return to portrait-auto detection
 
 Only applies to the EDDF theme. All other themes are unaffected.
 
