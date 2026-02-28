@@ -394,7 +394,7 @@ html, body {
     font-size: 10px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #777;
+    color: #ffffff;
     line-height: 1;
     position: absolute;
     left: 0;
@@ -1141,7 +1141,7 @@ body.theme-eham .tracking-chip {
     font-family: var(--font-ui);
     font-size: 0.68rem;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgb(255, 255, 255);
     padding: 0 44px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
