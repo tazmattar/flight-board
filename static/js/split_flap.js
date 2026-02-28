@@ -10,10 +10,10 @@ const SplitFlap = (() => {
     // Classic Solari glyph order: blank → A-Z → 0-9 → punctuation
     const CHAR_SET = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:/ ';
 
-    const FLIP_MS       = 55;   // Duration of one individual flap (ms)
+    const FLIP_MS       = 75;   // Duration of one individual flap (ms)
     const INTER_MS      = 10;   // Gap between consecutive flaps on the same cell
-    const STAGGER_MS    = 25;   // Delay offset per character position (wave effect)
-    const MAX_STEPS     = 10;   // Cap on intermediate chars before settling
+    const STAGGER_MS    = 30;   // Delay offset per character position (wave effect)
+    const MAX_STEPS     = 5;    // Cap on intermediate chars before settling
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -121,6 +121,14 @@ const SplitFlap = (() => {
 
         // Nothing to do
         if (currentText === text && existing.length === text.length) return;
+
+        // Initial population (container was empty) — set text instantly to avoid
+        // firing hundreds of simultaneous animations on first data load.
+        if (existing.length === 0) {
+            const spans = ensureSpans(container, text.length);
+            spans.forEach((span, i) => { span.textContent = text[i] ?? ' '; });
+            return;
+        }
 
         const spans   = ensureSpans(container, text.length);
         const oldPad  = currentText.padEnd(text.length, ' ');
