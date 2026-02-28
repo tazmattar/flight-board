@@ -29,10 +29,10 @@ const SplitFlap = (() => {
 
     /**
      * Build the list of glyphs to cycle through going from `fromCh` → `toCh`.
-     * If the full journey is longer than MAX_STEPS, subsample it so the
+     * If the full journey is longer than maxSteps, subsample it so the
      * animation never drags on.
      */
-    function buildSequence(fromCh, toCh) {
+    function buildSequence(fromCh, toCh, maxSteps) {
         const f = charIndex(fromCh);
         const t = charIndex(toCh);
         if (f === t) return [];
@@ -44,10 +44,10 @@ const SplitFlap = (() => {
             full.push(CHAR_SET[i]);
         } while (i !== t && full.length < CHAR_SET.length);
 
-        if (full.length <= MAX_STEPS) return full;
+        if (full.length <= maxSteps) return full;
 
         // Subsample — always land on the target character
-        const step = Math.ceil(full.length / MAX_STEPS);
+        const step = Math.ceil(full.length / maxSteps);
         const reduced = [];
         for (let j = step - 1; j < full.length - 1; j += step) {
             reduced.push(full[j]);
@@ -133,8 +133,13 @@ const SplitFlap = (() => {
         const spans   = ensureSpans(container, text.length);
         const oldPad  = currentText.padEnd(text.length, ' ');
 
+        // Long strings (destination/origin) get 1 intermediate glyph per character —
+        // keeps peak concurrent animations low on weak GPUs (Pi 4B) while still
+        // looking like a split-flap. Short strings (status, gate) get full steps.
+        const steps = text.length > 9 ? 1 : MAX_STEPS;
+
         spans.forEach((span, i) => {
-            const seq = buildSequence(oldPad[i] ?? ' ', text[i] ?? ' ');
+            const seq = buildSequence(oldPad[i] ?? ' ', text[i] ?? ' ', steps);
             if (seq.length === 0) return;
             setTimeout(() => flipSpan(span, seq, 0), i * STAGGER_MS);
         });
