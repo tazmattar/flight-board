@@ -205,6 +205,13 @@ body.theme-eddf .huge-arrow {
     margin-right: -5px;
 }
 
+/* Hide Arrivals/Departures labels in portrait so the terminal indicators have room */
+@media (min-height: 1500px), (orientation: portrait) {
+    body.theme-eddf .footer-group.center {
+        display: none !important;
+    }
+}
+
 /* Flags relocated to left group via JS */
 body.theme-eddf .footer-group.left #flagContainer {
     margin-left: 10px;
