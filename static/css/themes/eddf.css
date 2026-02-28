@@ -293,6 +293,20 @@ body.theme-eddf .widget-text {
 /* Destination text — inherits white from .flap-container */
 
 /* =============================================
+   LITE MODE  (?lite=1 URL param → localStorage)
+   Per-cell opacity fade — used on low-powered devices (e.g. Pi 4B).
+   The body gains .sf-lite-mode; full split-flap animation is bypassed in JS.
+   ============================================= */
+
+body.theme-eddf.sf-lite-mode .flap-container {
+    transition: opacity 150ms ease !important;
+}
+
+body.theme-eddf.sf-lite-mode .flap-container.sf-fading {
+    opacity: 0 !important;
+}
+
+/* =============================================
    SPLIT-FLAP ANIMATION
    Individual character spans injected by split_flap.js
    ============================================= */

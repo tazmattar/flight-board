@@ -15,6 +15,27 @@ const SplitFlap = (() => {
     const STAGGER_MS    = 30;   // Delay offset per character position (wave effect)
     const MAX_STEPS     = 5;    // Cap on intermediate chars before settling
 
+    // ── lite mode ─────────────────────────────────────────────────────────────
+    // Activated via ?lite=1 URL param (persisted to localStorage).
+    // Uses a simple per-cell opacity fade instead of character animation —
+    // keeps weak GPUs (e.g. Raspberry Pi 4B) smooth without touching the
+    // desktop experience. Clear with ?lite=0.
+
+    const LITE_KEY = 'sf_lite';
+
+    (function initLiteMode() {
+        const p = new URLSearchParams(location.search).get('lite');
+        if      (p === '1') localStorage.setItem(LITE_KEY, '1');
+        else if (p === '0') localStorage.removeItem(LITE_KEY);
+        if (localStorage.getItem(LITE_KEY) === '1') {
+            document.body.classList.add('sf-lite-mode');
+        }
+    })();
+
+    function isLiteMode() {
+        return localStorage.getItem(LITE_KEY) === '1';
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────────
 
     function isActive() {
@@ -94,6 +115,21 @@ const SplitFlap = (() => {
         return spans;
     }
 
+    // ── lite-mode fade ────────────────────────────────────────────────────────
+
+    function animateLite(container, text) {
+        let settled = false;
+        function finish() {
+            if (settled) return;
+            settled = true;
+            container.textContent = text;
+            container.classList.remove('sf-fading');
+        }
+        container.classList.add('sf-fading');
+        container.addEventListener('transitionend', finish, { once: true });
+        setTimeout(finish, 300); // fallback if transitionend never fires
+    }
+
     // ── public API ────────────────────────────────────────────────────────────
 
     /**
@@ -112,6 +148,22 @@ const SplitFlap = (() => {
                 container.innerHTML = '';
             }
             container.textContent = text;
+            return;
+        }
+
+        // Lite mode — single opacity fade per cell, no per-character animation
+        if (isLiteMode()) {
+            const hasSfSpans = !!container.querySelector('.sf-char');
+            const currentText = hasSfSpans
+                ? Array.from(container.querySelectorAll('.sf-char')).map(s => s.textContent).join('')
+                : container.textContent;
+            if (currentText === text) return;
+            if (hasSfSpans) container.innerHTML = '';
+            if (!currentText.trim()) {
+                container.textContent = text; // initial population: instant, no fade
+            } else {
+                animateLite(container, text);
+            }
             return;
         }
 
@@ -145,7 +197,17 @@ const SplitFlap = (() => {
         });
     }
 
-    return { animateContainer };
+    function setLiteMode(on) {
+        if (on) {
+            localStorage.setItem(LITE_KEY, '1');
+            document.body.classList.add('sf-lite-mode');
+        } else {
+            localStorage.removeItem(LITE_KEY);
+            document.body.classList.remove('sf-lite-mode');
+        }
+    }
+
+    return { animateContainer, isLiteMode, setLiteMode };
 
 })();
 
