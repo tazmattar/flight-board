@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadDatabases() {
-        // This is the missing block that fixes your logos
+        // This is the missing block that fixes logos
         try {
             const response = await fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json');
             if (response.ok) {
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) { console.warn('Airline DB failed', e); }
 
-        // This is your existing airport logic
+        // existing airport logic
         try {
             const response = await fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json');
             if (response.ok) {
