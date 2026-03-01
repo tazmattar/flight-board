@@ -114,6 +114,23 @@ def _write_json(path, payload):
         json.dump(payload, f, indent=2, ensure_ascii=True)
         f.write('\n')
 
+def _write_stands_json(path, data):
+    """Write stands.json with one stand object per line for easy manual review."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    lines = ["{"]
+    airports = list(data.keys())
+    for i, icao in enumerate(airports):
+        stands = data[icao]
+        comma = "," if i < len(airports) - 1 else ""
+        lines.append(f'  "{icao}": [')
+        for j, stand in enumerate(stands):
+            sc = "," if j < len(stands) - 1 else ""
+            lines.append(f'    {json.dumps(stand, ensure_ascii=True)}{sc}')
+        lines.append(f'  ]{comma}')
+    lines.append("}")
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(lines) + "\n")
+
 
 def _normalize_traffic_stats(raw):
     if not isinstance(raw, dict):
@@ -648,7 +665,7 @@ def admin_stands(icao):
     try:
         validated = _validate_stands(incoming)
         all_stands[normalized_icao] = validated
-        _write_json(STANDS_PATH, all_stands)
+        _write_stands_json(STANDS_PATH, all_stands)
         flight_fetcher.stands = flight_fetcher.load_stands()
         return jsonify({
             'success': True,
