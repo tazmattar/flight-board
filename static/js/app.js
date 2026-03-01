@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) return;
             const data = await response.json();
             if (data && typeof data === 'object') {
-                themeMap = data;
+                themeMap = { ...defaultThemeMap, ...data };
             }
         } catch (e) {
             console.warn('Theme map API unavailable, using defaults.', e);
