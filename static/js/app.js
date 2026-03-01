@@ -37,6 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
+    function resolveStatusColorClass(baseClass, displayText, isArrivalContext) {
+        if (!isLszhThemeActive()) return baseClass;
+        if (!isArrivalContext) return baseClass;
+
+        const normalizedText = String(displayText || '').trim().toUpperCase();
+        if (normalizedText.includes('LATE ARRIVAL')) return 'Late Arrival';
+        return baseClass;
+    }
+
     function getInitialAirport() {
         const params = new URLSearchParams(window.location.search);
         const paramValue = normalizeIcao(params.get('icao') || params.get('airport'));
@@ -669,7 +678,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showingDelayPhase) {
                 if (hasDelay) {
                     newText = formatStatusDisplayText(delayText);
-                    newColorClass = 'Delayed';
+                    const isArrivalCell = !!cell.closest('#arrivalList');
+                    newColorClass = resolveStatusColorClass('Delayed', delayText, isArrivalCell);
                 } else if (isBoarding) {
                     newText = formatStatusDisplayText(`GO TO GATE ${gate}`);
                     newColorClass = 'GO TO GATE';
@@ -894,7 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (showingDelayPhase) {
                 if (hasDelay) {
                     displayStatus = flight.delay_text;
-                    displayColorClass = 'Delayed';
+                    displayColorClass = resolveStatusColorClass('Delayed', flight.delay_text, type === 'Arrivals');
                 } else if (isBoarding) {
                     displayStatus = `GO TO GATE ${gate}`;
                     displayColorClass = 'GO TO GATE';
