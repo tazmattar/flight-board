@@ -35,6 +35,10 @@
     "css": "/static/css/themes/lfsb.css",
     "class": "theme-lfsb"
   },
+  "LFPG": {
+    "css": "/static/css/themes/lfpg.css",
+    "class": "theme-lfpg"
+  },
   "LSGG": {
     "css": "/static/css/themes/lsgg.css",
     "class": "theme-lsgg"

@@ -8,11 +8,16 @@ body.theme-lfpg {
     --adp-white: #ffffff;
 }
 
-/* --- HEADER (Navy with White Text, not White background) --- */
+/* --- HEADER --- */
 body.theme-lfpg .fids-header {
     background-color: var(--adp-navy-bg);
-    border-bottom: 2px solid #333; /* Very subtle separation */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow: none;
+}
+
+/* --- FOOTER --- */
+body.theme-lfpg .fids-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 /* The "Départs / Departures" Section */
@@ -39,33 +44,44 @@ body.theme-lfpg .flight-table th {
     border-bottom: 1px solid #1a2a44;
 }
 
-/* Row Styling */
+/* Row Styling — odd rows */
 body.theme-lfpg .flight-table td {
     background-color: var(--adp-navy-bg);
     border-bottom: 1px solid #0e1e35;
     color: var(--adp-white);
-    font-family: 'Inter', sans-serif; /* ADP uses a clean sans-serif */
+    font-family: 'Inter', sans-serif;
 }
 
-/* Destination Column (White) */
-body.theme-lfpg .col-destination {
+/* Even rows — lighter blue to contrast */
+body.theme-lfpg .flight-table tr:nth-child(even) td {
+    background-color: #001f4a;
+}
+
+/* All data text: white by default */
+body.theme-lfpg .col-flight,
+body.theme-lfpg .col-destination,
+body.theme-lfpg .col-terminal,
+body.theme-lfpg .col-time {
     color: var(--adp-white) !important;
 }
 
-/* Flight (Vol) and Terminal Columns (Sky Blue) */
-body.theme-lfpg .col-flight,
-body.theme-lfpg .col-terminal {
-    color: var(--adp-sky-blue) !important;
+/* Gate column: yellow */
+body.theme-lfpg .col-gate {
+    color: var(--adp-gold) !important;
 }
 
-/* Status Column (Cyan/Light Blue for On Time) */
+/* Status Column */
 body.theme-lfpg .col-status .flap-container {
     color: var(--adp-status-blue) !important;
+    text-transform: none;
     font-size: 0.9em;
 }
 
-/* Special case: Orange for specific warnings/delays */
-body.theme-lfpg .col-status[data-status*="Retardé"],
-body.theme-lfpg .col-status[data-status*="Delayed"] {
+/* Status overrides via data-status */
+body.theme-lfpg .col-status[data-status="Boarding"] .flap-container,
+body.theme-lfpg .col-status[data-status="Gate Open"] .flap-container {
     color: var(--adp-gold) !important;
+}
+body.theme-lfpg .col-status[data-status="Delayed"] .flap-container {
+    color: #ff6b35 !important;
 }
