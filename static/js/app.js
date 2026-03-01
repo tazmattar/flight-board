@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatLszhOperationalLabel(value) {
         const text = String(value || '');
-        if (!isLszhThemeActive()) return text;
+        if (!isTitleCaseThemeActive()) return text;
 
         const normalized = text.trim().toUpperCase();
         if (normalized === 'CLOSED') return 'Closed';
