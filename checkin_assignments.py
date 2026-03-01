@@ -56,6 +56,8 @@ class CheckinAssignments:
             return self._haneda(airline, seed)
         elif airport_code == 'EDDF':
             return self._frankfurt(airline, seed)
+        elif airport_code == 'LFPG':
+            return self._cdg(airline, seed)
         else:
             # Generic fallback for unknown airports
             return self._generic(seed)
@@ -357,6 +359,43 @@ class CheckinAssignments:
         # (C01–C99 in real life)
         desk = (seed % 60) + 1
         return f"C{desk:02d}"
+
+    # ==================== FRANCE ====================
+
+    def _cdg(self, airline, seed):
+        """Paris Charles de Gaulle (LFPG) check-in assignments"""
+        # Terminal 2E: Air France + SkyTeam core partners
+        if airline in ['AFR', 'KLM', 'DAL', 'CES', 'KAL', 'AFL', 'AMX',
+                       'KQA', 'MEA', 'SVA', 'MAS']:
+            desk = (seed % 30) + 1
+            return f"2E-{desk}"
+
+        # Terminal 2F: Transavia, easyJet, Vueling + low-cost Schengen
+        if airline in ['TVF', 'EZY', 'EJU', 'VLG', 'IBE', 'VUE']:
+            desk = (seed % 20) + 1
+            return f"2F-{desk}"
+
+        # Terminal 2C: oneworld + Gulf + independents
+        if airline in ['BAW', 'AAL', 'QFA', 'JAL', 'CPA', 'AEA',
+                       'UAE', 'QTR', 'ETD', 'EIN', 'RAM']:
+            desk = (seed % 24) + 1
+            return f"2C-{desk}"
+
+        # Terminal 1: Star Alliance
+        if airline in ['DLH', 'SWR', 'AUA', 'SAS', 'LOT', 'TAP', 'ACA',
+                       'UAL', 'THA', 'ANA', 'SIA', 'ETH', 'SAA', 'CTN',
+                       'THY', 'LNI', 'MSR', 'ADR', 'OAL', 'AVA']:
+            desk = (seed % 55) + 1
+            return f"T1-{desk}"
+
+        # Terminal 3: Ultra low-cost
+        if airline in ['RYR', 'RUK', 'WZZ', 'EXS', 'TOM']:
+            desk = (seed % 12) + 1
+            return f"T3-{desk}"
+
+        # Default: Terminal 2F general
+        desk = (seed % 20) + 21
+        return f"2F-{desk}"
 
     # ==================== GENERIC FALLBACK ====================
 

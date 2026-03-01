@@ -11,13 +11,18 @@ body.theme-lfpg {
 /* --- HEADER --- */
 body.theme-lfpg .fids-header {
     background-color: var(--adp-navy-bg);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
     box-shadow: none;
+}
+
+/* Airport title */
+body.theme-lfpg .airport-selector select {
+    color: var(--adp-white);
 }
 
 /* --- FOOTER --- */
 body.theme-lfpg .fids-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-top: 2px solid rgba(255, 255, 255, 0.4);
 }
 
 /* The "Départs / Departures" Section */
@@ -72,16 +77,26 @@ body.theme-lfpg .col-gate {
 
 /* Status Column */
 body.theme-lfpg .col-status .flap-container {
-    color: var(--adp-status-blue) !important;
+    color: var(--adp-white) !important;
     text-transform: none;
     font-size: 0.9em;
 }
 
 /* Status overrides via data-status */
-body.theme-lfpg .col-status[data-status="Boarding"] .flap-container,
 body.theme-lfpg .col-status[data-status="Gate Open"] .flap-container {
     color: var(--adp-gold) !important;
 }
 body.theme-lfpg .col-status[data-status="Delayed"] .flap-container {
     color: #ff6b35 !important;
+}
+
+/* Yellow-background statuses must stay black text */
+body.theme-lfpg .col-status[data-status="Check-in"] .flap-container,
+body.theme-lfpg .col-status[data-status="Taxiing"] .flap-container,
+body.theme-lfpg .col-status[data-status="Wait"] .flap-container,
+body.theme-lfpg .col-status[data-status="Landing"] .flap-container,
+body.theme-lfpg .col-status[data-status="Landed"] .flap-container,
+body.theme-lfpg .col-status[data-status="At Gate"] .flap-container,
+body.theme-lfpg .col-status[data-status="Scheduled"] .flap-container {
+    color: #000000 !important;
 }
