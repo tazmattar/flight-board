@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const isArrivalCell = !!cell.closest('#arrivalList');
                     newColorClass = resolveStatusColorClass('Delayed', delayText, isArrivalCell);
                 } else if (isBoarding) {
-                    newText = formatStatusDisplayText(`GO TO GATE ${gate}`);
+                    newText = formatStatusDisplayText('GO TO GATE');
                     newColorClass = 'GO TO GATE';
                 }
             } else {
@@ -914,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayStatus = flight.delay_text;
                     displayColorClass = resolveStatusColorClass('Delayed', flight.delay_text, type === 'Arrivals');
                 } else if (isBoarding) {
-                    displayStatus = `GO TO GATE ${gate}`;
+                    displayStatus = 'GO TO GATE';
                     displayColorClass = 'GO TO GATE';
                 }
             }
