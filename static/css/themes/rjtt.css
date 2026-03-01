@@ -12,7 +12,7 @@ body.theme-rjtt {
     --haneda-header-glow: #1a3f7a;
     --haneda-accent-green: #00c36a; /* Icon green accent */
     --haneda-row-dark: #091c40;
-    --haneda-row-light: #12326a;
+    --haneda-row-light: #31286a;
     --haneda-row-line: #2a5fa6;
     --haneda-divider: #1e4f8e;
     --haneda-text: #ffffff;
@@ -66,14 +66,14 @@ body.theme-rjtt .flight-table th {
 
 /* Odd Rows: Dark Blue */
 body.theme-rjtt .flight-table tbody tr:nth-child(odd) td {
-    background: linear-gradient(180deg, #0b2047 0%, var(--haneda-row-dark) 100%);
+    background: linear-gradient(180deg, #14285c 0%, #081a3c 100%);
     color: var(--haneda-text);
     border-bottom: 1px solid rgba(42, 95, 166, 0.35);
 }
 
-/* Even Rows: Lighter Blue */
+/* Even Rows: Purple-Blue */
 body.theme-rjtt .flight-table tbody tr:nth-child(even) td {
-    background: linear-gradient(180deg, #0f2b5f 0%, var(--haneda-row-light) 100%);
+    background: linear-gradient(180deg, #3d3078 0%, #2a2160 100%);
     color: var(--haneda-text);
     border-bottom: 1px solid rgba(42, 95, 166, 0.35);
 }
