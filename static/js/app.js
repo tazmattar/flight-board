@@ -777,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const commonCells = `
                     <td>
                         <div class="flight-cell" id="${rowId}-cell">
-                            <span class="boarding-lights"></span>
+                            ${type === 'Departures' ? '<span class="boarding-lights"></span>' : ''}
                             <img src="${primaryLogo}"
                                  data-primary="${primaryLogo}"
                                  data-secondary="${secondaryLogo}"
