@@ -76,6 +76,9 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 ### Basel (LFSB) - EuroAirport Blue Theme
 ![Basel Board](screenshots/LFSB.png)
 
+### Schipol (EHAM) - White Theme
+![Schipol Board](screenshots/EHAM.png)
+
 ### London Heathrow (EGLL) - Yellow Theme
 ![Heathrow Board](screenshots/EGLL.png)
 
