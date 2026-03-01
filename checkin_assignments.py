@@ -44,6 +44,8 @@ class CheckinAssignments:
             return self._gatwick(airline, seed)
         elif airport_code == 'EGSS':
             return self._stansted(airline, seed)
+        elif airport_code == 'EGCC':
+            return self._manchester(airline, seed)
         elif airport_code == 'EGLC':
             return self._london_city(airline, seed)
         elif airport_code == 'EHAM':
@@ -175,6 +177,37 @@ class CheckinAssignments:
         # Others: General check-in
         desk = (seed % 20) + 110
         return f"{desk}"
+
+    def _manchester(self, airline, seed):
+        """Manchester Airport (EGCC) check-in assignments"""
+        # Terminal 1: Ryanair, Jet2, TUI, leisure carriers
+        if airline in ['RYR', 'RUK']:
+            desk = (seed % 30) + 1
+            return f"T1-{desk}"
+        if airline in ['EXS']:
+            desk = (seed % 20) + 40
+            return f"T1-{desk}"
+        if airline in ['TOM', 'BY']:
+            desk = (seed % 10) + 70
+            return f"T1-{desk}"
+
+        # Terminal 2: Scheduled carriers
+        if airline in ['BAW', 'SHT']:
+            desk = (seed % 15) + 201
+            return f"T2-{desk}"
+        if airline in ['EZY', 'EJU']:
+            desk = (seed % 20) + 220
+            return f"T2-{desk}"
+        if airline in ['UAE', 'QTR', 'THY']:
+            desk = (seed % 10) + 250
+            return f"T2-{desk}"
+        if airline in ['DLH', 'KLM', 'AFR', 'ACA', 'UAL']:
+            desk = (seed % 15) + 265
+            return f"T2-{desk}"
+
+        # Default: Terminal 2 general
+        desk = (seed % 20) + 280
+        return f"T2-{desk}"
 
     def _london_city(self, airline, seed):
         """London City (EGLC) check-in assignments"""

@@ -246,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         EGLC: { css: '/static/css/themes/eglc.css', class: 'theme-eglc' },
         EGKK: { css: '/static/css/themes/egkk.css', class: 'theme-egkk' },
         EGSS: { css: '/static/css/themes/egss.css', class: 'theme-egss' },
+        EGCC: { css: '/static/css/themes/egcc.css', class: 'theme-egcc' },
         EHAM: { css: '/static/css/themes/eham.css', class: 'theme-eham' },
         KJFK: { css: '/static/css/themes/kjfk.css', class: 'theme-kjfk' },
         RJTT: { css: '/static/css/themes/rjtt.css', class: 'theme-rjtt' }
@@ -285,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 const manualRenames = {
-                    "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted",
+                    "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted", "EGCC": "Manchester",
                     "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
                     "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
                     "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",

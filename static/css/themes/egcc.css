@@ -1,0 +1,81 @@
+/* =============================================
+   MANCHESTER (EGCC) THEME
+   Classic Yellow with Black Text
+   ============================================= */
+
+body.theme-egcc {
+    --manchester-yellow: #FDB813;
+    --manchester-dark: #1a1a1a;
+}
+
+body.theme-egcc .fids-header {
+    background-color: var(--manchester-yellow);
+    border-bottom: 4px solid #000000;
+}
+
+body.theme-egcc .airport-selector select,
+body.theme-egcc .clock-container {
+    color: #000000;
+    background: transparent;
+}
+
+body.theme-egcc .section-divider {
+    background-color: var(--manchester-yellow);
+    color: #000000;
+    padding: 12px 20px;
+    border-bottom: 2px solid #000000;
+    font-weight: 700;
+}
+
+body.theme-egcc .flight-table th {
+    background: #1a1a1a;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
+}
+
+/* Yellow destination/origin text */
+body.theme-egcc .flap-dest {
+    color: var(--manchester-yellow) !important;
+}
+
+body.theme-egcc .fids-footer {
+    background-color: #000000;
+    border-top: 4px solid var(--manchester-yellow);
+}
+
+body.theme-egcc .footer-group .main-label {
+    color: var(--manchester-yellow);
+    font-weight: 700;
+}
+
+body.theme-egcc .footer-group .main-label .en {
+    display: none; /* Hide English subtitle for EGLL */
+}
+
+body.theme-egcc .gate-icon-box {
+    border-color: var(--manchester-yellow);
+    color: var(--manchester-yellow);
+}
+
+body.theme-egcc .huge-arrow {
+    color: var(--manchester-yellow);
+}
+
+body.theme-egcc .security-time .label {
+    color: #cccccc;
+}
+
+body.theme-egcc .security-time .time {
+    color: var(--manchester-yellow);
+}
+
+/* Alternating row shading */
+body.theme-egcc .flight-table tbody tr:nth-child(even) {
+    background-color: #e8e8e8;
+}
+
+/* Widget Colors: Force BLACK */
+body [class*="theme-"] .widget-icon, 
+body [class*="theme-"] .widget-text {
+    color: #000000 !important;
+}
