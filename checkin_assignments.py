@@ -273,7 +273,7 @@ class CheckinAssignments:
         if airline in ['JAL', 'JL', 'SKY', 'BC', 'SFJ', '7G']: 
             # SFJ uses T1 for flights to Kitakyushu/Fukuoka, T2 for Kansai/Yamaguchi
             # Simplified to T1 for main logic
-            wing = "North" if seed % 2 == 0 else "South"
+            wing = "N" if seed % 2 == 0 else "S"
             desk = (seed % 30) + 1
             return f"T1-{wing}-{desk}"
             
