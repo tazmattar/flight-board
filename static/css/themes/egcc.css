@@ -83,11 +83,11 @@ body.theme-egcc .col-status .flap-container {
 }
 
 body.theme-egcc .col-status[data-status="Boarding"] .flap-container {
-    color: #00a000 !important;
+    color: #00e040 !important;
 }
 
 body.theme-egcc .col-status[data-status*="GO TO"] .flap-container {
-    color: #e6007e !important;
+    color: #ff3aaa !important;
 }
 
 body.theme-egcc .col-status[data-status="Check-in"] .flap-container,
@@ -97,19 +97,19 @@ body.theme-egcc .col-status[data-status="Landing"] .flap-container,
 body.theme-egcc .col-status[data-status="Landed"] .flap-container,
 body.theme-egcc .col-status[data-status="At Gate"] .flap-container,
 body.theme-egcc .col-status[data-status="Scheduled"] .flap-container {
-    color: #b8860b !important;
+    color: #ffcc00 !important;
 }
 
 body.theme-egcc .col-status[data-status="Pushback"] .flap-container,
 body.theme-egcc .col-status[data-status="Departing"] .flap-container,
 body.theme-egcc .col-status[data-status="Approaching"] .flap-container {
-    color: #0055b8 !important;
+    color: #4d9fff !important;
 }
 
 body.theme-egcc .col-status[data-status*="Delayed"] .flap-container,
 body.theme-egcc .col-status[data-status="Cancelled"] .flap-container,
 body.theme-egcc .col-status[data-status="CLOSED"] .flap-container {
-    color: #d60000 !important;
+    color: #ff4444 !important;
 }
 
 body.theme-egcc .col-status[data-status="En Route"] .flap-container {
