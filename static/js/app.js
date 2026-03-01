@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         LSZH: { css: '/static/css/themes/lszh.css', class: 'theme-lszh' },
         LSGG: { css: '/static/css/themes/lsgg.css', class: 'theme-lsgg' },
         LFSB: { css: '/static/css/themes/lfsb.css', class: 'theme-lfsb' },
+        LFPG: { css: '/static/css/themes/lfpg.css', class: 'theme-lfpg' },
         EGLL: { css: '/static/css/themes/egll.css', class: 'theme-egll' },
         EGLC: { css: '/static/css/themes/eglc.css', class: 'theme-eglc' },
         EGKK: { css: '/static/css/themes/egkk.css', class: 'theme-egkk' },
@@ -294,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted", "EGCC": "Manchester",
                     "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
                     "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
-                    "LFPO": "Paris Orly", "EDDF": "Frankfurt", "EDDM": "Munich",
+                    "LFPO": "Paris Orly", "LFPG": "Paris CDG", "EDDF": "Frankfurt", "EDDM": "Munich",
                     "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
                     "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
                     "LIBG": "Taranto-Grottaglie"
