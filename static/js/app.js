@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return isLszhThemeActive() ? text : text.toUpperCase();
     }
 
+    function formatLszhOperationalLabel(value) {
+        const text = String(value || '');
+        if (!isLszhThemeActive()) return text;
+
+        const normalized = text.trim().toUpperCase();
+        if (normalized === 'CLOSED') return 'Closed';
+        if (normalized === 'WAIT') return 'Wait';
+        return text;
+    }
+
     function getInitialAirport() {
         const params = new URLSearchParams(window.location.search);
         const paramValue = normalizeIcao(params.get('icao') || params.get('airport'));
@@ -850,7 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const checkinFlap = document.getElementById(`${rowId}-checkin`);
             if (checkinFlap) {
-                updateFlapText(checkinFlap, flight.checkin || "");
+                updateFlapText(checkinFlap, formatLszhOperationalLabel(flight.checkin || ""));
                 if (flight.checkin === 'CLOSED') {
                     checkinFlap.classList.add('gate-closed');
                 } else {
@@ -859,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } 
 
             const gateContainer = document.getElementById(`${rowId}-gate`);
-            updateFlapText(gateContainer, gate);
+            updateFlapText(gateContainer, formatLszhOperationalLabel(gate));
             if (isGateWaiting) {
                 gateContainer.classList.add('status-wait');
                 gateContainer.classList.remove('gate-closed');
