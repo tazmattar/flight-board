@@ -41,5 +41,3 @@ static/scandinavian_stands.json
 
 # Runtime data files (not committed)
 data/traffic_stats.json
-data/custom_airports.json
-static/data/theme_map.json

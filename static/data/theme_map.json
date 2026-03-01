@@ -1,15 +1,23 @@
 {
-  "EGLC": {
-    "css": "/static/css/themes/eglc.css",
-    "class": "theme-eglc"
+  "EDDF": {
+    "css": "/static/css/themes/eddf.css",
+    "class": "theme-eddf"
   },
   "EGKK": {
     "css": "/static/css/themes/egkk.css",
     "class": "theme-egkk"
   },
+  "EGLC": {
+    "css": "/static/css/themes/eglc.css",
+    "class": "theme-eglc"
+  },
   "EGLL": {
     "css": "/static/css/themes/egll.css",
     "class": "theme-egll"
+  },
+  "EGCC": {
+    "css": "/static/css/themes/egcc.css",
+    "class": "theme-egcc"
   },
   "EGSS": {
     "css": "/static/css/themes/egss.css",
