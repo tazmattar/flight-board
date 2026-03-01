@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // airline's actual IATA code used operationally.
     const airlineLogoAliasGroups = {
         BA: ['SHT'],
-        W6: ['WAU', 'WAZ', 'WMT', 'WUK', 'WVL', 'WZZ']
+        W6: ['WAU', 'WAZ', 'WIZ', 'WMT', 'WUK', 'WVL', 'WZZ']
     };
     const airlineLogoAliases = Object.entries(airlineLogoAliasGroups).reduce((acc, [logoCode, prefixes]) => {
         prefixes.forEach(prefix => {
