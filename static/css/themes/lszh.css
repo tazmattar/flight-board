@@ -7,8 +7,8 @@
 /* This is the base theme - minimal overrides needed */
 
 body.theme-lszh {
-    --font-ui: 'B612', 'Helvetica Neue', Arial, sans-serif;
-    --font-data: 'B612', 'Helvetica Neue', Arial, sans-serif;
+    --font-ui: 'Roboto Condensed', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    --font-data: 'Roboto Condensed', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
 
 body.theme-lszh .fids-header {
