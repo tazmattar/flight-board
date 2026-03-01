@@ -20,6 +20,16 @@ body.theme-lfpg .airport-selector select {
     color: var(--adp-white);
 }
 
+body.theme-lfpg .airport-selector select option {
+    background-color: var(--adp-navy-bg);
+    color: var(--adp-white);
+}
+
+body.theme-lfpg .airport-selector select option:hover {
+    box-shadow: 0 0 0 100px #001f4a inset;
+}
+
+
 /* --- FOOTER --- */
 body.theme-lfpg .fids-footer {
     border-top: 2px solid rgba(255, 255, 255, 0.4);
