@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, make_response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from apscheduler.schedulers.background import BackgroundScheduler
 from vatsim_fetcher import VatsimFetcher
@@ -595,7 +595,9 @@ update_flights()
 
 @app.route('/')
 def index():
-    return render_template('index.html', asset_version=int(time.time()), bmc_url=app.config.get('BUY_ME_A_COFFEE_URL', ''))
+    resp = make_response(render_template('index.html', asset_version=int(time.time()), bmc_url=app.config.get('BUY_ME_A_COFFEE_URL', '')))
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
 
 @app.route('/admin')
 def admin():
