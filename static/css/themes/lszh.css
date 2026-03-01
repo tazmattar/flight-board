@@ -27,6 +27,7 @@ body.theme-lszh .flight-table th {
     background: #151515;
     color: #ffffff;
     border-bottom: 2px solid #333;
+    text-transform: none;
 }
 
 body.theme-lszh .fids-footer {
@@ -45,6 +46,16 @@ body.theme-lszh .gate-icon-box {
 
 body.theme-lszh .huge-arrow {
     color: white;
+}
+
+body.theme-lszh #arrivalList .col-status[data-status="Late Arrival"] .flap-container,
+body.theme-lszh #arrivalList .col-status[data-status*="Late Arrival"] .flap-container {
+    background-color: #000000;
+    color: #ff8c00 !important;
+}
+
+body.theme-lszh .col-status .flap-container {
+    text-transform: none;
 }
 
 /* Widget Colors: Force BLACK for Zurich */

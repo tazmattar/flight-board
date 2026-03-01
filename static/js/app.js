@@ -9,6 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return String(value || '').trim().toUpperCase();
     }
 
+    function isLszhThemeActive() {
+        return document.body.classList.contains('theme-lszh');
+    }
+
+    function toTitleCase(value) {
+        return String(value || '').toLowerCase().replace(/\b([a-z])/g, (match) => match.toUpperCase());
+    }
+
+    function formatStatusDisplayText(value) {
+        const text = String(value || '');
+        return isLszhThemeActive() ? toTitleCase(text) : text.toUpperCase();
+    }
+
+    function formatAirportNameForTheme(value) {
+        const text = String(value || '');
+        return isLszhThemeActive() ? text : text.toUpperCase();
+    }
+
     function getInitialAirport() {
         const params = new URLSearchParams(window.location.search);
         const paramValue = normalizeIcao(params.get('icao') || params.get('airport'));
@@ -445,17 +463,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isJapanese) {
             if (airportNameCycleIndex === 1 && hasEnglishName) {
-                return { text: name.toUpperCase(), lang: 'en' };
+                return { text: formatAirportNameForTheme(name), lang: 'en' };
             }
             if (airportNameCycleIndex === 2) {
                 if (jpName) return { text: jpName, lang: 'ja' };
-                if (hasEnglishName) return { text: name.toUpperCase(), lang: 'en' };
+                if (hasEnglishName) return { text: formatAirportNameForTheme(name), lang: 'en' };
             }
             return { text: code, lang: 'icao' };
         }
 
         if (airportNameCycleIndex === 1 && hasEnglishName) {
-            return { text: name.toUpperCase(), lang: 'en' };
+            return { text: formatAirportNameForTheme(name), lang: 'en' };
         }
         return { text: code, lang: 'icao' };
     }
@@ -640,14 +658,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (showingDelayPhase) {
                 if (hasDelay) {
-                    newText = delayText.toUpperCase();
+                    newText = formatStatusDisplayText(delayText);
                     newColorClass = 'Delayed';
                 } else if (isBoarding) {
-                    newText = `GO TO GATE ${gate}`;
+                    newText = formatStatusDisplayText(`GO TO GATE ${gate}`);
                     newColorClass = 'GO TO GATE';
                 }
             } else {
-                newText = normalStatus.toUpperCase();
+                newText = formatStatusDisplayText(normalStatus);
                 newColorClass = normalStatus;
             }
 
@@ -874,8 +892,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Use fade animation for status updates
-            if (statusFlaps.textContent !== displayStatus.toUpperCase()) {
-                updateStatusWithFade(statusFlaps, statusCell, displayStatus.toUpperCase(), displayColorClass);
+            const formattedStatus = formatStatusDisplayText(displayStatus);
+            if (statusFlaps.textContent !== formattedStatus) {
+                updateStatusWithFade(statusFlaps, statusCell, formattedStatus, displayColorClass);
             } else {
                 statusCell.setAttribute('data-status', displayColorClass);
             }
