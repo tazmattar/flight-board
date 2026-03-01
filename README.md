@@ -140,7 +140,6 @@ This project is open-source and available under the MIT License.
 - [x] Add METAR/weather display widget
 - [x] Add ATC/controller widget with live popover
 - [x] VATSIM event ticker (live event detection per airport)
-- [ ] Aircraft type silhouettes/icons
 
 ## Bonus - Running as a Dedicated Kiosk Display
 
