@@ -76,6 +76,11 @@ body.theme-egcc .flight-table tbody tr:nth-child(even) {
     background-color: #585858;
 }
 
+/* Gate: always yellow */
+body.theme-egcc .col-gate {
+    color: #ffcc00;
+}
+
 /* Status: text colour only, no background */
 body.theme-egcc .col-status .flap-container {
     background-color: transparent !important;
