@@ -6,6 +6,11 @@
 /* LSZH uses the default styling from style.css */
 /* This is the base theme - minimal overrides needed */
 
+body.theme-lszh {
+    --font-ui: 'B612', 'Helvetica Neue', Arial, sans-serif;
+    --font-data: 'B612', 'Helvetica Neue', Arial, sans-serif;
+}
+
 body.theme-lszh .fids-header {
     background: #ffffff;
     border-bottom: 4px solid #000000;
