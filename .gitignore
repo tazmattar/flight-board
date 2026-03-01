@@ -41,3 +41,6 @@ static/scandinavian_stands.json
 
 # Runtime data files (not committed)
 data/traffic_stats.json
+
+# Personal scripts (contain private webhook URLs)
+scripts/discord_stats.py
