@@ -26,8 +26,14 @@ body.theme-lszh .section-divider {
 body.theme-lszh .flight-table th {
     background: #151515;
     color: #ffffff;
-    border-bottom: 2px solid #333;
+    border-bottom: 1px solid #ffffff;
     text-transform: none;
+}
+
+/* Thin white separator between Gate (col 5) and Time (col 6) */
+body.theme-lszh .flight-table th:nth-child(5),
+body.theme-lszh .flight-table td:nth-child(5) {
+    border-right: 1px solid #ffffff;
 }
 
 body.theme-lszh .fids-footer {
