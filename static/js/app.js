@@ -13,18 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return document.body.classList.contains('theme-lszh');
     }
 
+    function isTitleCaseThemeActive() {
+        return document.body.classList.contains('theme-lszh') ||
+               document.body.classList.contains('theme-egcc');
+    }
+
     function toTitleCase(value) {
         return String(value || '').toLowerCase().replace(/\b([a-z])/g, (match) => match.toUpperCase());
     }
 
     function formatStatusDisplayText(value) {
         const text = String(value || '');
-        return isLszhThemeActive() ? toTitleCase(text) : text.toUpperCase();
+        return isTitleCaseThemeActive() ? toTitleCase(text) : text.toUpperCase();
     }
 
     function formatAirportNameForTheme(value) {
         const text = String(value || '');
-        return isLszhThemeActive() ? text : text.toUpperCase();
+        return isTitleCaseThemeActive() ? text : text.toUpperCase();
     }
 
     function formatLszhOperationalLabel(value) {
