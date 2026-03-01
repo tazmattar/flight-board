@@ -869,20 +869,35 @@ body.theme-eham .tracking-chip {
 .flight-plan-tooltip {
     position: fixed;
     display: none;
-    background: rgba(0, 0, 0, 0.95);
-    border: 1px solid #444;
-    padding: 12px;
-    border-radius: 4px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    padding: 14px 18px;
+    border-radius: 0;
     color: #fff;
-    font-family: var(--font-data);
-    font-size: 0.9rem;
-    max-width: 400px;
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
     z-index: 9999;
-    pointer-events: none; /* Allows mouse to pass through */
-    white-space: pre;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-    white-space: normal;
-    line-height: 1.4;
+    pointer-events: none;
+    min-width: 160px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-row {
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.tt-row:first-child { padding-top: 0; }
+.tt-row:last-child  { padding-bottom: 0; border-bottom: none; }
+.tt-label {
+    display: block;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.12em;
+    margin-bottom: 3px;
+}
+.tt-value {
+    display: block;
+    font-size: 0.95rem;
+    color: #ffffff;
 }
 
 /* Hover effect for the cell to show it's interactive */

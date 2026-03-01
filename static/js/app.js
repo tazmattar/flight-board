@@ -1251,13 +1251,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const altitude = cell.getAttribute('data-altitude');
             const squawk = cell.getAttribute('data-squawk');
 
-            const lines = [];
-            if (speed !== null && speed !== '') lines.push(`Gnd Speed: ${speed} kts`);
-            if (altitude !== null && altitude !== '') lines.push(`Altitude:  ${parseInt(altitude).toLocaleString()} ft`);
-            if (squawk) lines.push(`Squawk:    ${squawk}`);
+            const rows = [];
+            if (speed !== null && speed !== '') rows.push({ label: 'Gnd Speed', value: `${speed} kts` });
+            if (altitude !== null && altitude !== '') rows.push({ label: 'Altitude', value: `${parseInt(altitude).toLocaleString()} ft` });
+            if (squawk) rows.push({ label: 'Squawk', value: squawk });
 
-            if (lines.length) {
-                tooltip.textContent = lines.join('\n');
+            if (rows.length) {
+                tooltip.innerHTML = rows.map(r =>
+                    `<div class="tt-row"><span class="tt-label">${r.label}</span><span class="tt-value">${r.value}</span></div>`
+                ).join('');
                 tooltip.style.display = 'block';
             } else {
                 tooltip.style.display = 'none';
