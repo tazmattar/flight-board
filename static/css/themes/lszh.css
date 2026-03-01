@@ -24,7 +24,7 @@ body.theme-lszh .clock-container {
 
 body.theme-lszh .section-divider {
     background: #111;
-    color: var(--fids-yellow);
+    color: #ffffff;
     border-bottom: 2px solid var(--border-dim);
 }
 
