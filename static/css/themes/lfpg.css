@@ -87,7 +87,7 @@ body.theme-lfpg .col-status[data-status="Gate Open"] .flap-container {
     color: var(--adp-gold) !important;
 }
 body.theme-lfpg .col-status[data-status="Delayed"] .flap-container {
-    color: #ff6b35 !important;
+    color: var(--adp-white) !important;
 }
 
 /* Yellow-background statuses must stay black text */
