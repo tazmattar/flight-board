@@ -131,6 +131,45 @@ body.theme-eddf .col-status[data-status="CLOSED"] .flap-container {
 }
 
 
+/* --- BOARDING LIGHTS --- */
+/* Two alternating green LEDs, left of the airline logo, EDDF only */
+body.theme-eddf .boarding-lights {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+body.theme-eddf .boarding-lights::before,
+body.theme-eddf .boarding-lights::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #00e600;
+    opacity: 0.12;
+    flex-shrink: 0;
+}
+
+body.theme-eddf .flight-cell.is-boarding .boarding-lights::before {
+    animation: boarding-light-a 2s infinite;
+}
+
+body.theme-eddf .flight-cell.is-boarding .boarding-lights::after {
+    animation: boarding-light-b 2s infinite;
+}
+
+@keyframes boarding-light-a {
+    0%,  49.9% { opacity: 1; }
+    50%, 100%  { opacity: 0.12; }
+}
+
+@keyframes boarding-light-b {
+    0%,  49.9% { opacity: 0.12; }
+    50%, 100%  { opacity: 1; }
+}
+
 /* Fix Airline Logos for the dark flap background */
 body.theme-eddf .airline-logo {
     filter: brightness(1.5);

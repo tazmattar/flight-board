@@ -777,7 +777,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const commonCells = `
                     <td>
                         <div class="flight-cell" id="${rowId}-cell">
-                            <img src="${primaryLogo}" 
+                            <span class="boarding-lights"></span>
+                            <img src="${primaryLogo}"
                                  data-primary="${primaryLogo}"
                                  data-secondary="${secondaryLogo}"
                                  data-tertiary="${tertiaryLogo}"
@@ -897,7 +898,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             statusCell.setAttribute('data-has-delay', hasDelay ? "true" : "false");
             statusCell.setAttribute('data-is-boarding', isBoarding ? "true" : "false");
-            statusCell.setAttribute('data-gate', gate); 
+            if (flightCell) flightCell.classList.toggle('is-boarding', isBoarding);
+            statusCell.setAttribute('data-gate', gate);
             statusCell.setAttribute('data-status-normal', flight.status);
             statusCell.setAttribute('data-status-delay', flight.delay_text || "");
             
