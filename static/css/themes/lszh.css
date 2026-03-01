@@ -35,6 +35,16 @@ body.theme-lszh .flight-table th {
     text-transform: none;
 }
 
+/* Subtle LSZH row glow: darker top, slightly lighter bottom */
+body.theme-lszh .flight-table tbody tr {
+    background: linear-gradient(to bottom, #070b10 0%, #0d141c 100%);
+}
+
+/* Keep cell fills transparent so the row gradient shows through */
+body.theme-lszh .flight-table tbody td {
+    background-color: transparent;
+}
+
 /* Thin white separator between Gate (col 5) and Time (col 6) */
 body.theme-lszh .flight-table th:nth-child(5),
 body.theme-lszh .flight-table td:nth-child(5) {
