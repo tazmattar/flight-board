@@ -65,11 +65,21 @@ body.theme-lfpg .flight-table td {
     border-bottom: 1px solid #0e1e35;
     color: var(--adp-white);
     font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+}
+
+body.theme-lfpg .flight-table th {
+    font-size: 0.875rem;
+}
+
+@media (min-height: 1500px), (orientation: portrait) {
+    body.theme-lfpg .flight-table td { font-size: 1.1rem !important; }
+    body.theme-lfpg .flight-table th { font-size: 0.95rem !important; }
 }
 
 /* Even rows — lighter blue to contrast */
 body.theme-lfpg .flight-table tr:nth-child(even) td {
-    background-color: #001f4a;
+    background-color: #0C73D4;
 }
 
 /* All data text: white by default */
@@ -80,9 +90,10 @@ body.theme-lfpg .col-time {
     color: var(--adp-white) !important;
 }
 
-/* Gate column: yellow */
-body.theme-lfpg .col-gate {
-    color: var(--adp-gold) !important;
+/* Gate and check-in columns */
+body.theme-lfpg .col-gate,
+body.theme-lfpg .col-checkin {
+    color: #CBDF6D !important;
 }
 
 /* Status Column */
