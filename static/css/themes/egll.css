@@ -40,6 +40,12 @@ body.theme-egll .flight-table td {
     line-height: 1;
 }
 
+@media (min-height: 1500px), (orientation: portrait) {
+    body.theme-egll {
+        --font-size-cell: 1.2rem;
+    }
+}
+
 body.theme-egll .col-status .flap-container {
     text-transform: none;
 }
