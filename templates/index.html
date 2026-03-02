@@ -205,6 +205,10 @@
                 <span class="material-icons" aria-hidden="true">favorite</span>
                 <span>Support</span>
             </a>
+            <button id="helpBtn" class="support-footer-btn help-footer-btn" title="User Guide">
+                <span class="material-icons" aria-hidden="true">help_outline</span>
+                <span>Guide</span>
+            </button>
             <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
         </div>
     </div>
@@ -220,6 +224,88 @@
     <script src="{{ url_for('static', filename='js/split_flap.js', v=asset_version) }}"></script>
     <script src="{{ url_for('static', filename='js/app.js', v=asset_version) }}"></script>
     <script src="{{ url_for('static', filename='js/language_handler.js', v=asset_version) }}"></script>
+<!-- Help / User Guide Modal -->
+<div id="helpModal" class="modal">
+    <div class="modal-content help-modal-content">
+        <span class="close" id="helpModalClose">&times;</span>
+        <h2>User Guide</h2>
+        <div class="help-modal-body">
+
+            <section class="help-section">
+                <h3>Switching Airports</h3>
+                <p><strong>Pre-configured Hubs</strong> — Use the dropdown at the top-left to instantly switch between major airports (LSZH, EGLL, EDDF, LFPG, EHAM, KJFK, RJTT, and more).</p>
+                <p><strong>Any Airport Worldwide</strong> — Click the <strong>+</strong> button next to the dropdown, enter any 4-letter ICAO code (e.g. KSFO, VHHH, WSSS), and click <strong>Search</strong>.</p>
+                <p><strong>Direct Links</strong> — Bookmark or share a specific airport: <code>?icao=EDDF</code> or <code>?airport=KJFK</code></p>
+            </section>
+
+            <section class="help-section">
+                <h3>Flight Information</h3>
+                <ul>
+                    <li><strong>Flight</strong> — Callsign. Hover (desktop) or tap (mobile) to see cruise altitude, speed, and squawk.</li>
+                    <li><strong>Destination / Origin</strong> — Cycles between ICAO code and airport name every 4 seconds.</li>
+                    <li><strong>Time</strong> — Scheduled departure or arrival time (UTC).</li>
+                    <li><strong>Gate / Stand</strong> — Assigned position. UK airports pull real data from UKCP when available.</li>
+                    <li><strong>Check-in</strong> — Desk assignment for departures, based on airline and terminal.</li>
+                    <li><strong>Status</strong> — Current flight phase. Cycles every 6 seconds between the phase label and delay / gate information.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>Status Colours</h3>
+                <ul>
+                    <li><span class="help-status-dot" style="background:#4a9eff"></span> <strong>Blue</strong> — Pushback / Departing / Approaching</li>
+                    <li><span class="help-status-dot" style="background:#4caf50"></span> <strong>Green</strong> — Boarding</li>
+                    <li><span class="help-status-dot" style="background:#ffd700"></span> <strong>Yellow</strong> — Check-In / Landing / Taxiing</li>
+                    <li><span class="help-status-dot" style="background:#ff9800"></span> <strong>Orange</strong> — Late Arrival / Wait</li>
+                    <li><span class="help-status-dot" style="background:#f44336"></span> <strong>Red</strong> — Delayed</li>
+                    <li><span class="help-status-dot" style="background:#e91e8c"></span> <strong>Pink</strong> — Go To Gate</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>Flight Tracking</h3>
+                <p>Click any flight row to start tracking that callsign. A chip appears in the header. When the tracked aircraft departs and goes airborne, the board automatically switches to the destination airport. Click the row again or press <strong>×</strong> on the chip to stop.</p>
+            </section>
+
+            <section class="help-section">
+                <h3>Header Widgets</h3>
+                <ul>
+                    <li><strong>ATC (radar icon)</strong> — Green when controllers are active. Hover to see positions and frequencies.</li>
+                    <li><strong>Weather (cloud icon)</strong> — Live METAR-based icon with temperature in °C.</li>
+                    <li><strong>Clock</strong> — Current UTC (Zulu) time.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>Visual Features</h3>
+                <ul>
+                    <li><strong>Auto-Pagination</strong> — Splits into pages and cycles automatically when flights exceed screen space.</li>
+                    <li><strong>Airport Themes</strong> — EDDF uses an animated Solari split-flap display; each airport has its own branded colours.</li>
+                    <li><strong>Responsive Layout</strong> — Landscape: tables side-by-side. Portrait: tables stacked (great for dedicated monitors).</li>
+                    <li><strong>Event Ticker</strong> — Scrolling banner above the footer when a VATSIM event is active or starting within 24 hours.</li>
+                    <li><strong>Fullscreen</strong> — Click ⛶ in the footer. Press ESC to exit.</li>
+                </ul>
+            </section>
+
+            <section class="help-section">
+                <h3>Tips</h3>
+                <ul>
+                    <li>Bookmark your favourite airport with <code>?icao=XXXX</code> in the URL.</li>
+                    <li>Works great on a spare monitor in landscape or portrait orientation.</li>
+                    <li>Track your own flight to follow it automatically across the network.</li>
+                    <li>Data refreshes every 60 seconds via live VATSIM data, pushed instantly via WebSocket.</li>
+                </ul>
+            </section>
+
+            <section class="help-section help-section-last">
+                <h3>Support</h3>
+                <p>Enjoying FlightBoard? Consider <a href="https://buymeacoffee.com/tazmattar" target="_blank" rel="noopener">supporting development</a> — it keeps the servers running.</p>
+            </section>
+
+        </div>
+    </div>
+</div>
+
 <!-- Airport Search Modal -->
 <div id="airportSearchModal" class="modal">
     <div class="modal-content">
