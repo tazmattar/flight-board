@@ -65,16 +65,11 @@ body.theme-lfpg .flight-table td {
     border-bottom: 1px solid #0e1e35;
     color: var(--adp-white);
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 
 body.theme-lfpg .flight-table th {
-    font-size: 0.875rem;
-}
-
-@media (min-height: 1500px), (orientation: portrait) {
-    body.theme-lfpg .flight-table td { font-size: 1.1rem !important; }
-    body.theme-lfpg .flight-table th { font-size: 0.95rem !important; }
+    font-size: 0.95rem;
 }
 
 /* Even rows — lighter blue to contrast */

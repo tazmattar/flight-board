@@ -14,11 +14,12 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 ### Core Functionality
 * **Universal Airport Support:** Instantly load *any* airport on the VATSIM network by searching for its ICAO code in the UI.
 * **Direct Link Loading:** Open the board directly to an airport using `?icao=XXXX` (or `?airport=XXXX`) in the URL.
-* **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLC, EGLL, EGKK, EGSS, EHAM, EDDF, KJFK, and RJTT.
+* **Pre-Configured Hubs:** One-click switching between major hubs: LSZH, LSGG, LFSB, EGLC, EGLL, EGKK, EGSS, EGCC, EHAM, EDDF, LFPG, KJFK, and RJTT.
 * **Track Flight Mode:** Tap/click any visible flight row to track exactly one callsign and follow it with automatic airport switching.
-* **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 60 seconds.
+* **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 30 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
 * **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display.
+* **Help / User Guide:** Built-in modal accessible from the header, covering all features and keyboard shortcuts.
 * **Responsive Layout:**
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
     * **Portrait Mode:** Automatically stacks tables vertically for optimal use on vertical monitors.
@@ -56,7 +57,9 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * **EGKK (Gatwick):** Distinctive Gatwick Yellow and Black styling.
     * **EGSS (Stansted):** Stansted Yellow with Black text.
     * **EHAM (Amsterdam):** Schiphol-inspired theme based on real FIDS reference.
+    * **EGCC (Manchester):** Yellow and Black header with dark rows and alternating grey, lowercase styling.
     * **EDDF (Frankfurt):** Authentic Solari split-flap display aesthetic with animated mechanical character flips, Lufthansa Blue footer, and terminal indicators.
+    * **LFPG (Paris CDG):** ADP-inspired deep midnight blue with alternating blue rows and sky-blue column headers.
     * **KJFK (New York):** JFK Yellow and Black.
     * **RJTT (Tokyo Haneda):** Black header with Green accent lines.
 * **Hybrid Display Style:**
@@ -88,6 +91,9 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 ### London City (EGLC) - Yellow Theme
 ![City Board](screenshots/EGLC.png)
 
+### Paris CDG (LFPG) - ADP Midnight Blue Theme
+![Paris CDG Board](screenshots/LFPG.png)
+
 ### Tokyo Haneda (RJTT) - Haneda Theme
 ![Haneda Board](screenshots/RJTT.png)
 
@@ -114,8 +120,10 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 | EGLL | London Heathrow | T2, T3, T4, T5 | 250 | Heathrow Yellow |
 | EGKK | London Gatwick | North/South | 184 | Gatwick Yellow |
 | EGSS | London Stansted | Main terminal | 144 | Stansted Yellow |
+| EGCC | Manchester Airport | T1, T2, T3 | 117 | Manchester Yellow and Black |
 | EHAM | Amsterdam Schiphol | D, E, F piers | 276 | Schiphol Grey |
 | EDDF | Frankfurt Airport | T1 (A/B/C/Z), T2 (D/E) | 170 | Solari Split-Flap Dark |
+| LFPG | Paris CDG | T1, T2 (A–F), T3 | 508 | ADP Midnight Blue |
 | KJFK | New York JFK | T1, T4, T5, T7, T8 | 205 | JFK Yellow and Black |
 | RJTT | Tokyo Haneda | T1, T2, T3 | 238 | Haneda Dark |
 
@@ -143,6 +151,8 @@ This project is open-source and available under the MIT License.
 - [x] Add METAR/weather display widget
 - [x] Add ATC/controller widget with live popover
 - [x] VATSIM event ticker (live event detection per airport)
+- [x] Additional European hubs (EGCC, LFPG added)
+- [x] Built-in Help / User Guide modal
 
 ## Bonus - Running as a Dedicated Kiosk Display
 

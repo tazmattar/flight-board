@@ -6,6 +6,8 @@
 body.theme-egll {
     --heathrow-yellow: #FDB813;
     --heathrow-dark: #1a1a1a;
+    --font-ui: 'Inter', sans-serif;
+    --font-data: 'Inter', sans-serif;
 }
 
 body.theme-egll .fids-header {
