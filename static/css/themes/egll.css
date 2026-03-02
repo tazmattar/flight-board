@@ -31,6 +31,17 @@ body.theme-egll .flight-table th {
     background: #1a1a1a;
     color: #ffffff;
     border-bottom: 2px solid #333;
+    text-transform: none;
+}
+
+body.theme-egll .col-status .flap-container {
+    text-transform: none;
+}
+
+/* Go to Gate: match Boarding green */
+body.theme-egll .col-status[data-status*="GO TO"] .flap-container {
+    background-color: #00b000;
+    color: #ffffff !important;
 }
 
 /* Yellow destination/origin text */

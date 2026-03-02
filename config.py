@@ -5,7 +5,7 @@ load_dotenv()
 
 class Config:
     AIRPORT_CODE = os.getenv('AIRPORT_CODE', 'LSZH')
-    UPDATE_INTERVAL = int(os.getenv('UPDATE_INTERVAL', 60))
+    UPDATE_INTERVAL = int(os.getenv('UPDATE_INTERVAL', 30))
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
     ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'change-me')

@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isTitleCaseThemeActive() {
         return document.body.classList.contains('theme-lszh') ||
-               document.body.classList.contains('theme-egcc');
+               document.body.classList.contains('theme-egcc') ||
+               document.body.classList.contains('theme-egll');
     }
 
     function toTitleCase(value) {
@@ -1241,6 +1242,21 @@ document.addEventListener('DOMContentLoaded', () => {
             this.value = this.value.toUpperCase().slice(0, 4);
         });
     }
+    // ====== HELP MODAL ======
+    const helpModal = document.getElementById('helpModal');
+    const helpBtn = document.getElementById('helpBtn');
+    const helpModalClose = document.getElementById('helpModalClose');
+
+    if (helpBtn) {
+        helpBtn.onclick = function() { helpModal.style.display = 'block'; };
+    }
+    if (helpModalClose) {
+        helpModalClose.onclick = function() { helpModal.style.display = 'none'; };
+    }
+    window.addEventListener('click', function(e) {
+        if (e.target === helpModal) helpModal.style.display = 'none';
+    });
+
     // --- FLIGHT TOOLTIP LOGIC ---
     const tooltip = document.getElementById('flightTooltip');
 
