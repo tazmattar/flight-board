@@ -88,6 +88,9 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 ### London City (EGLC) - Yellow Theme
 ![City Board](screenshots/EGLC.png)
 
+### Manchester (EGCC) - Yellow Theme
+![Manchester Board](screenshots/EGCC.png)
+
 ### Tokyo Haneda (RJTT) - Haneda Theme
 ![Haneda Board](screenshots/RJTT.png)
 
