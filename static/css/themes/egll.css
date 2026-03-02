@@ -36,6 +36,10 @@ body.theme-egll .flight-table th {
     text-transform: none;
 }
 
+body.theme-egll .flight-table td {
+    line-height: 1;
+}
+
 body.theme-egll .col-status .flap-container {
     text-transform: none;
 }
