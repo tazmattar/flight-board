@@ -31,9 +31,9 @@ body.theme-eglc .section-divider {
 }
 
 body.theme-eglc .flight-table th {
-    background: #1a1a1a;
+    background: var(--city-grey);
     color: #ffffff;
-    border-bottom: 2px solid #333;
+    border-bottom: none;
     text-transform: none !important;
 }
 
