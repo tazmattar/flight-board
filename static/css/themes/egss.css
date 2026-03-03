@@ -6,6 +6,8 @@
 body.theme-egss {
     --heathrow-yellow: #FDB813;
     --heathrow-dark: #1a1a1a;
+    --font-ui: 'Inter', sans-serif;
+    --font-data: 'Inter', sans-serif;
 }
 
 body.theme-egss .fids-header {
@@ -31,6 +33,11 @@ body.theme-egss .flight-table th {
     background: #1a1a1a;
     color: #ffffff;
     border-bottom: 2px solid #333;
+    text-transform: none !important;
+}
+
+body.theme-egss .col-status .flap-container {
+    text-transform: none !important;
 }
 
 /* Yellow destination/origin text */

@@ -52,7 +52,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * **LSZH (Zurich):** High-contrast White/Black header with Yellow accents.
     * **LSGG (Geneva):** Geneva Blue headers with White text.
     * **LFSB (Basel):** Immersive "EuroAirport Blue" background.
-    * **EGLC (London City):** Classic City Airport Yellow with Black text.
+    * **EGLC (London City):** City Airport Blue (#3542C3) header with white text, white rows with black text, and grey footer.
     * **EGLL (Heathrow):** Classic Heathrow Yellow header with Black text.
     * **EGKK (Gatwick):** Distinctive Gatwick Yellow and Black styling.
     * **EGSS (Stansted):** Stansted Yellow with Black text.
@@ -88,7 +88,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 ### London Gatwick (EGKK) - Yellow Theme
 ![Gatwick Board](screenshots/EGKK.png)
 
-### London City (EGLC) - Yellow Theme
+### London City (EGLC) - Blue, White and Grey Theme
 ![City Board](screenshots/EGLC.png)
 
 ### Paris CDG (LFPG) - ADP Midnight Blue Theme
@@ -119,7 +119,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 | LSZH | Zurich Airport | Multiple piers | 153 | White/Black/Yellow |
 | LSGG | Geneva Airport | Main + French | 31 | Geneva Blue |
 | LFSB | EuroAirport Basel | French/Swiss | 68 | EuroAirport Blue |
-| EGLC | London City Airport | Single terminal | 20 | City Yellow |
+| EGLC | London City Airport | Single terminal | 20 | City Blue, White and Grey |
 | EGLL | London Heathrow | T2, T3, T4, T5 | 250 | Heathrow Yellow |
 | EGKK | London Gatwick | North/South | 184 | Gatwick Yellow |
 | EGSS | London Stansted | Main terminal | 144 | Stansted Yellow |

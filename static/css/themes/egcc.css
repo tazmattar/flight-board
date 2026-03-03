@@ -6,6 +6,8 @@
 body.theme-egcc {
     --manchester-yellow: #FDB813;
     --manchester-dark: #1a1a1a;
+    --font-ui: 'Inter', sans-serif;
+    --font-data: 'Inter', sans-serif;
 }
 
 body.theme-egcc .fids-header {
