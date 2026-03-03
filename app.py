@@ -660,6 +660,21 @@ def admin_logout():
     session.pop('admin_username', None)
     return redirect(url_for('admin_login'))
 
+@app.route('/gate/<airport>/<callsign>')
+def gate_display(airport, callsign):
+    normalized = _normalize_icao(airport)
+    callsign = re.sub(r'[^A-Za-z0-9]', '', str(callsign or ''))[:10].upper()
+    if not normalized or not callsign:
+        return redirect('/')
+    resp = make_response(render_template(
+        'gate.html',
+        airport=normalized,
+        callsign=callsign,
+        asset_version=int(time.time()),
+    ))
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
 @app.route('/api/translations')
 def get_translations():
     """Serve all language translations to the frontend"""

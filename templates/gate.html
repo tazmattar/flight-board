@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate Display — {{ callsign }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=JetBrains+Mono:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=asset_version) }}">
+
+    <script>
+        window.GATE_AIRPORT  = "{{ airport }}";
+        window.GATE_CALLSIGN = "{{ callsign }}";
+        window.ASSET_VERSION = "{{ asset_version }}";
+    </script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body class="gate-page">
+
+    <!-- Waiting state -->
+    <div id="gateWaiting" class="gate-waiting">
+        <div class="gate-waiting-callsign">{{ callsign }}</div>
+        <div class="gate-waiting-dot"></div>
+        <div class="gate-waiting-label">Waiting for flight data&hellip;</div>
+    </div>
+
+    <!-- Not found state -->
+    <div id="gateNotFound" class="gate-not-found" style="display:none;">
+        <div class="gate-not-found-text">Flight <strong>{{ callsign }}</strong> not found</div>
+        <div class="gate-not-found-sub">Listening for updates&hellip;</div>
+    </div>
+
+    <!-- Gate monitor (populated by gate.js) -->
+    <div id="gateMonitor" class="gate-monitor" style="display:none;">
+        <header class="gate-header">
+            <div id="gateNumber" class="gate-number">--</div>
+            <div id="gateFlightId" class="flight-id"></div>
+            <img id="gateLogo" class="gate-airline-logo" src="" onerror="this.style.display='none'">
+            <div id="gateStatusPill" class="status-pill"></div>
+        </header>
+
+        <main class="gate-content">
+            <section class="main-info">
+                <h1 id="gateDestName" class="destination-name">--</h1>
+                <div id="gateDestIcao" class="destination-icao"></div>
+                <div class="time-grid">
+                    <div class="time-block">
+                        <span class="label" id="gateTimeLabel">DEPARTS</span>
+                        <span class="value" id="gateTimeValue">--:--</span>
+                    </div>
+                    <div class="time-block">
+                        <span class="label">AIRCRAFT</span>
+                        <span class="value" id="gateAircraft">--</span>
+                    </div>
+                </div>
+                <div id="gateStatusBanner" class="countdown-banner" style="display:none;"></div>
+            </section>
+
+            <aside class="manifest-panel">
+                <h2 class="panel-title">FLIGHT DETAILS</h2>
+                <ul class="manifest-list">
+                    <li><span class="pos">RTE</span> <span id="gateRoute" class="detail-value">--</span></li>
+                    <li><span class="pos">ALT</span> <span id="gateAltitude" class="detail-value">--</span></li>
+                    <li><span class="pos">GS</span> <span id="gateSpeed" class="detail-value">--</span></li>
+                    <li><span class="pos">SQK</span> <span id="gateSquawk" class="detail-value">--</span></li>
+                </ul>
+            </aside>
+        </main>
+
+        <footer class="gate-footer">
+            <div class="flight-stats" id="gateFlightStats"></div>
+            <div class="current-time" id="gateClock"></div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/gate.js', v=asset_version) }}"></script>
+</body>
+</html>

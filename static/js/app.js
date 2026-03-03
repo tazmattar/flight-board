@@ -808,7 +808,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                  style="filter: none;"
                                  onerror="handleLogoError(this)">
                             <div class="flap-container" id="${rowId}-callsign"></div>
-                            <button class="gate-info-btn" title="Gate info">ⓘ</button>
                         </div>
                     </td>
                     <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
@@ -870,18 +869,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!row.dataset.gateInfoBound) {
                 row.dataset.gateInfoBound = '1';
-                const gateBtn = row.querySelector('.gate-info-btn');
-                if (gateBtn) {
-                    gateBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openGateDisplay(safeCallsign, type);
-                    });
-                    gateBtn.addEventListener('touchend', (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        openGateDisplay(safeCallsign, type);
-                    });
-                }
+                row.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    openGateDisplay(safeCallsign, type);
+                });
             }
 
             // NOW update the flight data attribute (safe because row is in DOM)
@@ -1251,9 +1242,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = flight.status || '–';
         const timeLabel = isDep ? 'Departure' : 'Arrival';
 
+        const gatePageUrl = `/gate/${currentAirport}/${callsign}`;
         content.innerHTML = `
             <div class="gate-display-header">
                 <div class="gate-display-flight-num">${callsign}</div>
+                <a href="${gatePageUrl}" target="_blank" class="gate-display-fullpage" title="Open full page">&#x2197;</a>
                 <img src="${logoSrc}" class="gate-display-logo" onerror="this.style.display='none'">
             </div>
             <div class="gate-display-destination">
