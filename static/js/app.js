@@ -224,10 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Virtual / VATSIM-specific airlines ---
+    // Local logos only — these won't exist on any CDN, so no fallback is attempted.
+    const virtualAirlines = new Set([
+        'XNO', // AirNOTT
+    ]);
+
     // --- Dynamic Data Sources ---
-    const airlineMapping = { 
-        'SWS': 'LX', 'EZY': 'U2', 'EJU': 'U2', 'EZS': 'DS', 'BEL': 'SN', 
-        'GWI': '4U', 'EDW': 'WK', 'ITY': 'AZ', 'FDX': 'FX', 'UPS': '5X', 
+    const airlineMapping = {
+        'SWS': 'LX', 'EZY': 'U2', 'EJU': 'U2', 'EZS': 'DS', 'BEL': 'SN',
+        'GWI': '4U', 'EDW': 'WK', 'ITY': 'AZ', 'FDX': 'FX', 'UPS': '5X',
         'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA', 'SHT': 'BA'
     };
     // Brand-level logo aliases for airlines operating multiple AOCs/ICAO prefixes.
@@ -568,16 +574,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Track which attempt we're on (0=primary, 1=secondary, 2=tertiary, 3=failed)
         const attempt = parseInt(img.dataset.attempt || '0');
         
-        if (attempt === 0) {
+        if (attempt === 0 && img.dataset.secondary) {
             // First failure: try secondary
             img.dataset.attempt = '1';
             img.src = img.dataset.secondary;
-        } else if (attempt === 1) {
+        } else if (attempt === 1 && img.dataset.tertiary) {
             // Second failure: try tertiary
             img.dataset.attempt = '2';
             img.src = img.dataset.tertiary;
         } else {
-            // All failed: hide the image
+            // All failed (or no fallbacks): hide the image
             img.style.display = 'none';
         }
     };
@@ -740,11 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Define cargo/special operators that we have stored locally
             const localOnlyAirlines = ['FX', 'FDX', 'UPS', '5X', 'REGA', 'SAZ'];
-            
+
             // Determine logo source priority
             let primaryLogo, secondaryLogo, tertiaryLogo;
-            
-            if (localOnlyAirlines.includes(code)) {
+
+            if (virtualAirlines.has(prefix)) {
+                // Virtual/VATSIM airlines: local only, no CDN fallback
+                primaryLogo = `/static/logos/${prefix}.png`;
+                secondaryLogo = '';
+                tertiaryLogo = '';
+            } else if (localOnlyAirlines.includes(code)) {
                 // Cargo/special operators: Try local first
                 primaryLogo = `/static/logos/${code}.png`;
                 secondaryLogo = `https://images.kiwi.com/airlines/64/${code}.png`;
