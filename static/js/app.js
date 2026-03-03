@@ -883,9 +883,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const flightCell = document.getElementById(`${rowId}-cell`);
             if (flightCell) {
                 flightCell.setAttribute('data-route', flight.route || 'No route');
-                flightCell.setAttribute('data-speed', flight.groundspeed ?? '');
-                flightCell.setAttribute('data-altitude', flight.altitude ?? '');
-                flightCell.setAttribute('data-squawk', flight.squawk || '');
             }
 
             updateFlapText(document.getElementById(`${rowId}-callsign`), flight.callsign);
@@ -1433,42 +1430,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === gateDisplayModal) gateDisplayModal.style.display = 'none';
     });
 
-    // --- FLIGHT TOOLTIP LOGIC ---
-    const tooltip = document.getElementById('flightTooltip');
-
-    document.addEventListener('mouseover', (e) => {
-        const cell = e.target.closest('.flight-cell');
-
-        if (cell) {
-            const speed = cell.getAttribute('data-speed');
-            const altitude = cell.getAttribute('data-altitude');
-            const squawk = cell.getAttribute('data-squawk');
-
-            const rows = [];
-            if (speed !== null && speed !== '') rows.push({ label: 'Gnd Speed', value: `${speed} kts` });
-            if (altitude !== null && altitude !== '') rows.push({ label: 'Altitude', value: `${parseInt(altitude).toLocaleString()} ft` });
-            if (squawk) rows.push({ label: 'Squawk', value: squawk });
-
-            if (rows.length) {
-                tooltip.innerHTML = rows.map(r =>
-                    `<div class="tt-row"><span class="tt-label">${r.label}</span><span class="tt-value">${r.value}</span></div>`
-                ).join('');
-                tooltip.style.display = 'block';
-            } else {
-                tooltip.style.display = 'none';
-            }
-        } else {
-            tooltip.style.display = 'none';
-        }
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        // Move tooltip with mouse
-        if (tooltip.style.display === 'block') {
-            tooltip.style.left = (e.clientX + 15) + 'px';
-            tooltip.style.top = (e.clientY + 15) + 'px';
-        }
-    });
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {

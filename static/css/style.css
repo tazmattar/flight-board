@@ -987,44 +987,6 @@ body.theme-eham .tracking-chip {
 }
 
     /* Flight Plan Tooltip */
-.flight-plan-tooltip {
-    position: fixed;
-    display: none;
-    background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    padding: 14px 18px;
-    border-radius: 0;
-    color: #fff;
-    font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
-    z-index: 9999;
-    pointer-events: none;
-    min-width: 160px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-.tt-row {
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-.tt-row:first-child { padding-top: 0; }
-.tt-row:last-child  { padding-bottom: 0; border-bottom: none; }
-.tt-label {
-    display: block;
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.4);
-    letter-spacing: 0.12em;
-    margin-bottom: 3px;
-}
-.tt-value {
-    display: block;
-    font-size: 0.95rem;
-    color: #ffffff;
-}
-
-/* Hover effect for the cell to show it's interactive */
-.flight-cell {
-    cursor: help;
-}
 
 /* Touch-device table density tuning (both portrait and landscape). */
 @media (max-width: 1366px) and (pointer: coarse) {
@@ -2020,6 +1982,7 @@ body.map-page .leaflet-control-attribution a { color: #888; }
 /* ── Map button in main board header ────────────────────── */
 .map-link-btn {
     text-decoration: none;
+    color: inherit;
 }
 
 @media (max-width: 600px) {

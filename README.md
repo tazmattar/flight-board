@@ -18,7 +18,8 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 * **Track Flight Mode:** Tap/click any visible flight row to track exactly one callsign and follow it with automatic airport switching.
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 30 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
-* **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display. Hover the weather widget to reveal a **METAR popover** with the raw string and decoded wind, visibility, cloud, temperature/dewpoint, and QNH.
+* **Header Widgets:** Live ATC status with controller popover, METAR-driven weather icon and temperature display, and a compass link to the Live Map. Hover the weather widget to reveal a **METAR popover** with the raw string and decoded wind, visibility, cloud, temperature/dewpoint, and QNH.
+* **Live Radar Map:** Dedicated page at `/map/<ICAO>` showing all departures and arrivals as real-time aircraft markers on a dark Leaflet map. Markers are color-coded (green = ground ops, blue = arrivals, orange = departures) and rotated to show heading. Click any aircraft to open a detail panel with callsign, status, route, gate, and a link to the gate display. An ATC panel lists online controllers with markers at approximate positions. Uses Socket.IO for live updates.
 * **Gate Display Board:** Right-click any flight row to open an airport-style gate information card showing flight number, airline logo, destination/origin city, status badge, gate, scheduled time, and aircraft type.
 * **Full-Page Gate Display (Streamer Mode):** Dedicated full-page gate monitor at `/gate/<ICAO>/<callsign>` — designed for OBS overlays and streaming. Features a clean white layout with large gate number, airline logo, flight number, destination, departure time, aircraft, and status pill. Accent colours are dynamically extracted from the airline's logo. Also accessible via the ↗ link inside the gate display modal.
 * **Help / User Guide:** Built-in modal accessible from the header, covering all features and keyboard shortcuts.
@@ -106,7 +107,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 
 * **Backend:** Python 3.8+, Flask, Flask-SocketIO
 * **Scheduler:** APScheduler (Background data fetching)
-* **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript (ES6+)
+* **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript (ES6+), Leaflet (map)
 * **Data Sources:**
     * VATSIM Data API v3
     * VATSIM Events API (Event ticker)
@@ -161,6 +162,7 @@ This project is open-source and available under the MIT License.
 - [x] METAR decoded popover (wind, visibility, cloud, temp/dew, QNH)
 - [x] Gate Display Board modal (per-flight info card with status badge)
 - [x] Full-page Gate Display for streamers with dynamic airline accent colours
+- [x] Live Radar Map with real-time aircraft tracking and ATC overlay
 
 ## Bonus - Running as a Dedicated Kiosk Display
 
