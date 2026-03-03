@@ -16,7 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function isTitleCaseThemeActive() {
         return document.body.classList.contains('theme-lszh') ||
                document.body.classList.contains('theme-egcc') ||
-               document.body.classList.contains('theme-egll');
+               document.body.classList.contains('theme-egll') ||
+               document.body.classList.contains('theme-egss') ||
+               document.body.classList.contains('theme-egkk') ||
+               document.body.classList.contains('theme-eglc');
     }
 
     function toTitleCase(value) {
