@@ -675,6 +675,23 @@ def gate_display(airport, callsign):
     resp.headers['Cache-Control'] = 'no-store'
     return resp
 
+@app.route('/api/logo/<code>')
+def logo_proxy(code):
+    """Proxy airline logos so gate.js can read pixels (same-origin canvas)."""
+    code = re.sub(r'[^A-Za-z0-9]', '', str(code or ''))[:6]
+    if not code:
+        return '', 400
+    try:
+        r = requests.get(f'https://images.kiwi.com/airlines/128/{code}.png', timeout=5)
+        if r.status_code != 200:
+            return '', 404
+        resp = make_response(r.content)
+        resp.headers['Content-Type'] = 'image/png'
+        resp.headers['Cache-Control'] = 'public, max-age=86400'
+        return resp
+    except Exception:
+        return '', 502
+
 @app.route('/api/translations')
 def get_translations():
     """Serve all language translations to the frontend"""

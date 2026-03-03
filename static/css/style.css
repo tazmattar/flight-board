@@ -1436,28 +1436,30 @@ body.gate-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-black);
-    color: var(--text-white);
-    font-family: var(--font-ui);
+    background: #f5f5f5;
+    color: #111;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Waiting state */
 .gate-waiting {
     text-align: center;
+    color: #333;
 }
 
 .gate-waiting-callsign {
-    font-family: var(--font-data);
+    font-family: 'Inter', sans-serif;
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 700;
     letter-spacing: 0.08em;
     margin-bottom: 16px;
+    color: #111;
 }
 
 .gate-waiting-dot {
     width: 12px;
     height: 12px;
-    background: var(--fids-yellow);
+    background: var(--gate-accent, #0066cc);
     border-radius: 50%;
     margin: 0 auto 16px;
     animation: gate-pulse 1.5s ease-in-out infinite;
@@ -1470,12 +1472,13 @@ body.gate-page {
 
 .gate-waiting-label {
     font-size: 0.9rem;
-    color: var(--text-dim);
+    color: #888;
 }
 
 /* Not-found state */
 .gate-not-found {
     text-align: center;
+    color: #333;
 }
 
 .gate-not-found-text {
@@ -1485,50 +1488,64 @@ body.gate-page {
 
 .gate-not-found-sub {
     font-size: 0.85rem;
-    color: var(--text-dim);
+    color: #888;
 }
 
-/* Gate monitor — edge-to-edge fullscreen layout */
+/* Gate monitor — white, edge-to-edge fullscreen */
 .gate-monitor {
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    background-color: var(--bg-black);
-    color: var(--text-white);
+    background: #fff;
+    color: #111;
     padding: 40px;
     box-sizing: border-box;
 }
 
+/* Header: gate badge + logo (left), status pill (right) */
 .gate-header {
     display: flex;
     align-items: center;
-    border-bottom: 4px solid var(--fids-yellow);
-    padding-bottom: 20px;
-    gap: 30px;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--gate-accent, #0066cc);
+    padding-bottom: 24px;
+}
+
+.gate-header-left {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.gate-badge {
+    display: flex;
+    flex-direction: column;
+}
+
+.gate-label {
+    font-size: clamp(0.7rem, 1vw, 0.9rem);
+    color: #888;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
 
 .gate-number {
-    font-size: clamp(3rem, 6vw, 5rem);
+    font-size: clamp(3.5rem, 8vw, 7rem);
     font-weight: 900;
-    color: var(--fids-yellow);
+    color: #111;
     line-height: 1;
-}
-
-.flight-id {
-    font-family: var(--font-data);
-    font-size: clamp(1.2rem, 2.5vw, 2rem);
-    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
 }
 
 .gate-airline-logo {
-    height: clamp(28px, 4vw, 48px);
+    height: clamp(48px, 8vw, 96px);
     width: auto;
+    max-width: clamp(80px, 12vw, 160px);
     object-fit: contain;
 }
 
 .status-pill {
-    margin-left: auto;
     padding: 10px 30px;
     font-size: clamp(1rem, 2.2vw, 2rem);
     font-weight: 700;
@@ -1536,147 +1553,117 @@ body.gate-page {
     white-space: nowrap;
 }
 
-.status-pill.boarding  { background-color: var(--fids-green); color: #000; }
-.status-pill.scheduled { background-color: var(--fids-yellow); color: #000; }
+.status-pill.boarding  { background-color: #00b000; color: #fff; }
+.status-pill.scheduled { background-color: #ffcc00; color: #000; }
 .status-pill.departing { background-color: #0055b8; color: #fff; }
-.status-pill.enroute   { background-color: transparent; color: #b3d9ff; border: 1px solid #b3d9ff; }
+.status-pill.enroute   { background-color: transparent; color: #0055b8; border: 2px solid #0055b8; }
 .status-pill.arriving  { background-color: #0055b8; color: #fff; }
 .status-pill.delayed   { background-color: #d60000; color: #fff; }
 .status-pill.goto      { background-color: #e6007e; color: #fff; }
-.status-pill.default   { background-color: #222; color: var(--text-dim); }
+.status-pill.default   { background-color: #e5e5e5; color: #555; }
 
+/* Main content: full width, flight number → destination → info row */
 .gate-content {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 40px;
     flex: 1;
-    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 32px;
     min-height: 0;
 }
 
-.main-info {
-    display: flex;
-    flex-direction: column;
+.flight-id {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 3rem);
+    font-weight: 700;
+    color: var(--gate-accent, #0066cc);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
 }
 
 .destination-name {
-    font-size: clamp(3rem, 8vw, 8rem);
+    font-size: clamp(3.5rem, 9vw, 9rem);
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--text-white);
-    margin: 0 0 4px;
+    color: #111;
+    margin: 0;
     line-height: 1.05;
     word-break: break-word;
 }
 
 .destination-icao {
-    font-family: var(--font-data);
+    font-family: 'Inter', sans-serif;
     font-size: clamp(0.9rem, 1.5vw, 1.2rem);
-    color: var(--text-dim);
+    color: #999;
     letter-spacing: 0.1em;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 }
 
-.time-grid {
+.gate-info-row {
     display: flex;
     gap: 60px;
 }
 
 .time-block .label {
     display: block;
-    color: var(--text-dim);
-    font-size: clamp(0.7rem, 1.2vw, 1.2rem);
+    color: #888;
+    font-size: clamp(0.7rem, 1.2vw, 1.1rem);
     letter-spacing: 2px;
     margin-bottom: 4px;
 }
 
 .time-block .value {
-    font-family: var(--font-data);
-    font-size: clamp(1.8rem, 4vw, 4rem);
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
     font-weight: 700;
+    color: #111;
 }
 
 .countdown-banner {
-    margin-top: auto;
-    background: var(--fids-yellow);
-    color: #000;
-    padding: 20px;
-    font-size: clamp(1.4rem, 3vw, 3rem);
+    margin-top: 32px;
+    background: var(--gate-accent, #0066cc);
+    color: var(--gate-accent-text, #fff);
+    padding: 16px 24px;
+    font-size: clamp(1.2rem, 2.5vw, 2.4rem);
     font-weight: 800;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 6px;
     animation: badge-pulse 2s infinite;
+    align-self: flex-start;
 }
 
 @keyframes badge-pulse {
     0%, 100% { opacity: 1; }
-    50%      { opacity: 0.8; }
+    50%      { opacity: 0.85; }
 }
 
-/* Flight details panel (right side) */
-.manifest-panel {
-    background: #0f0f0f;
-    border: 1px solid var(--border-dim);
-    border-radius: 12px;
-    padding: 20px;
-    align-self: start;
-}
-
-.panel-title {
-    font-size: clamp(0.8rem, 1.2vw, 1.2rem);
-    color: var(--text-dim);
-    border-bottom: 1px solid var(--border-dim);
-    padding-bottom: 10px;
-    margin: 0 0 15px;
-    letter-spacing: 2px;
-}
-
-.manifest-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-family: var(--font-data);
-}
-
-.manifest-list li {
-    font-size: clamp(1rem, 1.8vw, 1.8rem);
-    padding: 10px 0;
-    border-bottom: 1px solid #1a1a1a;
-    display: flex;
-    gap: 15px;
-}
-
-.manifest-list li:last-child {
-    border-bottom: none;
-}
-
-.manifest-list .pos {
-    color: var(--fids-yellow);
-    font-weight: 700;
-    min-width: 3ch;
-}
-
-.manifest-list .detail-value {
-    color: var(--text-white);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
+/* Footer */
 .gate-footer {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     padding-top: 20px;
-    border-top: 1px solid var(--border-dim);
-    font-family: var(--font-data);
-    color: var(--text-dim);
+    border-top: 1px solid #ddd;
+    font-family: 'Inter', sans-serif;
+    color: #999;
     font-size: clamp(0.8rem, 1.2vw, 1.1rem);
 }
 
-/* Responsive: stack on narrow viewports (phones, small OBS sources) */
+.gate-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.gate-simfixr-logo {
+    height: clamp(32px, 4vw, 52px);
+    width: auto;
+    object-fit: contain;
+}
+
+/* Responsive: stack on narrow viewports */
 @media (max-width: 700px) {
     .gate-monitor { padding: 20px; }
-    .gate-content { grid-template-columns: 1fr; gap: 20px; }
-    .time-grid { gap: 30px; }
-    .gate-header { gap: 15px; }
+    .gate-info-row { gap: 30px; }
+    .gate-header-left { gap: 16px; }
 }
