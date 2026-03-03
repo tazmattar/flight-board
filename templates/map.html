@@ -70,6 +70,9 @@
             <a id="panelGateLink" class="map-panel-gate-link" href="#" target="_blank">
                 <span class="material-icons">tv</span> Gate Display
             </a>
+            <button id="panelPrintBP" class="map-panel-gate-link" style="cursor:pointer;border:1px solid #333;font-family:inherit;">
+                <span class="material-icons">confirmation_number</span> Print Boarding Pass
+            </button>
         </div>
 
         <!-- Legend (bottom-right) -->
@@ -87,6 +90,62 @@
                 <span class="material-icons map-atc-chevron" id="atcChevron">expand_less</span>
             </button>
             <ul id="atcPanelList" class="map-atc-list"></ul>
+        </div>
+    </div>
+
+    <!-- Boarding Pass (hidden on screen, shown only in print) -->
+    <div id="boardingPass" class="boarding-pass">
+        <div class="bp-main">
+            <div class="bp-header">
+                <img id="bpLogo" class="bp-logo" src="" alt="">
+                <div class="bp-title">
+                    <div class="bp-title-text">BOARDING PASS</div>
+                    <div id="bpCallsign" class="bp-callsign">--</div>
+                </div>
+            </div>
+            <div class="bp-route">
+                <div class="bp-route-col">
+                    <div class="bp-route-label">FROM</div>
+                    <div id="bpFromIcao" class="bp-route-icao">----</div>
+                    <div id="bpFromName" class="bp-route-name">--</div>
+                </div>
+                <div class="bp-route-arrow">&#9992;</div>
+                <div class="bp-route-col">
+                    <div class="bp-route-label">TO</div>
+                    <div id="bpToIcao" class="bp-route-icao">----</div>
+                    <div id="bpToName" class="bp-route-name">--</div>
+                </div>
+            </div>
+            <div class="bp-details">
+                <div class="bp-detail"><div class="bp-detail-label">DATE</div><div id="bpDate" class="bp-detail-value">--</div></div>
+                <div class="bp-detail"><div class="bp-detail-label">DEPARTS</div><div id="bpDeparts" class="bp-detail-value">--:--</div></div>
+                <div class="bp-detail"><div class="bp-detail-label">AIRCRAFT</div><div id="bpAircraft" class="bp-detail-value">--</div></div>
+                <div class="bp-detail"><div class="bp-detail-label">SEAT</div><div id="bpSeat" class="bp-detail-value">--</div></div>
+                <div class="bp-detail"><div class="bp-detail-label">BOARDING</div><div id="bpBoarding" class="bp-detail-value">--:--</div></div>
+                <div class="bp-detail"><div class="bp-detail-label">CLASS</div><div id="bpClass" class="bp-detail-value">ECONOMY</div></div>
+            </div>
+            <div class="bp-barcode">
+                <div class="bp-barcode-bars"></div>
+                <div id="bpBarcodeTxt" class="bp-barcode-text">--</div>
+            </div>
+        </div>
+        <div class="bp-stub">
+            <div class="bp-stub-header">
+                <img id="bpStubLogo" class="bp-stub-logo" src="" alt="">
+                <div class="bp-stub-title">BOARDING PASS</div>
+            </div>
+            <div id="bpStubCallsign" class="bp-stub-callsign">--</div>
+            <div class="bp-stub-route">
+                <span id="bpStubFrom" class="bp-stub-icao">----</span>
+                <span class="bp-stub-arrow">&#8594;</span>
+                <span id="bpStubTo" class="bp-stub-icao">----</span>
+            </div>
+            <div class="bp-stub-details">
+                <div class="bp-stub-detail"><div class="bp-detail-label">DATE</div><div id="bpStubDate" class="bp-stub-val">--</div></div>
+                <div class="bp-stub-detail"><div class="bp-detail-label">DEPARTS</div><div id="bpStubTime" class="bp-stub-val">--:--</div></div>
+                <div class="bp-stub-detail"><div class="bp-detail-label">SEAT</div><div id="bpStubSeat" class="bp-stub-val">--</div></div>
+            </div>
+            <div class="bp-stub-footer">simfixr.com</div>
         </div>
     </div>
 

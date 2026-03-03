@@ -1807,6 +1807,10 @@ body.map-page {
 .map-flight-panel.open {
     transform: translateX(0);
 }
+.map-flight-panel.open ~ .map-legend,
+.map-body:has(.map-flight-panel.open) .map-legend {
+    right: 316px;
+}
 
 .map-panel-close {
     position: absolute;
@@ -1895,6 +1899,7 @@ body.map-page {
     position: absolute;
     bottom: 12px;
     right: 12px;
+    transition: right 0.25s ease;
     background: rgba(17, 17, 17, 0.92);
     border: 1px solid #333;
     border-radius: 8px;
@@ -2023,6 +2028,247 @@ body.map-page .leaflet-control-attribution a { color: #888; }
 
 @media (max-width: 600px) {
     .map-flight-panel { width: 100%; }
+    .map-flight-panel.open ~ .map-legend,
+    .map-body:has(.map-flight-panel.open) .map-legend { right: 12px; }
     .map-header { padding: 6px 10px; gap: 8px; }
     .map-airport-name { font-size: 0.95rem; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOARDING PASS (hidden on screen, print only)
+   ══════════════════════════════════════════════════════════ */
+.boarding-pass {
+    display: none;
+}
+
+@media print {
+    @page { size: landscape; margin: 10mm; }
+
+    /* Hide everything on the map page except the boarding pass */
+    body.map-page * {
+        visibility: hidden !important;
+    }
+    body.map-page .boarding-pass,
+    body.map-page .boarding-pass * {
+        visibility: visible !important;
+    }
+
+    body.map-page {
+        background: #fff !important;
+        overflow: visible !important;
+        height: auto !important;
+        display: block !important;
+    }
+
+    .boarding-pass {
+        display: flex !important;
+        position: absolute;
+        top: 10mm;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 720px;
+        background: #fff !important;
+        color: #000;
+        font-family: 'Inter', sans-serif;
+        border: 2px solid #222;
+        border-radius: 12px;
+        overflow: hidden;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* ── Main section (left ~75%) ──────────────────────── */
+    .bp-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    /* Header */
+    .bp-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border-top: 5px solid var(--bp-accent, #0066cc);
+        background: var(--bp-accent, #0066cc);
+        color: var(--bp-accent-text, #fff);
+    }
+    .bp-logo {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        border-radius: 6px;
+        background: #fff;
+        padding: 3px;
+    }
+    .bp-title { flex: 1; }
+    .bp-title-text {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    .bp-callsign {
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    /* Route */
+    .bp-route {
+        display: flex;
+        align-items: center;
+        padding: 14px 28px 10px;
+    }
+    .bp-route-col { text-align: center; flex: 1; }
+    .bp-route-label {
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: #888;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .bp-route-icao {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #111;
+        letter-spacing: 2px;
+    }
+    .bp-route-name {
+        font-size: 0.7rem;
+        color: #555;
+        margin-top: 2px;
+    }
+    .bp-route-arrow {
+        font-size: 1.6rem;
+        color: var(--bp-accent, #0066cc);
+        padding: 0 16px;
+    }
+
+    /* Details grid — 6 columns */
+    .bp-details {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+        padding: 10px 28px 12px;
+        border-top: 1px solid #ddd;
+    }
+    .bp-detail { text-align: center; }
+    .bp-detail-label {
+        font-size: 0.5rem;
+        font-weight: 600;
+        color: #999;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .bp-detail-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #111;
+        margin-top: 2px;
+    }
+
+    /* Barcode area */
+    .bp-barcode {
+        margin-top: auto;
+        padding: 8px 28px 10px;
+        text-align: center;
+        border-top: 1px solid #eee;
+    }
+    .bp-barcode-bars {
+        height: 36px;
+        margin: 0 auto 6px;
+        max-width: 380px;
+        background: repeating-linear-gradient(
+            90deg,
+            #000 0px, #000 2px,
+            #fff 2px, #fff 4px,
+            #000 4px, #000 5px,
+            #fff 5px, #fff 8px,
+            #000 8px, #000 11px,
+            #fff 11px, #fff 13px,
+            #000 13px, #000 14px,
+            #fff 14px, #fff 16px,
+            #000 16px, #000 19px,
+            #fff 19px, #fff 21px,
+            #000 21px, #000 22px,
+            #fff 22px, #fff 24px
+        );
+    }
+    .bp-barcode-text {
+        font-size: 0.65rem;
+        color: #666;
+        letter-spacing: 0.5px;
+    }
+
+    /* ── Stub section (right tear-off) ─────────────────── */
+    .bp-stub {
+        width: 180px;
+        flex-shrink: 0;
+        border-left: 2px dashed #bbb;
+        display: flex;
+        flex-direction: column;
+        padding: 10px 14px;
+        background: #fafafa;
+    }
+    .bp-stub-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    .bp-stub-logo {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border-radius: 4px;
+        background: #fff;
+        padding: 1px;
+    }
+    .bp-stub-title {
+        font-size: 0.5rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--bp-accent, #0066cc);
+        text-transform: uppercase;
+    }
+    .bp-stub-callsign {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #111;
+        margin-bottom: 8px;
+    }
+    .bp-stub-route {
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: #111;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+    .bp-stub-icao { /* inherits */ }
+    .bp-stub-arrow {
+        color: var(--bp-accent, #0066cc);
+        padding: 0 4px;
+    }
+    .bp-stub-details {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+    }
+    .bp-stub-detail { text-align: left; }
+    .bp-stub-val {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #111;
+    }
+    .bp-stub-footer {
+        text-align: right;
+        font-size: 0.55rem;
+        color: #aaa;
+        font-weight: 500;
+        margin-top: auto;
+        padding-top: 8px;
+    }
 }

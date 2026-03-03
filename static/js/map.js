@@ -151,7 +151,7 @@
         // Re-render all dots with fading opacity
         t.dots.forEach(function (d) { map.removeLayer(d); });
         t.dots = [];
-        for (var i = 0; i < t.positions.length; i++) {
+        for (var i = 0; i < t.positions.length - 1; i++) {
             var age = t.positions.length - 1 - i; // 0 = newest
             var opacity = 0.1 + 0.5 * (1 - age / TRAIL_MAX);
             var radius = 1 + 0.5 * (1 - age / TRAIL_MAX);
@@ -252,6 +252,166 @@
     }
 
     document.getElementById('flightPanelClose').addEventListener('click', closeFlightPanel);
+
+    /* ── Boarding Pass ─────────────────────────────────────── */
+    var lastBpCode = '';
+
+    function bpLogoSrc(callsign) {
+        var prefix = (callsign || '').substring(0, 3).toUpperCase();
+        var code = airlineLogoAliases[prefix] || airlineMapping[prefix] || prefix;
+        // Use proxy so canvas can read pixels (same-origin)
+        return '/api/logo/' + code;
+    }
+
+    function extractBpColour(img) {
+        try {
+            var canvas = document.createElement('canvas');
+            var size = 64;
+            canvas.width = size;
+            canvas.height = size;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, size, size);
+            var data = ctx.getImageData(0, 0, size, size).data;
+
+            var buckets = {};
+            for (var i = 0; i < data.length; i += 4) {
+                var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+                if (a < 128) continue;
+                var lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                if (lum > 240 || lum < 15) continue;
+                var sat = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
+                if (sat < 0.15) continue;
+                var key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+                if (!buckets[key]) buckets[key] = { r: 0, g: 0, b: 0, count: 0 };
+                buckets[key].r += r;
+                buckets[key].g += g;
+                buckets[key].b += b;
+                buckets[key].count++;
+            }
+
+            var best = null, bestCount = 0;
+            var keys = Object.keys(buckets);
+            for (var j = 0; j < keys.length; j++) {
+                if (buckets[keys[j]].count > bestCount) {
+                    bestCount = buckets[keys[j]].count;
+                    best = buckets[keys[j]];
+                }
+            }
+
+            if (best && best.count > 20) {
+                var cr = Math.round(best.r / best.count);
+                var cg = Math.round(best.g / best.count);
+                var cb = Math.round(best.b / best.count);
+                var colour = 'rgb(' + cr + ',' + cg + ',' + cb + ')';
+                var lum2 = 0.299 * cr + 0.587 * cg + 0.114 * cb;
+                var textColour = lum2 > 150 ? '#000' : '#fff';
+                document.documentElement.style.setProperty('--bp-accent', colour);
+                document.documentElement.style.setProperty('--bp-accent-text', textColour);
+            }
+        } catch (e) {
+            // Canvas tainted — keep default blue
+        }
+    }
+
+    function randomSeat() {
+        var row = Math.floor(Math.random() * 35) + 1;
+        var letters = 'ABCDEF';
+        return row + letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+
+    function showBoardingPass(f) {
+        // Callsign
+        document.getElementById('bpCallsign').textContent = 'Flight ' + f.callsign;
+
+        // Route — determine from/to based on direction
+        var isDep = f.direction === 'DEP';
+        var homeIcao = AIRPORT;
+        var homeName = APT_NAME;
+        var remoteIcao = isDep ? (f.destination || '--') : (f.origin || '--');
+        var remoteName = remoteIcao;
+
+        var fromIcao = isDep ? homeIcao : remoteIcao;
+        var fromName = isDep ? homeName : remoteName;
+        var toIcao = isDep ? remoteIcao : homeIcao;
+        var toName = isDep ? remoteName : homeName;
+
+        document.getElementById('bpFromIcao').textContent = fromIcao;
+        document.getElementById('bpFromName').textContent = fromName;
+        document.getElementById('bpToIcao').textContent = toIcao;
+        document.getElementById('bpToName').textContent = toName;
+
+        // Date
+        var now = new Date();
+        var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        var dateStr = String(now.getUTCDate()).padStart(2, '0') + ' ' + months[now.getUTCMonth()] + ' ' + now.getUTCFullYear();
+        document.getElementById('bpDate').textContent = dateStr;
+
+        // Random seat
+        var seat = randomSeat();
+        document.getElementById('bpSeat').textContent = seat;
+        document.getElementById('bpAircraft').textContent = f.aircraft || '--';
+
+        // Boarding time (depart minus ~30 min, or just show --)
+        var depTime = f.time_display || '--:--';
+        document.getElementById('bpDeparts').textContent = depTime;
+        if (depTime !== '--:--' && depTime.indexOf(':') !== -1) {
+            var parts = depTime.split(':');
+            var h = parseInt(parts[0], 10);
+            var m = parseInt(parts[1], 10) - 30;
+            if (m < 0) { m += 60; h -= 1; }
+            if (h < 0) h += 24;
+            document.getElementById('bpBoarding').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        } else {
+            document.getElementById('bpBoarding').textContent = '--:--';
+        }
+
+        // Barcode text
+        var shortDate = String(now.getUTCDate()).padStart(2, '0') + months[now.getUTCMonth()] + String(now.getUTCFullYear()).slice(2);
+        document.getElementById('bpBarcodeTxt').textContent = f.callsign + ' \u00b7 ' + fromIcao + ' \u2192 ' + toIcao + ' \u00b7 ' + shortDate;
+
+        // Stub section
+        document.getElementById('bpStubCallsign').textContent = f.callsign;
+        document.getElementById('bpStubFrom').textContent = fromIcao;
+        document.getElementById('bpStubTo').textContent = toIcao;
+        document.getElementById('bpStubDate').textContent = dateStr;
+        document.getElementById('bpStubTime').textContent = depTime;
+        document.getElementById('bpStubSeat').textContent = seat;
+
+        // Logo + colour extraction (main + stub)
+        var logoSrc = bpLogoSrc(f.callsign);
+
+        var logoEl = document.getElementById('bpLogo');
+        var newLogo = document.createElement('img');
+        newLogo.className = 'bp-logo';
+        newLogo.crossOrigin = 'anonymous';
+        newLogo.onload = function () { extractBpColour(this); };
+        newLogo.onerror = function () { this.style.display = 'none'; };
+        logoEl.parentNode.replaceChild(newLogo, logoEl);
+        newLogo.id = 'bpLogo';
+        newLogo.src = logoSrc;
+
+        var stubLogoEl = document.getElementById('bpStubLogo');
+        var newStubLogo = document.createElement('img');
+        newStubLogo.className = 'bp-stub-logo';
+        newStubLogo.crossOrigin = 'anonymous';
+        newStubLogo.onerror = function () { this.style.display = 'none'; };
+        stubLogoEl.parentNode.replaceChild(newStubLogo, stubLogoEl);
+        newStubLogo.id = 'bpStubLogo';
+        newStubLogo.src = logoSrc;
+
+        // Reset accent to default in case extraction fails
+        document.documentElement.style.setProperty('--bp-accent', '#0066cc');
+        document.documentElement.style.setProperty('--bp-accent-text', '#fff');
+
+        // Small delay to let colour extraction fire, then print
+        setTimeout(function () { window.print(); }, 300);
+    }
+
+    document.getElementById('panelPrintBP').addEventListener('click', function () {
+        if (selectedCallsign && markers[selectedCallsign]) {
+            showBoardingPass(markers[selectedCallsign]._flightData);
+        }
+    });
 
     /* ── ATC panel ────────────────────────────────────────── */
     const atcMarkers = {};
