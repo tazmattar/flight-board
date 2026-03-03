@@ -1642,6 +1642,7 @@ body.gate-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: auto;
     padding-top: 20px;
     border-top: 1px solid #ddd;
     font-family: 'Inter', sans-serif;
@@ -1656,7 +1657,7 @@ body.gate-page {
 }
 
 .gate-simfixr-logo {
-    height: clamp(32px, 4vw, 52px);
+    height: clamp(48px, 6vw, 80px);
     width: auto;
     object-fit: contain;
 }

@@ -184,6 +184,13 @@
 
         var airportCode = isDep ? flight.destination : flight.origin;
         var airportName = airportNames[airportCode] || airportCode;
+        // Strip common suffixes — we know it's an airport
+        airportName = airportName
+            .replace(/\s+International\s+Airport$/i, '')
+            .replace(/\s+International$/i, '')
+            .replace(/\s+Airport$/i, '')
+            .replace(/\s+Aerodrome$/i, '')
+            .replace(/\s+Airfield$/i, '');
 
         // Gate — match main board: show gate value, CLOSED when taxiing/departing
         var gate = flight.gate || 'TBA';
