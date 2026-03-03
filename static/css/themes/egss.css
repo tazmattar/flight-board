@@ -33,6 +33,11 @@ body.theme-egss .flight-table th {
     background: #1a1a1a;
     color: #ffffff;
     border-bottom: 2px solid #333;
+    text-transform: none;
+}
+
+body.theme-egss .col-status .flap-container {
+    text-transform: none;
 }
 
 /* Yellow destination/origin text */
