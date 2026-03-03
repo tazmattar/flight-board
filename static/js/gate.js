@@ -27,6 +27,18 @@
 
     var localOnlyAirlines = ['FX', 'FDX', 'UPS', '5X', 'REGA', 'SAZ'];
 
+    // Airline ICAO→IATA database (same CDN as app.js)
+    var airlineDbReady = fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            data.forEach(function (a) {
+                if (a.icao && a.iata && a.active === 'Y' && !airlineMapping[a.icao]) {
+                    airlineMapping[a.icao] = a.iata;
+                }
+            });
+        })
+        .catch(function () { /* non-critical */ });
+
     // Airport name lookup (CDN)
     var airportNames = {};
     fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json')
@@ -53,7 +65,76 @@
         } else if (localOnlyAirlines.indexOf(code) !== -1) {
             return '/static/logos/' + code + '.png';
         }
-        return 'https://images.kiwi.com/airlines/64/' + code + '.png';
+        // Use proxy so canvas can read pixels (same-origin)
+        return '/api/logo/' + code;
+    }
+
+    // --- Dominant colour extraction ---
+    var lastExtractedCode = '';
+
+    function extractDominantColour(img) {
+        var prefix = CALLSIGN.substring(0, 3);
+        var code = airlineLogoAliases[prefix] || airlineMapping[prefix] || prefix;
+        if (code === lastExtractedCode) return;
+        lastExtractedCode = code;
+
+        try {
+            var canvas = document.createElement('canvas');
+            var size = 64;
+            canvas.width = size;
+            canvas.height = size;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, size, size);
+            var data = ctx.getImageData(0, 0, size, size).data;
+
+            // Bucket pixels by hue, skipping near-white, near-black, and transparent
+            var buckets = {};
+            for (var i = 0; i < data.length; i += 4) {
+                var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+                if (a < 128) continue;
+                var lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                if (lum > 240 || lum < 15) continue;
+                var sat = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
+                if (sat < 0.15) continue;
+                // Bucket by quantised colour (5-bit per channel)
+                var key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+                if (!buckets[key]) buckets[key] = { r: 0, g: 0, b: 0, count: 0 };
+                buckets[key].r += r;
+                buckets[key].g += g;
+                buckets[key].b += b;
+                buckets[key].count++;
+            }
+
+            var best = null;
+            var bestCount = 0;
+            var keys = Object.keys(buckets);
+            for (var j = 0; j < keys.length; j++) {
+                if (buckets[keys[j]].count > bestCount) {
+                    bestCount = buckets[keys[j]].count;
+                    best = buckets[keys[j]];
+                }
+            }
+
+            if (best && best.count > 20) {
+                var cr = Math.round(best.r / best.count);
+                var cg = Math.round(best.g / best.count);
+                var cb = Math.round(best.b / best.count);
+                applyAccentColour(cr, cg, cb);
+            }
+        } catch (e) {
+            // Canvas tainted or other error — keep default blue
+        }
+    }
+
+    function applyAccentColour(r, g, b) {
+        var colour = 'rgb(' + r + ',' + g + ',' + b + ')';
+        var root = document.documentElement;
+        root.style.setProperty('--gate-accent', colour);
+
+        // Determine if text on this colour should be white or black
+        var lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        var textOnAccent = lum > 150 ? '#111' : '#fff';
+        root.style.setProperty('--gate-accent-text', textOnAccent);
     }
 
     function findFlight(data) {
@@ -96,13 +177,6 @@
         return '';
     }
 
-    // Format route: truncate if too long
-    function formatRoute(route) {
-        if (!route || route === 'No route available') return '--';
-        if (route.length > 60) return route.substring(0, 57) + '...';
-        return route;
-    }
-
     function renderMonitor(flight, isDep) {
         var waiting  = document.getElementById('gateWaiting');
         var notFound = document.getElementById('gateNotFound');
@@ -111,21 +185,31 @@
         var airportCode = isDep ? flight.destination : flight.origin;
         var airportName = airportNames[airportCode] || airportCode;
 
-        // Gate
-        var gate = flight.gate || '--';
-        if (isDep && (flight.status === 'Taxiing' || flight.status === 'Departing')) gate = '--';
+        // Gate — match main board: show gate value, CLOSED when taxiing/departing
+        var gate = flight.gate || 'TBA';
+        if (isDep && (flight.status === 'Taxiing' || flight.status === 'Departing')) gate = 'CLOSED';
 
         var status = flight.status || '--';
 
-        // Populate header
-        document.getElementById('gateNumber').textContent = gate;
-        document.getElementById('gateFlightId').textContent = 'FLIGHT ' + CALLSIGN;
+        // Populate header — create fresh img to avoid stale onerror state
         var logoEl = document.getElementById('gateLogo');
-        logoEl.src = resolveLogoSrc(CALLSIGN);
-        logoEl.style.display = '';
+        var newLogo = logoEl.cloneNode(false);
+        newLogo.id = 'gateLogo';
+        newLogo.style.display = 'none';
+        newLogo.onload = function () {
+            this.style.display = '';
+            extractDominantColour(this);
+        };
+        newLogo.onerror = function () { this.style.display = 'none'; };
+        logoEl.parentNode.replaceChild(newLogo, logoEl);
+        newLogo.src = resolveLogoSrc(CALLSIGN);
+        document.getElementById('gateFlightId').textContent = 'FLIGHT ' + CALLSIGN;
         var pillEl = document.getElementById('gateStatusPill');
         pillEl.textContent = status.toUpperCase();
         pillEl.className = 'status-pill ' + statusClass(status);
+
+        // Gate number
+        document.getElementById('gateNumber').textContent = gate;
 
         // Destination
         var destEl = document.getElementById('gateDestName');
@@ -147,14 +231,6 @@
         } else {
             banner.style.display = 'none';
         }
-
-        // Flight details panel
-        document.getElementById('gateRoute').textContent = formatRoute(flight.route);
-        var alt = flight.altitude;
-        document.getElementById('gateAltitude').textContent = alt ? alt.toLocaleString() + ' ft' : '--';
-        var gs = flight.groundspeed;
-        document.getElementById('gateSpeed').textContent = gs ? gs + ' kts' : '--';
-        document.getElementById('gateSquawk').textContent = flight.squawk || '--';
 
         // Footer
         var distText = flight.distance ? Math.round(flight.distance) + ' km' : '';

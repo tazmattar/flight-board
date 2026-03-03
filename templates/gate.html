@@ -36,43 +36,41 @@
     <!-- Gate monitor (populated by gate.js) -->
     <div id="gateMonitor" class="gate-monitor" style="display:none;">
         <header class="gate-header">
-            <div id="gateNumber" class="gate-number">--</div>
-            <div id="gateFlightId" class="flight-id"></div>
-            <img id="gateLogo" class="gate-airline-logo" src="" onerror="this.style.display='none'">
+            <div class="gate-header-left">
+                <img id="gateLogo" class="gate-airline-logo" style="display:none">
+                <div class="gate-badge">
+                    <div class="gate-label">GATE</div>
+                    <div id="gateNumber" class="gate-number">--</div>
+                </div>
+            </div>
             <div id="gateStatusPill" class="status-pill"></div>
         </header>
 
         <main class="gate-content">
-            <section class="main-info">
-                <h1 id="gateDestName" class="destination-name">--</h1>
-                <div id="gateDestIcao" class="destination-icao"></div>
-                <div class="time-grid">
-                    <div class="time-block">
-                        <span class="label" id="gateTimeLabel">DEPARTS</span>
-                        <span class="value" id="gateTimeValue">--:--</span>
-                    </div>
-                    <div class="time-block">
-                        <span class="label">AIRCRAFT</span>
-                        <span class="value" id="gateAircraft">--</span>
-                    </div>
-                </div>
-                <div id="gateStatusBanner" class="countdown-banner" style="display:none;"></div>
-            </section>
+            <div id="gateFlightId" class="flight-id"></div>
+            <h1 id="gateDestName" class="destination-name">--</h1>
+            <div id="gateDestIcao" class="destination-icao"></div>
 
-            <aside class="manifest-panel">
-                <h2 class="panel-title">FLIGHT DETAILS</h2>
-                <ul class="manifest-list">
-                    <li><span class="pos">RTE</span> <span id="gateRoute" class="detail-value">--</span></li>
-                    <li><span class="pos">ALT</span> <span id="gateAltitude" class="detail-value">--</span></li>
-                    <li><span class="pos">GS</span> <span id="gateSpeed" class="detail-value">--</span></li>
-                    <li><span class="pos">SQK</span> <span id="gateSquawk" class="detail-value">--</span></li>
-                </ul>
-            </aside>
+            <div class="gate-info-row">
+                <div class="time-block">
+                    <span class="label" id="gateTimeLabel">DEPARTS</span>
+                    <span class="value" id="gateTimeValue">--:--</span>
+                </div>
+                <div class="time-block">
+                    <span class="label">AIRCRAFT</span>
+                    <span class="value" id="gateAircraft">--</span>
+                </div>
+            </div>
+
+            <div id="gateStatusBanner" class="countdown-banner" style="display:none;"></div>
         </main>
 
         <footer class="gate-footer">
             <div class="flight-stats" id="gateFlightStats"></div>
-            <div class="current-time" id="gateClock"></div>
+            <div class="gate-footer-right">
+                <span id="gateClock" class="current-time"></span>
+                <a href="https://simfixr.com" target="_blank" rel="noopener"><img class="gate-simfixr-logo" src="https://simfixr.com/content/images/2025/07/simfixr_logo_small.png" alt="SimFixr"></a>
+            </div>
         </footer>
     </div>
 
