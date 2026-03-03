@@ -18,7 +18,8 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 * **Track Flight Mode:** Tap/click any visible flight row to track exactly one callsign and follow it with automatic airport switching.
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 30 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
-* **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display.
+* **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display. Hover the weather widget to reveal a **METAR popover** with the raw string and decoded wind, visibility, cloud, temperature/dewpoint, and QNH.
+* **Gate Display Board:** Tap the **ⓘ** icon next to any callsign to open an airport-style gate information card showing flight number, airline logo, destination/origin city, status badge, gate, scheduled time, and aircraft type.
 * **Help / User Guide:** Built-in modal accessible from the header, covering all features and keyboard shortcuts.
 * **Responsive Layout:**
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
@@ -156,6 +157,8 @@ This project is open-source and available under the MIT License.
 - [x] VATSIM event ticker (live event detection per airport)
 - [x] Additional European hubs (EGCC, LFPG added)
 - [x] Built-in Help / User Guide modal
+- [x] METAR decoded popover (wind, visibility, cloud, temp/dew, QNH)
+- [x] Gate Display Board modal (per-flight info card with status badge)
 
 ## Bonus - Running as a Dedicated Kiosk Display
 

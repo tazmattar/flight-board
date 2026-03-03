@@ -804,10 +804,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                  data-primary="${primaryLogo}"
                                  data-secondary="${secondaryLogo}"
                                  data-tertiary="${tertiaryLogo}"
-                                 class="airline-logo" 
-                                 style="filter: none;" 
+                                 class="airline-logo"
+                                 style="filter: none;"
                                  onerror="handleLogoError(this)">
                             <div class="flap-container" id="${rowId}-callsign"></div>
+                            <button class="gate-info-btn" title="Gate info">ⓘ</button>
                         </div>
                     </td>
                     <td><div class="flap-container flap-dest" id="${rowId}-dest"></div></td>
@@ -863,6 +864,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         event.preventDefault();
                         lastTouchTrackToggleAt = Date.now();
                         toggleTrackedFlight();
+                    });
+                }
+            }
+
+            if (!row.dataset.gateInfoBound) {
+                row.dataset.gateInfoBound = '1';
+                const gateBtn = row.querySelector('.gate-info-btn');
+                if (gateBtn) {
+                    gateBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openGateDisplay(safeCallsign, type);
+                    });
+                    gateBtn.addEventListener('touchend', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        openGateDisplay(safeCallsign, type);
                     });
                 }
             }
@@ -1089,7 +1106,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const widget = document.getElementById('weatherWidget');
         const iconEl = document.getElementById('wxIcon');
         const tempEl = document.getElementById('wxTemp');
-        
+
+        updateMetarPopover(metar);
+
         if (!metar || metar === 'Unavailable') {
             widget.classList.remove('active');
             return;
@@ -1131,6 +1150,141 @@ document.addEventListener('DOMContentLoaded', () => {
         iconEl.textContent = icon;
     }
     
+    function updateMetarPopover(metar) {
+        const rawEl = document.getElementById('metarRaw');
+        const decodedEl = document.getElementById('metarDecoded');
+        if (!rawEl || !decodedEl) return;
+
+        if (!metar || metar === 'Unavailable') {
+            rawEl.textContent = 'No METAR available';
+            decodedEl.innerHTML = '';
+            return;
+        }
+
+        rawEl.textContent = metar;
+
+        const decoded = [];
+
+        // Wind: e.g. 23015KT or 23015G25KT or VRB05KT
+        const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
+        if (windMatch) {
+            const dir = windMatch[1] === 'VRB' ? 'Variable' : `${windMatch[1]}°`;
+            const spd = parseInt(windMatch[2]);
+            const gust = windMatch[4] ? ` G${parseInt(windMatch[4])}kt` : '';
+            decoded.push({ label: 'Wind', value: `${dir} at ${spd}kt${gust}` });
+        }
+
+        // Visibility: 4-digit metric (strip time group & wind first to avoid false matches)
+        if (metar.includes('CAVOK')) {
+            decoded.push({ label: 'Visibility', value: 'CAVOK (≥10km, No Sig. Cloud)' });
+        } else {
+            const stripped = metar.replace(/\b\d{6}Z\b/, '').replace(/\b(VRB|\d{3})\d{2,3}(G\d{2,3})?KT\b/, '');
+            const visMatch = stripped.match(/\b(\d{4})\b/);
+            if (visMatch) {
+                const vis = parseInt(visMatch[1]);
+                decoded.push({ label: 'Visibility', value: vis >= 9999 ? '≥10km' : `${vis}m` });
+            }
+        }
+
+        // Cloud layers: FEW/SCT/BKN/OVC + 3-digit altitude, or SKC/CLR/NSC
+        if (!metar.includes('CAVOK')) {
+            const cloudRe = /\b(SKC|CLR|NSC|FEW|SCT|BKN|OVC)(\d{3})?\b/g;
+            const layers = [];
+            let cm;
+            while ((cm = cloudRe.exec(metar)) !== null) {
+                if (['SKC', 'CLR', 'NSC'].includes(cm[1])) { layers.push('Clear'); break; }
+                const alt = cm[2] ? ` ${parseInt(cm[2]) * 100}ft` : '';
+                layers.push(`${cm[1]}${alt}`);
+            }
+            if (layers.length) decoded.push({ label: 'Cloud', value: layers.join('  ') });
+        }
+
+        // Temperature / Dewpoint
+        const tMatch = metar.match(/\b(M?\d{2})\/(M?\d{2})\b/);
+        if (tMatch) {
+            const t = parseInt(tMatch[1].replace('M', '-'));
+            const dp = parseInt(tMatch[2].replace('M', '-'));
+            decoded.push({ label: 'Temp / Dew', value: `${t}° / ${dp}°C` });
+        }
+
+        // Altimeter
+        const qMatch = metar.match(/\bQ(\d{4})\b/);
+        const aMatch = metar.match(/\bA(\d{4})\b/);
+        if (qMatch) decoded.push({ label: 'QNH', value: `${qMatch[1]} hPa` });
+        else if (aMatch) decoded.push({ label: 'Altimeter', value: `${aMatch[1].slice(0,2)}.${aMatch[1].slice(2)}" Hg` });
+
+        decodedEl.innerHTML = decoded.map(d =>
+            `<div class="metar-row"><span class="metar-label">${d.label}</span><span class="metar-value">${d.value}</span></div>`
+        ).join('');
+    }
+
+    function openGateDisplay(callsign, type) {
+        if (!callsign) return;
+        const isDep = type === 'Departures';
+        const flights = isDep ? rawFlightData.departures : rawFlightData.arrivals;
+        const flight = (flights || []).find(f => (f.callsign || '').toUpperCase() === callsign);
+        if (!flight) return;
+
+        const modal = document.getElementById('gateDisplayModal');
+        const content = document.getElementById('gateDisplayContent');
+        if (!modal || !content) return;
+
+        const airportCode = isDep ? flight.destination : flight.origin;
+        const airportName = airportMapping[airportCode]?.name || airportCode;
+
+        // Logo (reuse existing logo resolution logic)
+        const prefix = callsign.substring(0, 3);
+        const code = airlineLogoAliases[prefix] || airlineMapping[prefix] || prefix;
+        const localOnlyAirlines = ['FX', 'FDX', 'UPS', '5X', 'REGA', 'SAZ'];
+        let logoSrc;
+        if (virtualAirlines.has(prefix)) {
+            logoSrc = `/static/logos/${prefix}.png`;
+        } else if (localOnlyAirlines.includes(code)) {
+            logoSrc = `/static/logos/${code}.png`;
+        } else {
+            logoSrc = `https://images.kiwi.com/airlines/64/${code}.png`;
+        }
+
+        let gate = flight.gate || 'TBA';
+        if (isDep && (flight.status === 'Taxiing' || flight.status === 'Departing')) gate = 'CLOSED';
+
+        const status = flight.status || '–';
+        const timeLabel = isDep ? 'Departure' : 'Arrival';
+
+        content.innerHTML = `
+            <div class="gate-display-header">
+                <div class="gate-display-flight-num">${callsign}</div>
+                <img src="${logoSrc}" class="gate-display-logo" onerror="this.style.display='none'">
+            </div>
+            <div class="gate-display-destination">
+                <div class="gate-display-city">${airportName}</div>
+                <div class="gate-display-icao">${airportCode}</div>
+            </div>
+            <div class="gate-display-grid">
+                <div class="gate-display-cell">
+                    <div class="gate-display-cell-label">Status</div>
+                    <div class="gate-display-cell-value">
+                        <span class="gate-status-badge" data-status="${status}">${status}</span>
+                    </div>
+                </div>
+                <div class="gate-display-cell">
+                    <div class="gate-display-cell-label">Gate</div>
+                    <div class="gate-display-cell-value">${gate}</div>
+                </div>
+                <div class="gate-display-cell">
+                    <div class="gate-display-cell-label">${timeLabel}</div>
+                    <div class="gate-display-cell-value">${flight.time_display || '–'}</div>
+                </div>
+                <div class="gate-display-cell">
+                    <div class="gate-display-cell-label">Aircraft</div>
+                    <div class="gate-display-cell-value">${flight.aircraft || '–'}</div>
+                </div>
+            </div>
+        `;
+
+        modal.style.display = 'block';
+    }
+
     // ====== AIRPORT SEARCH MODAL ======
     
     const modal = document.getElementById('airportSearchModal');
@@ -1271,6 +1425,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === helpModal) helpModal.style.display = 'none';
     });
 
+    // ====== GATE DISPLAY MODAL ======
+    const gateDisplayModal = document.getElementById('gateDisplayModal');
+    const gateDisplayClose = document.querySelector('.gate-display-close');
+
+    if (gateDisplayClose) {
+        gateDisplayClose.onclick = () => { gateDisplayModal.style.display = 'none'; };
+    }
+    window.addEventListener('click', (e) => {
+        if (e.target === gateDisplayModal) gateDisplayModal.style.display = 'none';
+    });
+
     // --- FLIGHT TOOLTIP LOGIC ---
     const tooltip = document.getElementById('flightTooltip');
 
@@ -1309,6 +1474,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (gateDisplayModal && gateDisplayModal.style.display === 'block') {
+                gateDisplayModal.style.display = 'none';
+            }
+        }
+
         const select = elements.airportSelect;
         
         // Arrow keys to cycle through airports

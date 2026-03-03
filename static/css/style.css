@@ -927,6 +927,65 @@ body.theme-eham .tracking-chip {
 .atc-popover li { display: flex; justify-content: space-between; font-family: var(--font-data); font-size: 0.9rem; padding: 2px 0; }
 .atc-popover li span.freq { color: #22c55e; }
 
+/* METAR Popover */
+.metar-popover {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 120%;
+    right: 0;
+    width: 340px;
+    max-width: 92vw;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 1000;
+    transition: all 0.2s;
+    pointer-events: none;
+    color: #fff;
+    text-align: left;
+}
+
+#weatherWidget.active:hover .metar-popover {
+    visibility: visible;
+    opacity: 1;
+    top: 100%;
+}
+
+.metar-raw {
+    font-family: var(--font-data);
+    font-size: 0.72rem;
+    color: #aaa;
+    word-break: break-all;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+}
+
+.metar-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.85rem;
+    padding: 2px 0;
+}
+
+.metar-label {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+}
+
+.metar-value {
+    font-family: var(--font-data);
+    color: #fff;
+    text-align: right;
+}
+
     /* Flight Plan Tooltip */
 .flight-plan-tooltip {
     position: fixed;
@@ -1234,3 +1293,147 @@ body.theme-eham .tracking-chip {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
 }
+
+/* Gate Info Button */
+.gate-info-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0 1px 0 3px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.flight-cell:hover .gate-info-btn { opacity: 1; }
+.gate-info-btn:hover { color: rgba(255,255,255,0.8); }
+@media (pointer: coarse) {
+    .gate-info-btn { opacity: 0.55; }
+}
+
+/* Gate Display Modal */
+.gate-display-content {
+    background-color: #0d0d0d;
+    margin: 8% auto;
+    padding: 0;
+    border: 1px solid #2a2a2a;
+    width: 90%;
+    max-width: 540px;
+    border-radius: 8px;
+    color: #fff;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    overflow: hidden;
+}
+
+.gate-display-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    color: #666;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.gate-display-close:hover { color: #fff; }
+
+.gate-display-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 48px 16px 20px;
+    background: #161616;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.gate-display-flight-num {
+    font-family: var(--font-data);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.gate-display-logo {
+    height: 30px;
+    width: auto;
+    object-fit: contain;
+}
+
+.gate-display-destination {
+    text-align: center;
+    padding: 22px 20px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.gate-display-city {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+}
+
+.gate-display-icao {
+    font-family: var(--font-data);
+    font-size: 1rem;
+    color: #666;
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+}
+
+.gate-display-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.gate-display-cell {
+    padding: 14px 20px;
+    border-right: 1px solid #2a2a2a;
+    border-bottom: 1px solid #2a2a2a;
+}
+.gate-display-cell:nth-child(even) { border-right: none; }
+.gate-display-cell:nth-last-child(-n+2) { border-bottom: none; }
+
+.gate-display-cell-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.gate-display-cell-value {
+    font-family: var(--font-data);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Status badge */
+.gate-status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+.gate-status-badge[data-status="Boarding"]                      { background:#00b000; color:#fff; }
+.gate-status-badge[data-status*="GO TO"]                        { background:#e6007e; color:#fff; }
+.gate-status-badge[data-status="Check-in"],
+.gate-status-badge[data-status="Taxiing"],
+.gate-status-badge[data-status="Wait"],
+.gate-status-badge[data-status="Landing"],
+.gate-status-badge[data-status="Landed"],
+.gate-status-badge[data-status="At Gate"],
+.gate-status-badge[data-status="Scheduled"]                     { background:#ffcc00; color:#000; }
+.gate-status-badge[data-status="Pushback"],
+.gate-status-badge[data-status="Departing"],
+.gate-status-badge[data-status="Approaching"]                   { background:#0055b8; color:#fff; }
+.gate-status-badge[data-status*="Delayed"],
+.gate-status-badge[data-status="Cancelled"],
+.gate-status-badge[data-status="CLOSED"]                        { background:#d60000; color:#fff; }
+.gate-status-badge[data-status="En Route"]                      { background:transparent; color:#b3d9ff; }

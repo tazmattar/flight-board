@@ -65,6 +65,11 @@
             <div class="widget-item" id="weatherWidget">
                 <span class="material-icons widget-icon" id="wxIcon">cloud_off</span>
                 <span class="widget-text" id="wxTemp">--°</span>
+                <div class="metar-popover" id="metarPopover">
+                    <div class="popover-title">METAR</div>
+                    <div id="metarRaw" class="metar-raw"></div>
+                    <div id="metarDecoded"></div>
+                </div>
             </div>
         </div>
 
@@ -315,6 +320,13 @@
         <input type="text" id="airportSearchInput" placeholder="ICAO Code" maxlength="4">
         <button id="searchAirportBtn">Search</button>
         <div id="searchResult"></div>
+    </div>
+</div>
+<!-- Gate Display Modal -->
+<div id="gateDisplayModal" class="modal">
+    <div class="modal-content gate-display-content">
+        <span class="gate-display-close">&times;</span>
+        <div id="gateDisplayContent"></div>
     </div>
 </div>
 </body>
