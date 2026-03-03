@@ -19,7 +19,8 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 * **Real-Time Data:** Automatically fetches and refreshes pilot and flight plan data from the VATSIM Public Data API (v3) every 30 seconds.
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
 * **Header Widgets:** Live ATC status with controller popover, plus METAR-driven weather icon and temperature display. Hover the weather widget to reveal a **METAR popover** with the raw string and decoded wind, visibility, cloud, temperature/dewpoint, and QNH.
-* **Gate Display Board:** Tap the **ⓘ** icon next to any callsign to open an airport-style gate information card showing flight number, airline logo, destination/origin city, status badge, gate, scheduled time, and aircraft type.
+* **Gate Display Board:** Right-click any flight row to open an airport-style gate information card showing flight number, airline logo, destination/origin city, status badge, gate, scheduled time, and aircraft type.
+* **Full-Page Gate Display (Streamer Mode):** Dedicated full-page gate monitor at `/gate/<ICAO>/<callsign>` — designed for OBS overlays and streaming. Features a clean white layout with large gate number, airline logo, flight number, destination, departure time, aircraft, and status pill. Accent colours are dynamically extracted from the airline's logo. Also accessible via the ↗ link inside the gate display modal.
 * **Help / User Guide:** Built-in modal accessible from the header, covering all features and keyboard shortcuts.
 * **Responsive Layout:**
     * **Landscape Mode:** Displays Departures and Arrivals side-by-side.
@@ -159,6 +160,7 @@ This project is open-source and available under the MIT License.
 - [x] Built-in Help / User Guide modal
 - [x] METAR decoded popover (wind, visibility, cloud, temp/dew, QNH)
 - [x] Gate Display Board modal (per-flight info card with status badge)
+- [x] Full-page Gate Display for streamers with dynamic airline accent colours
 
 ## Bonus - Running as a Dedicated Kiosk Display
 
