@@ -69,7 +69,10 @@ body.theme-lsgg .huge-arrow {
     color: #ffffff;
 }
 /* Widget Colors */
-body.theme-lsgg .widget-icon, 
+body.theme-lsgg .widget-icon {
+    color: #ffffff;
+}
+
 body.theme-lsgg .widget-text {
     color: #ffffff !important;
 }
