@@ -1,31 +1,31 @@
 /* =============================================
    CITY (EGLC) THEME
-   Classic City Airport Yellow with Black Text
+   London City Airport Blue, White and Grey
    ============================================= */
 
 body.theme-eglc {
-    --heathrow-yellow: #FDB813;
-    --heathrow-dark: #1a1a1a;
+    --city-blue: #3542C3;
+    --city-grey: #737587;
     --font-ui: 'Inter', sans-serif;
     --font-data: 'Inter', sans-serif;
 }
 
 body.theme-eglc .fids-header {
-    background-color: var(--heathrow-yellow);
-    border-bottom: 4px solid #000000;
+    background-color: var(--city-blue);
+    border-bottom: none;
 }
 
 body.theme-eglc .airport-selector select,
 body.theme-eglc .clock-container {
-    color: #000000 !important;
+    color: #ffffff !important;
     background: transparent;
 }
 
 body.theme-eglc .section-divider {
-    background-color: var(--heathrow-yellow);
-    color: #000000;
+    background-color: var(--city-blue);
+    color: #ffffff;
     padding: 12px 20px;
-    border-bottom: 2px solid #000000;
+    border-bottom: none;
     font-weight: 700;
 }
 
@@ -36,48 +36,62 @@ body.theme-eglc .flight-table th {
     text-transform: none !important;
 }
 
-body.theme-eglc .col-status .flap-container {
-    text-transform: none !important;
+body.theme-eglc .flight-table tbody tr {
+    background-color: #ffffff !important;
+    color: #000000;
 }
 
-/* Yellow destination/origin text */
+body.theme-eglc .flight-table tbody tr:nth-child(even) {
+    background-color: #f0f0f0 !important;
+}
+
+body.theme-eglc .flight-table td {
+    color: #000000;
+}
+
+body.theme-eglc .col-status .flap-container {
+    text-transform: none !important;
+    color: #000000;
+}
+
+/* Destination text: blue */
 body.theme-eglc .flap-dest {
-    color: var(--heathrow-yellow) !important;
+    color: var(--city-blue) !important;
 }
 
 body.theme-eglc .fids-footer {
-    background-color: #000000;
-    border-top: 4px solid var(--heathrow-yellow);
+    background-color: var(--city-grey);
+    border-top: none;
 }
 
 body.theme-eglc .footer-group .main-label {
-    color: var(--heathrow-yellow);
+    color: #ffffff;
     font-weight: 700;
 }
 
 body.theme-eglc .footer-group .main-label .en {
-    display: none; /* Hide English subtitle for EGLL */
+    display: none;
 }
 
 body.theme-eglc .gate-icon-box {
-    border-color: var(--heathrow-yellow);
-    color: var(--heathrow-yellow);
+    border-color: var(--city-blue);
+    color: var(--city-blue);
 }
 
 body.theme-eglc .huge-arrow {
-    color: var(--heathrow-yellow);
+    color: var(--city-blue);
 }
 
 body.theme-eglc .security-time .label {
-    color: #cccccc;
+    color: #555555;
 }
 
 body.theme-eglc .security-time .time {
-    color: var(--heathrow-yellow);
+    color: var(--city-blue);
 }
 
 /* Widget Colors: Force BLACK */
-body [class*="theme-"] .widget-icon, 
+body [class*="theme-"] .widget-icon,
 body [class*="theme-"] .widget-text {
     color: #000000 !important;
 }
