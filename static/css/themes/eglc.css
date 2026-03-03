@@ -8,6 +8,7 @@ body.theme-eglc {
     --city-grey: #737587;
     --font-ui: 'Inter', sans-serif;
     --font-data: 'Inter', sans-serif;
+    background-color: #ffffff;
 }
 
 body.theme-eglc .fids-header {
@@ -74,20 +75,29 @@ body.theme-eglc .footer-group .main-label .en {
 }
 
 body.theme-eglc .gate-icon-box {
-    border-color: var(--city-blue);
-    color: var(--city-blue);
+    border-color: #ffffff;
+    color: #ffffff;
 }
 
 body.theme-eglc .huge-arrow {
-    color: var(--city-blue);
+    color: #ffffff;
 }
 
 body.theme-eglc .security-time .label {
-    color: #555555;
+    color: #ffffff;
 }
 
 body.theme-eglc .security-time .time {
-    color: var(--city-blue);
+    color: #ffffff;
+}
+
+body.theme-eglc .support-footer-btn {
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+body.theme-eglc .fs-footer-btn {
+    border-color: #ffffff;
 }
 
 /* Widget Colors: Force BLACK */
