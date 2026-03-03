@@ -37,6 +37,11 @@ body.theme-eglc .flight-table th {
     text-transform: none !important;
 }
 
+body.theme-eglc .split-panel {
+    background: #ffffff;
+    border-color: #dddddd;
+}
+
 body.theme-eglc .flight-table tbody tr {
     background-color: #ffffff !important;
     color: #000000;
