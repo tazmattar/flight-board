@@ -660,6 +660,41 @@ def admin_logout():
     session.pop('admin_username', None)
     return redirect(url_for('admin_login'))
 
+@app.route('/map/<airport>')
+def map_display(airport):
+    normalized = _normalize_icao(airport)
+    if not normalized:
+        return redirect('/')
+    airport_info = flight_fetcher.get_airport_info(normalized)
+    if not airport_info or airport_info.get('lat') is None:
+        return redirect('/')
+    resp = make_response(render_template(
+        'map.html',
+        airport=normalized,
+        airport_name=airport_info.get('name', normalized),
+        airport_lat=airport_info['lat'],
+        airport_lon=airport_info['lon'],
+        asset_version=int(time.time()),
+    ))
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
+@app.route('/api/map/<icao>')
+def api_map(icao):
+    normalized = _normalize_icao(icao)
+    if not normalized:
+        return jsonify({'error': 'Invalid ICAO'}), 400
+    data = current_data.get(normalized, {})
+    departures = data.get('departures', [])
+    arrivals = data.get('arrivals', [])
+    flights = [f for f in departures + arrivals if f.get('latitude') is not None]
+    return jsonify({
+        'airport': normalized,
+        'airport_name': data.get('airport_name', normalized),
+        'flights': flights,
+        'controllers': data.get('controllers', []),
+    })
+
 @app.route('/gate/<airport>/<callsign>')
 def gate_display(airport, callsign):
     normalized = _normalize_icao(airport)

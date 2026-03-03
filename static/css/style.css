@@ -1668,3 +1668,362 @@ body.gate-page {
     .gate-info-row { gap: 30px; }
     .gate-header-left { gap: 16px; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MAP PAGE
+   ═══════════════════════════════════════════════════════════ */
+body.map-page {
+    margin: 0;
+    padding: 0;
+    background: #050505;
+    color: #e0e0e0;
+    font-family: var(--font-ui);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.map-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 16px;
+    background: #0a0a0a;
+    border-bottom: 1px solid var(--border-dim);
+    flex-shrink: 0;
+    z-index: 1000;
+}
+
+.map-back {
+    color: #aaa;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+.map-back:hover { color: #fff; }
+
+.map-header-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+.map-airport-name {
+    font-family: var(--font-data);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+}
+.map-airport-icao {
+    font-family: var(--font-data);
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.map-header-stats {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-data);
+    font-size: 0.85rem;
+    color: #aaa;
+}
+.map-stat-sep { color: #444; }
+
+.map-clock-container {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    margin-left: 14px;
+}
+.map-clock {
+    font-family: var(--font-data);
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+}
+.map-utc-label {
+    font-family: var(--font-data);
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* ── Map body ───────────────────────────────────────────── */
+.map-body {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Airport icon on map ────────────────────────────────── */
+.map-airport-icon {
+    background: none;
+    border: none;
+}
+.map-airport-dot {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    margin: 0 auto 2px;
+    box-shadow: 0 0 8px rgba(255,255,255,0.6);
+}
+.map-airport-label {
+    font-family: var(--font-data);
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+}
+
+/* ── Plane icons on map ─────────────────────────────────── */
+.map-plane-icon {
+    background: none;
+    border: none;
+}
+.map-plane-svg {
+    display: flex;
+    justify-content: center;
+    transition: transform 0.8s ease;
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0.8));
+}
+.map-plane-label {
+    font-family: var(--font-data);
+    font-size: 9px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 0 0 3px #000, 0 0 6px #000;
+    margin-top: -2px;
+}
+
+/* ── ATC marker on map ──────────────────────────────────── */
+.map-atc-marker {
+    background: none;
+    border: none;
+}
+.map-atc-marker-label {
+    font-family: var(--font-data);
+    font-size: 10px;
+    color: #4caf50;
+    text-align: center;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.map-atc-marker-freq {
+    font-size: 9px;
+    color: #81c784;
+}
+
+/* ── Flight detail panel (right) ────────────────────────── */
+.map-flight-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: #111;
+    border-left: 1px solid #333;
+    z-index: 900;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+.map-flight-panel.open {
+    transform: translateX(0);
+}
+
+.map-panel-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 4px;
+}
+.map-panel-close:hover { color: #fff; }
+
+.map-panel-header {
+    padding: 20px 16px 12px;
+    border-bottom: 1px solid #333;
+}
+.map-panel-callsign {
+    font-family: var(--font-data);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+.map-panel-status {
+    font-family: var(--font-data);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.map-panel-body {
+    padding: 12px 16px;
+    flex: 1;
+}
+.map-panel-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #222;
+}
+.map-panel-label {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: #888;
+}
+.map-panel-value {
+    font-family: var(--font-data);
+    font-size: 0.85rem;
+    color: #e0e0e0;
+    text-align: right;
+}
+.map-panel-route {
+    font-size: 0.75rem;
+    max-width: 180px;
+    word-break: break-all;
+}
+
+.map-panel-gate-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 16px 16px;
+    padding: 8px 12px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #42a5f5;
+    text-decoration: none;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+}
+.map-panel-gate-link:hover {
+    background: #222;
+    color: #90caf9;
+}
+
+/* ── ATC panel (bottom-left) ────────────────────────────── */
+.map-atc-panel {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    width: 240px;
+    max-height: 260px;
+    background: rgba(17, 17, 17, 0.92);
+    border: 1px solid #333;
+    border-radius: 8px;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+}
+
+.map-atc-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    color: #4caf50;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+.map-atc-toggle:hover { color: #81c784; }
+.map-atc-chevron { margin-left: auto; font-size: 18px; }
+
+.map-atc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 12px 8px;
+    overflow-y: auto;
+    max-height: 200px;
+}
+.map-atc-panel.collapsed .map-atc-list { display: none; }
+
+.map-atc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-family: var(--font-data);
+    font-size: 0.8rem;
+}
+.map-atc-dot {
+    width: 6px;
+    height: 6px;
+    background: #4caf50;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.map-atc-cs { color: #e0e0e0; }
+.map-atc-freq { color: #888; margin-left: auto; }
+
+/* ── Footer ─────────────────────────────────────────────── */
+.map-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 4px 16px;
+    background: #0a0a0a;
+    border-top: 1px solid var(--border-dim);
+    flex-shrink: 0;
+    z-index: 1000;
+}
+.map-simfixr-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.7;
+    filter: invert(1);
+}
+.map-simfixr-logo:hover { opacity: 1; }
+
+/* ── Leaflet dark overrides ─────────────────────────────── */
+body.map-page .leaflet-control-zoom a {
+    background: #1a1a1a;
+    color: #ccc;
+    border-color: #333;
+}
+body.map-page .leaflet-control-zoom a:hover {
+    background: #333;
+    color: #fff;
+}
+body.map-page .leaflet-control-attribution {
+    background: rgba(10, 10, 10, 0.7);
+    color: #666;
+    font-size: 10px;
+}
+body.map-page .leaflet-control-attribution a { color: #888; }
+
+/* ── Map button in main board header ────────────────────── */
+.map-link-btn {
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .map-flight-panel { width: 100%; }
+    .map-header { padding: 6px 10px; gap: 8px; }
+    .map-airport-name { font-size: 0.95rem; }
+}

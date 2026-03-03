@@ -160,6 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTheme(currentAirport);
         window.updateFooterText(currentAirport, options.country || '');
 
+        // Keep map link in sync
+        const mapLink = document.getElementById('mapLink');
+        if (mapLink) mapLink.href = '/map/' + currentAirport;
+
         if (changed) {
             socket.emit('join_airport', { airport: currentAirport });
             elements.departureList.innerHTML = '';

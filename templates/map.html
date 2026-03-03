@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Map — {{ airport }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&family=JetBrains+Mono:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=asset_version) }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script>
+        window.MAP_AIRPORT     = "{{ airport }}";
+        window.MAP_AIRPORT_NAME = "{{ airport_name }}";
+        window.MAP_AIRPORT_LAT = {{ airport_lat }};
+        window.MAP_AIRPORT_LON = {{ airport_lon }};
+        window.ASSET_VERSION   = "{{ asset_version }}";
+    </script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="map-page">
+
+    <header class="map-header">
+        <a href="/?icao={{ airport }}" class="map-back" title="Back to board">
+            <span class="material-icons">arrow_back</span>
+        </a>
+        <div class="map-header-title">
+            <span class="map-airport-name">{{ airport_name }}</span>
+            <span class="map-airport-icao">{{ airport }}</span>
+        </div>
+        <div class="map-header-stats">
+            <span id="mapFlightCount" class="map-stat">0 flights</span>
+            <span class="map-stat-sep">|</span>
+            <span id="mapAtcCount" class="map-stat">0 ATC</span>
+        </div>
+        <div class="map-clock-container">
+            <span id="mapClock" class="map-clock">--:--</span><span class="map-utc-label">Z</span>
+        </div>
+    </header>
+
+    <div class="map-body">
+        <div id="map" class="map-container"></div>
+
+        <!-- Flight detail panel (right side slide-in) -->
+        <div id="flightPanel" class="map-flight-panel">
+            <button id="flightPanelClose" class="map-panel-close" title="Close">
+                <span class="material-icons">close</span>
+            </button>
+            <div class="map-panel-header">
+                <div id="panelCallsign" class="map-panel-callsign">--</div>
+                <div id="panelStatus" class="map-panel-status">--</div>
+            </div>
+            <div class="map-panel-body">
+                <div class="map-panel-row"><span class="map-panel-label">Aircraft</span><span id="panelAircraft" class="map-panel-value">--</span></div>
+                <div class="map-panel-row"><span class="map-panel-label">Origin</span><span id="panelOrigin" class="map-panel-value">--</span></div>
+                <div class="map-panel-row"><span class="map-panel-label">Destination</span><span id="panelDest" class="map-panel-value">--</span></div>
+                <div class="map-panel-row"><span class="map-panel-label">Altitude</span><span id="panelAlt" class="map-panel-value">--</span></div>
+                <div class="map-panel-row"><span class="map-panel-label">Speed</span><span id="panelSpeed" class="map-panel-value">--</span></div>
+                <div class="map-panel-row"><span class="map-panel-label">Gate</span><span id="panelGate" class="map-panel-value">--</span></div>
+                <div class="map-panel-row"><span class="map-panel-label">Route</span><span id="panelRoute" class="map-panel-value map-panel-route">--</span></div>
+            </div>
+            <a id="panelGateLink" class="map-panel-gate-link" href="#" target="_blank">
+                <span class="material-icons">tv</span> Gate Display
+            </a>
+        </div>
+
+        <!-- ATC panel (bottom-left) -->
+        <div id="atcPanel" class="map-atc-panel">
+            <button id="atcPanelToggle" class="map-atc-toggle">
+                <span class="material-icons">cell_tower</span>
+                <span id="atcPanelLabel">ATC</span>
+                <span class="material-icons map-atc-chevron" id="atcChevron">expand_less</span>
+            </button>
+            <ul id="atcPanelList" class="map-atc-list"></ul>
+        </div>
+    </div>
+
+    <footer class="map-footer">
+        <a href="https://simfixr.com" target="_blank" rel="noopener">
+            <img class="map-simfixr-logo" src="{{ url_for('static', filename='simfixr_logos/simfixr_logo_black.png', v=asset_version) }}" alt="SimFixr">
+        </a>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/map.js', v=asset_version) }}"></script>
+</body>
+</html>

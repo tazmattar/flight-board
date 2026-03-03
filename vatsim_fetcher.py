@@ -511,7 +511,10 @@ class VatsimFetcher:
             'gate': gate_display, 'checkin': checkin_area, 'time_display': time_display,
             'direction': direction, 'distance': dist_km,
             'route': fp.get('route', 'No route available'),
-            'squawk': pilot.get('transponder', '')
+            'squawk': pilot.get('transponder', ''),
+            'latitude': pilot.get('latitude'),
+            'longitude': pilot.get('longitude'),
+            'heading': pilot.get('heading', 0),
         }
 
     def determine_status(self, pilot, direction, ceiling, dist_km, gate_found, airport_code):
