@@ -52,7 +52,10 @@
                 <span class="material-icons">close</span>
             </button>
             <div class="map-panel-header">
-                <div id="panelCallsign" class="map-panel-callsign">--</div>
+                <div class="map-panel-callsign-row">
+                    <img id="panelLogo" class="map-panel-logo" src="" alt="">
+                    <div id="panelCallsign" class="map-panel-callsign">--</div>
+                </div>
                 <div id="panelStatus" class="map-panel-status">--</div>
             </div>
             <div class="map-panel-body">
@@ -69,6 +72,13 @@
             </a>
         </div>
 
+        <!-- Legend (bottom-right) -->
+        <div class="map-legend">
+            <div class="map-legend-item"><span class="map-legend-dot" style="background:#4caf50"></span>Ground</div>
+            <div class="map-legend-item"><span class="map-legend-dot" style="background:#42a5f5"></span>Arriving</div>
+            <div class="map-legend-item"><span class="map-legend-dot" style="background:#ffa726"></span>Departing</div>
+        </div>
+
         <!-- ATC panel (bottom-left) -->
         <div id="atcPanel" class="map-atc-panel">
             <button id="atcPanelToggle" class="map-atc-toggle">
@@ -82,7 +92,7 @@
 
     <footer class="map-footer">
         <a href="https://simfixr.com" target="_blank" rel="noopener">
-            <img class="map-simfixr-logo" src="{{ url_for('static', filename='simfixr_logos/simfixr_logo_black.png', v=asset_version) }}" alt="SimFixr">
+            <img class="map-simfixr-logo" src="{{ url_for('static', filename='simfixr_logos/simfixr_logo_white.png', v=asset_version) }}" alt="SimFixr">
         </a>
     </footer>
 

@@ -30,6 +30,45 @@
     });
     L.marker([APT_LAT, APT_LON], { icon: airportIcon, interactive: false }).addTo(map);
 
+    /* ── Airline logo resolution (mirrors app.js logic) ──── */
+    var virtualAirlines = new Set(['XNO']);
+    var airlineMapping = {
+        'SWS': 'LX', 'EZY': 'U2', 'EJU': 'U2', 'EZS': 'DS', 'BEL': 'SN',
+        'GWI': '4U', 'EDW': 'WK', 'ITY': 'AZ', 'FDX': 'FX', 'UPS': '5X',
+        'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA', 'SHT': 'BA'
+    };
+    var airlineLogoAliasGroups = {
+        BA: ['SHT'],
+        W6: ['WAU', 'WAZ', 'WIZ', 'WMT', 'WUK', 'WVL', 'WZZ']
+    };
+    var airlineLogoAliases = {};
+    Object.keys(airlineLogoAliasGroups).forEach(function (logoCode) {
+        airlineLogoAliasGroups[logoCode].forEach(function (prefix) {
+            airlineLogoAliases[prefix.toUpperCase()] = logoCode;
+        });
+    });
+    var localOnlyAirlines = ['FX', 'FDX', 'UPS', '5X', 'REGA', 'SAZ'];
+
+    // Load dynamic airline ICAO→IATA mapping
+    fetch('https://cdn.jsdelivr.net/gh/npow/airline-codes@master/airlines.json')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            data.forEach(function (a) {
+                if (a.icao && a.iata && a.active === 'Y' && !airlineMapping[a.icao]) {
+                    airlineMapping[a.icao] = a.iata;
+                }
+            });
+        })
+        .catch(function (e) { console.warn('Airline DB failed', e); });
+
+    function getLogoUrl(callsign) {
+        var prefix = (callsign || '').substring(0, 3).toUpperCase();
+        var code = airlineLogoAliases[prefix] || airlineMapping[prefix] || prefix;
+        if (virtualAirlines.has(prefix)) return { primary: '/static/logos/' + prefix + '.png', secondary: '', tertiary: '' };
+        if (localOnlyAirlines.indexOf(code) !== -1) return { primary: '/static/logos/' + code + '.png', secondary: 'https://images.kiwi.com/airlines/64/' + code + '.png', tertiary: 'https://content.r9cdn.net/rimg/provider-logos/airlines/v/' + code + '.png' };
+        return { primary: 'https://images.kiwi.com/airlines/64/' + code + '.png', secondary: 'https://content.r9cdn.net/rimg/provider-logos/airlines/v/' + code + '.png', tertiary: '/static/logos/' + code + '.png' };
+    }
+
     /* ── Aircraft markers ─────────────────────────────────── */
     const markers = {};
     let selectedCallsign = null;
@@ -46,13 +85,91 @@
     function makeIcon(f) {
         const color = flightColor(f);
         const heading = f.heading || 0;
+        const urls = getLogoUrl(f.callsign);
+        var logoHtml = '<img class="map-plane-logo" src="' + urls.primary + '"'
+            + (urls.secondary ? ' onerror="this.onerror=function(){this.style.display=\'none\'};this.src=\'' + urls.secondary + '\'"' : ' onerror="this.style.display=\'none\'"')
+            + '>';
         return L.divIcon({
             className: 'map-plane-icon',
             html: '<div class="map-plane-svg" style="transform:rotate(' + heading + 'deg);color:' + color + '">' + PLANE_SVG + '</div>'
-                + '<div class="map-plane-label" style="color:' + color + '">' + f.callsign + '</div>',
-            iconSize: [60, 36],
-            iconAnchor: [30, 18],
+                + '<div class="map-plane-label" style="color:' + color + '">' + logoHtml + f.callsign + '</div>',
+            iconSize: [90, 36],
+            iconAnchor: [45, 18],
         });
+    }
+
+    /* ── Breadcrumb trails ───────────────────────────────── */
+    var trails = {};       // callsign → { positions: [[lat,lng], ...], dots: [L.circleMarker, ...] }
+    var TRAIL_MAX = 80;    // max trail points per aircraft (interpolated)
+    var TRAIL_MIN_DIST = 0.002; // ~200m — skip if barely moved
+
+    function isAirborne(f) {
+        return (f.groundspeed || 0) >= 50 || (f.altitude || 0) >= 500;
+    }
+
+    function distSq(a, b) {
+        var dx = a[0] - b[0], dy = a[1] - b[1];
+        return dx * dx + dy * dy;
+    }
+
+    function updateTrail(f) {
+        var cs = f.callsign;
+        var pos = [f.latitude, f.longitude];
+        var color = f.direction === 'ARR' ? '#42a5f5' : '#ffa726';
+
+        if (!isAirborne(f)) return; // ground ops — no trail
+
+        if (!trails[cs]) trails[cs] = { positions: [], dots: [], color: color };
+        var t = trails[cs];
+
+        // Skip if hasn't moved enough
+        var last = t.positions.length > 0 ? t.positions[t.positions.length - 1] : null;
+        if (last && distSq(pos, last) < TRAIL_MIN_DIST * TRAIL_MIN_DIST) return;
+
+        // Interpolate between last known position and current
+        if (last) {
+            var gap = Math.sqrt(distSq(pos, last));
+            var steps = Math.min(Math.floor(gap / TRAIL_MIN_DIST), 3); // up to 3 interpolated points
+            for (var s = 1; s < steps; s++) {
+                var frac = s / steps;
+                t.positions.push([
+                    last[0] + (pos[0] - last[0]) * frac,
+                    last[1] + (pos[1] - last[1]) * frac
+                ]);
+            }
+        }
+
+        t.positions.push(pos);
+        t.color = color;
+
+        // Trim oldest
+        while (t.positions.length > TRAIL_MAX) {
+            t.positions.shift();
+            if (t.dots.length > 0) { map.removeLayer(t.dots.shift()); }
+        }
+
+        // Re-render all dots with fading opacity
+        t.dots.forEach(function (d) { map.removeLayer(d); });
+        t.dots = [];
+        for (var i = 0; i < t.positions.length; i++) {
+            var age = t.positions.length - 1 - i; // 0 = newest
+            var opacity = 0.1 + 0.5 * (1 - age / TRAIL_MAX);
+            var radius = 1 + 0.5 * (1 - age / TRAIL_MAX);
+            var dot = L.circleMarker(t.positions[i], {
+                radius: radius,
+                fillColor: t.color,
+                fillOpacity: opacity,
+                stroke: false,
+                interactive: false,
+            }).addTo(map);
+            t.dots.push(dot);
+        }
+    }
+
+    function removeTrail(cs) {
+        if (!trails[cs]) return;
+        trails[cs].dots.forEach(function (d) { map.removeLayer(d); });
+        delete trails[cs];
     }
 
     function updateMarkers(flights) {
@@ -61,6 +178,9 @@
             if (f.latitude == null || f.longitude == null) return;
             seen[f.callsign] = true;
             const pos = [f.latitude, f.longitude];
+
+            updateTrail(f);
+
             if (markers[f.callsign]) {
                 markers[f.callsign].setLatLng(pos);
                 markers[f.callsign].setIcon(makeIcon(f));
@@ -77,6 +197,7 @@
             if (!seen[cs]) {
                 map.removeLayer(markers[cs]);
                 delete markers[cs];
+                removeTrail(cs);
                 if (selectedCallsign === cs) closeFlightPanel();
             }
         });
@@ -101,6 +222,16 @@
     function showFlightPanel(f) {
         selectedCallsign = f.callsign;
         document.getElementById('panelCallsign').textContent = f.callsign;
+
+        var logoEl = document.getElementById('panelLogo');
+        var urls = getLogoUrl(f.callsign);
+        logoEl.src = urls.primary;
+        logoEl.style.display = '';
+        logoEl.onerror = function () {
+            if (urls.secondary) { logoEl.src = urls.secondary; logoEl.onerror = function () { logoEl.style.display = 'none'; }; }
+            else { logoEl.style.display = 'none'; }
+        };
+
         var statusEl = document.getElementById('panelStatus');
         statusEl.textContent = f.status || '--';
         statusEl.style.color = statusColor(f.status);

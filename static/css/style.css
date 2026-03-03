@@ -1639,7 +1639,7 @@ body.map-page {
     padding: 0;
     background: #050505;
     color: #e0e0e0;
-    font-family: var(--font-ui);
+    font-family: 'Inter', sans-serif;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -1672,13 +1672,11 @@ body.map-page {
     gap: 8px;
 }
 .map-airport-name {
-    font-family: var(--font-data);
     font-weight: 700;
     font-size: 1.1rem;
     color: #fff;
 }
 .map-airport-icao {
-    font-family: var(--font-data);
     font-size: 0.85rem;
     color: #888;
 }
@@ -1688,7 +1686,6 @@ body.map-page {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-data);
     font-size: 0.85rem;
     color: #aaa;
 }
@@ -1701,13 +1698,11 @@ body.map-page {
     margin-left: 14px;
 }
 .map-clock {
-    font-family: var(--font-data);
     font-weight: 700;
     font-size: 1rem;
     color: #fff;
 }
 .map-utc-label {
-    font-family: var(--font-data);
     font-size: 0.75rem;
     color: #888;
 }
@@ -1737,7 +1732,6 @@ body.map-page {
     box-shadow: 0 0 8px rgba(255,255,255,0.6);
 }
 .map-airport-label {
-    font-family: var(--font-data);
     font-size: 11px;
     font-weight: 700;
     color: #fff;
@@ -1757,13 +1751,23 @@ body.map-page {
     filter: drop-shadow(0 0 3px rgba(0,0,0,0.8));
 }
 .map-plane-label {
-    font-family: var(--font-data);
     font-size: 9px;
     font-weight: 700;
     text-align: center;
     white-space: nowrap;
     text-shadow: 0 0 3px #000, 0 0 6px #000;
     margin-top: -2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+.map-plane-logo {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 
 /* ── ATC marker on map ──────────────────────────────────── */
@@ -1772,7 +1776,6 @@ body.map-page {
     border: none;
 }
 .map-atc-marker-label {
-    font-family: var(--font-data);
     font-size: 10px;
     color: #4caf50;
     text-align: center;
@@ -1821,14 +1824,24 @@ body.map-page {
     padding: 20px 16px 12px;
     border-bottom: 1px solid #333;
 }
+.map-panel-callsign-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.map-panel-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
 .map-panel-callsign {
-    font-family: var(--font-data);
     font-size: 1.5rem;
     font-weight: 700;
     color: #fff;
 }
 .map-panel-status {
-    font-family: var(--font-data);
     font-size: 0.85rem;
     font-weight: 600;
     margin-top: 4px;
@@ -1845,12 +1858,10 @@ body.map-page {
     border-bottom: 1px solid #222;
 }
 .map-panel-label {
-    font-family: var(--font-ui);
     font-size: 0.8rem;
     color: #888;
 }
 .map-panel-value {
-    font-family: var(--font-data);
     font-size: 0.85rem;
     color: #e0e0e0;
     text-align: right;
@@ -1872,12 +1883,40 @@ body.map-page {
     border-radius: 6px;
     color: #42a5f5;
     text-decoration: none;
-    font-family: var(--font-ui);
     font-size: 0.85rem;
 }
 .map-panel-gate-link:hover {
     background: #222;
     color: #90caf9;
+}
+
+/* ── Legend (bottom-right) ──────────────────────────────── */
+.map-legend {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(17, 17, 17, 0.92);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    backdrop-filter: blur(6px);
+}
+.map-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: #ccc;
+}
+.map-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 /* ── ATC panel (bottom-left) ────────────────────────────── */
@@ -1905,7 +1944,6 @@ body.map-page {
     background: none;
     border: none;
     color: #4caf50;
-    font-family: var(--font-ui);
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
@@ -1929,7 +1967,6 @@ body.map-page {
     align-items: center;
     gap: 8px;
     padding: 4px 0;
-    font-family: var(--font-data);
     font-size: 0.8rem;
 }
 .map-atc-dot {
@@ -1954,11 +1991,10 @@ body.map-page {
     z-index: 1000;
 }
 .map-simfixr-logo {
-    height: 28px;
+    height: 48px;
     width: auto;
     object-fit: contain;
-    opacity: 0.7;
-    filter: invert(1);
+    opacity: 0.8;
 }
 .map-simfixr-logo:hover { opacity: 1; }
 
