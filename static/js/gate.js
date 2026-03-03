@@ -61,9 +61,9 @@
         var prefix = callsign.substring(0, 3);
         var code = airlineLogoAliases[prefix] || airlineMapping[prefix] || prefix;
         if (virtualAirlines.has(prefix)) {
-            return '/static/logos/' + prefix + '.png';
+            return '/static/logos/' + prefix + '_128.png';
         } else if (localOnlyAirlines.indexOf(code) !== -1) {
-            return '/static/logos/' + code + '.png';
+            return '/static/logos/' + code + '_128.png';
         }
         // Use proxy so canvas can read pixels (same-origin)
         return '/api/logo/' + code;
