@@ -1295,6 +1295,10 @@ body.theme-eham .tracking-chip {
 }
 
 /* Gate Info Button */
+.flight-table td:first-child {
+    overflow: visible;
+}
+
 .gate-info-btn {
     background: none;
     border: none;
