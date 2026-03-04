@@ -898,7 +898,19 @@ document.addEventListener('DOMContentLoaded', () => {
             updateFlapText(destFlap, display.text);
 
             updateFlapText(document.getElementById(`${rowId}-ac`), flight.aircraft);
-            updateFlapText(document.getElementById(`${rowId}-time`), timeStr);
+            const timeFlap = document.getElementById(`${rowId}-time`);
+            const isActualDep = type === 'Departures'
+                && flight.status === 'Departing'
+                && flight.actual_dep_time;
+            const isEddf = document.body.classList.contains('theme-eddf');
+
+            if (isActualDep && !isEddf) {
+                updateFlapText(timeFlap, flight.actual_dep_time);
+                timeFlap.classList.add('time-actual-dep');
+            } else {
+                updateFlapText(timeFlap, timeStr);
+                timeFlap.classList.remove('time-actual-dep');
+            }
             
             const checkinFlap = document.getElementById(`${rowId}-checkin`);
             if (checkinFlap) {

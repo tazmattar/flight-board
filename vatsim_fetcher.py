@@ -53,6 +53,8 @@ class VatsimFetcher:
         # Initialize Check-in Assignment System
         self.checkin_system = CheckinAssignments()
 
+        self._dep_times = {}  # callsign -> "HH:MM" actual UTC departure time
+
         self.cleanup_dist_dep = 80
         self.ground_range = 15
         
@@ -286,6 +288,14 @@ class VatsimFetcher:
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
+            # Prune _dep_times of callsigns no longer appearing as Departing on any board
+            active_callsigns = set()
+            for airport_result in results.values():
+                for f in airport_result.get('departures', []):
+                    if f.get('actual_dep_time'):
+                        active_callsigns.add(f['callsign'])
+            self._dep_times = {k: v for k, v in self._dep_times.items() if k in active_callsigns}
+
             return results
         except Exception as e:
             print(f"Error: {e}")
@@ -320,6 +330,13 @@ class VatsimFetcher:
             result['departures'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
             result['arrivals'].sort(key=self._arrival_sort_key)
             
+            # Prune _dep_times of callsigns no longer appearing as Departing
+            active_callsigns = set()
+            for f in result.get('departures', []):
+                if f.get('actual_dep_time'):
+                    active_callsigns.add(f['callsign'])
+            self._dep_times = {k: v for k, v in self._dep_times.items() if k in active_callsigns}
+
             result['metar'] = self.get_metar(airport_code)
             result['controllers'] = self.get_controllers(data.get('controllers', []), airport_code)
             return {airport_code: result}
@@ -475,6 +492,13 @@ class VatsimFetcher:
             if late_status:
                 delay_text = late_status
 
+        actual_dep_time = None
+        if direction == 'DEP' and raw_status == 'Departing':
+            key = callsign
+            if key not in self._dep_times:
+                self._dep_times[key] = datetime.utcnow().strftime('%H:%M')
+            actual_dep_time = self._dep_times[key]
+
         gate_display = gate or 'TBA'
         if direction == 'DEP':
             if raw_status == 'Check-in': gate_display = 'TBA'
@@ -509,6 +533,7 @@ class VatsimFetcher:
             'altitude': pilot.get('altitude', 0), 'groundspeed': pilot.get('groundspeed', 0),
             'status': display_status, 'status_raw': raw_status, 'delay_text': delay_text,
             'gate': gate_display, 'checkin': checkin_area, 'time_display': time_display,
+            'actual_dep_time': actual_dep_time,
             'direction': direction, 'distance': dist_km,
             'route': fp.get('route', 'No route available'),
             'squawk': pilot.get('transponder', ''),

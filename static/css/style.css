@@ -318,6 +318,17 @@ html, body {
     100% { opacity: 1; }
 }
 
+/* --- Actual Departure Time Pulse --- */
+@keyframes actualDepPulse {
+    0%, 100% { color: var(--fids-amber); opacity: 1; }
+    50%       { color: var(--fids-amber); opacity: 0.4; }
+}
+
+.time-actual-dep {
+    animation: actualDepPulse 1.8s ease-in-out infinite;
+    font-weight: 700;
+}
+
 /* --- SMOOTH OPACITY FADE FOR STATUS CHANGES --- */
 .col-status .flap-container {
     transition: opacity 0.35s ease-in-out;
