@@ -250,7 +250,7 @@
                 <ul>
                     <li><strong>Flight</strong> — Callsign. Hover (desktop) or tap (mobile) to see cruise altitude, speed, and squawk.</li>
                     <li><strong>Destination / Origin</strong> — Cycles between ICAO code and airport name every 4 seconds.</li>
-                    <li><strong>Time</strong> — Scheduled departure or arrival time (UTC).</li>
+                    <li><strong>Time</strong> — Scheduled departure or arrival time (UTC). When a departure enters "Departing" status, the time switches to the actual departure time and pulses amber.</li>
                     <li><strong>Gate / Stand</strong> — Assigned position. UK airports pull real data from UKCP when available.</li>
                     <li><strong>Check-in</strong> — Desk assignment for departures, based on airline and terminal.</li>
                     <li><strong>Status</strong> — Current flight phase. Cycles every 6 seconds between the phase label and delay / gate information.</li>
@@ -278,7 +278,8 @@
                 <h3>Header Widgets</h3>
                 <ul>
                     <li><strong>ATC (radar icon)</strong> — Green when controllers are active. Hover to see positions and frequencies.</li>
-                    <li><strong>Weather (cloud icon)</strong> — Live METAR-based icon with temperature in °C.</li>
+                    <li><strong>Weather (cloud icon)</strong> — Live METAR-based icon with temperature in °C. Hover to reveal a decoded METAR popover showing wind, visibility, cloud layers, temperature/dewpoint, and QNH alongside the raw METAR string.</li>
+                    <li><strong>Map (compass icon)</strong> — Opens the Live Radar Map for the current airport in a new tab.</li>
                     <li><strong>Clock</strong> — Current UTC (Zulu) time.</li>
                 </ul>
             </section>
@@ -303,11 +304,25 @@
             </section>
 
             <section class="help-section">
+                <h3>Live Radar Map</h3>
+                <p><strong>Open the Map</strong> — Click the compass icon in the header, or navigate directly to <code>/map/ICAO</code> (e.g. <code>/map/EGLL</code>).</p>
+                <p><strong>Aircraft Markers</strong> — Each flight appears as a rotated plane icon colour-coded by phase: <span class="help-status-dot" style="background:#4caf50"></span> green (ground), <span class="help-status-dot" style="background:#42a5f5"></span> blue (arriving), <span class="help-status-dot" style="background:#ffa726"></span> orange (departing). Airline logos and callsigns are shown beneath each marker.</p>
+                <p><strong>Breadcrumb Trails</strong> — Airborne aircraft leave a fading dot trail showing their recent flight path.</p>
+                <p><strong>Flight Detail Panel</strong> — Click any aircraft to open a side panel with callsign, status, aircraft type, route, altitude, speed, and gate assignment.</p>
+                <p><strong>Gate Display Link</strong> — From the detail panel, click <strong>Gate Display</strong> to open the full-page gate monitor for that flight.</p>
+                <p><strong>Boarding Pass</strong> — Click <strong>Print Boarding Pass</strong> in the detail panel to generate a printable boarding pass with flight details, seat assignment, and airline-branded accent colours.</p>
+                <p><strong>ATC Panel</strong> — An expandable panel in the bottom-left lists all active controllers with their frequencies. Controller positions are also shown as labels on the map.</p>
+                <p><strong>Live Updates</strong> — The map refreshes in real time via WebSocket — no page reload needed.</p>
+            </section>
+
+            <section class="help-section">
                 <h3>Tips</h3>
                 <ul>
                     <li>Bookmark your favourite airport with <code>?icao=XXXX</code> in the URL.</li>
                     <li>Works great on a spare monitor in landscape or portrait orientation.</li>
                     <li>Track your own flight to follow it automatically across the network.</li>
+                    <li>Right-click a flight for the gate display; use the map for a full radar overview.</li>
+                    <li>Print a boarding pass from the map's flight detail panel — great for immersion.</li>
                     <li>Data refreshes every 60 seconds via live VATSIM data, pushed instantly via WebSocket.</li>
                 </ul>
             </section>
