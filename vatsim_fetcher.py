@@ -330,13 +330,6 @@ class VatsimFetcher:
             result['departures'].sort(key=lambda x: self._get_sortable_time(x.get('time_display', '')))
             result['arrivals'].sort(key=self._arrival_sort_key)
             
-            # Prune _dep_times of callsigns no longer appearing as Departing
-            active_callsigns = set()
-            for f in result.get('departures', []):
-                if f.get('actual_dep_time'):
-                    active_callsigns.add(f['callsign'])
-            self._dep_times = {k: v for k, v in self._dep_times.items() if k in active_callsigns}
-
             result['metar'] = self.get_metar(airport_code)
             result['controllers'] = self.get_controllers(data.get('controllers', []), airport_code)
             return {airport_code: result}
