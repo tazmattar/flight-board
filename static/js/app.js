@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const manualRenames = {
                     "EGLL": "London Heathrow", "EGKK": "London Gatwick", "EGSS": "London Stansted", "EGCC": "Manchester",
                     "EGGW": "London Luton", "EGLC": "London City", "KJFK": "New York JFK",
-                    "KEWR": "Newark", "KLGA": "New York LaGuardia", "LFPG": "Paris CDG",
+                    "KEWR": "Newark", "KLGA": "New York LaGuardia",
                     "LFPO": "Paris Orly", "LFPG": "Paris CDG", "EDDF": "Frankfurt", "EDDM": "Munich",
                     "OMDB": "Dubai", "VHHH": "Hong Kong", "WSSS": "Singapore",
                     "KBOS": "Boston", "LLBG": "Tel Aviv", "LSHD": "Zurich Heliport",
@@ -329,6 +329,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             .trim(),
                         country_code: details.country  // This is the ISO 2-letter code
                     };
+                }
+
+                // Apply manual renames for airports absent from the GitHub DB
+                for (const [icao, name] of Object.entries(manualRenames)) {
+                    if (!airportMapping[icao]) {
+                        airportMapping[icao] = { name, country_code: '' };
+                    }
                 }
             }
         } catch (e) { console.warn('Airport DB failed', e); }
