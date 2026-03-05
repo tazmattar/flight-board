@@ -280,7 +280,8 @@
 
             <section class="help-section">
                 <h3>Flight Tracking</h3>
-                <p>Click any flight row to start tracking that callsign. A chip appears in the header. When the tracked aircraft departs and goes airborne, the board automatically switches to the destination airport. Click the row again or press <strong>×</strong> on the chip to stop.</p>
+                <p>Click any flight row to start tracking that callsign. A chip appears in the header showing the flight and route. When the tracked aircraft departs and goes airborne, the board automatically switches to the destination airport. Click the row again or press <strong>×</strong> on the chip to stop.</p>
+                <p>While tracking is active, the <strong>compass icon</strong> pulses green — click it to open the Live Radar Map, which will automatically open the tracked flight's detail panel and draw its planned route. Other aircraft on the map cannot be selected while tracking is active.</p>
             </section>
 
             <section class="help-section">
@@ -288,7 +289,7 @@
                 <ul>
                     <li><strong>ATC (radar icon)</strong> — Green when controllers are active. Hover to see positions and frequencies.</li>
                     <li><strong>Weather (cloud icon)</strong> — Live METAR-based icon with temperature in °C. Hover to reveal a decoded METAR popover showing wind, visibility, cloud layers, temperature/dewpoint, and QNH alongside the raw METAR string.</li>
-                    <li><strong>Map (compass icon)</strong> — Opens the Live Radar Map for the current airport in a new tab.</li>
+                    <li><strong>Map (compass icon)</strong> — Opens the Live Radar Map. Pulses green when a flight is being tracked.</li>
                     <li><strong>Clock</strong> — Current UTC (Zulu) time.</li>
                 </ul>
             </section>
@@ -309,15 +310,18 @@
                 <p><strong>Quick View</strong> — Right-click any flight row to open a gate information card with status, gate, time, and aircraft.</p>
                 <p><strong>Full-Page Mode</strong> — Inside the gate card, click the <strong>↗</strong> link (top-right) to open a dedicated full-page gate monitor in a new tab. Perfect for OBS overlays or streaming.</p>
                 <p><strong>Direct URL</strong> — Navigate directly to <code>/gate/ICAO/CALLSIGN</code> (e.g. <code>/gate/EGLL/BAW123</code>). The page waits for the flight to appear, then displays live updates.</p>
+                <p><strong>Gate Status</strong> — Shows <strong>CLOSED</strong> while the flight is still at the origin or en route. Switches to <strong>TBA</strong> (or an assigned gate number) once the flight is on approach or has landed at the destination.</p>
                 <p><strong>Dynamic Branding</strong> — The page accent colour automatically adapts to match the airline's logo.</p>
             </section>
 
             <section class="help-section">
                 <h3>Live Radar Map</h3>
                 <p><strong>Open the Map</strong> — Click the compass icon in the header, or navigate directly to <code>/map/ICAO</code> (e.g. <code>/map/EGLL</code>).</p>
-                <p><strong>Aircraft Markers</strong> — Each flight appears as a rotated plane icon colour-coded by phase: <span class="help-status-dot" style="background:#4caf50"></span> green (ground), <span class="help-status-dot" style="background:#42a5f5"></span> blue (arriving), <span class="help-status-dot" style="background:#ffa726"></span> orange (departing). Airline logos and callsigns are shown beneath each marker.</p>
+                <p><strong>Aircraft Markers</strong> — Each flight appears as a rotated plane icon colour-coded by phase: <span class="help-status-dot" style="background:#4caf50"></span> green (ground), <span class="help-status-dot" style="background:#42a5f5"></span> blue (arriving), <span class="help-status-dot" style="background:#ffa726"></span> orange (departing). Airline logos and callsigns are shown on a label connected by a stalk line.</p>
+                <p><strong>Draggable Labels</strong> — Click and drag any callsign label to reposition it. Double-click to reset to auto-placement.</p>
                 <p><strong>Breadcrumb Trails</strong> — Airborne aircraft leave a fading dot trail showing their recent flight path.</p>
-                <p><strong>Flight Detail Panel</strong> — Click any aircraft to open a side panel with callsign, status, aircraft type, route, altitude, speed, and gate assignment.</p>
+                <p><strong>Tracked Flight Route</strong> — When a flight is being tracked, its planned route is drawn as a dashed amber line with the destination ICAO labelled at the far end. The tracked aircraft's label is highlighted and shows speed, heading, and altitude.</p>
+                <p><strong>Flight Detail Panel</strong> — Click any aircraft to open a side panel with callsign, status, aircraft type, route, altitude, speed, and gate assignment. When tracking is active, the panel opens automatically and other aircraft cannot be selected.</p>
                 <p><strong>Gate Display Link</strong> — From the detail panel, click <strong>Gate Display</strong> to open the full-page gate monitor for that flight.</p>
                 <p><strong>Boarding Pass</strong> — Click <strong>Print Boarding Pass</strong> in the detail panel to generate a printable boarding pass with flight details, seat assignment, and airline-branded accent colours.</p>
                 <p><strong>ATC Panel</strong> — An expandable panel in the bottom-left lists all active controllers with their frequencies. Controller positions are also shown as labels on the map.</p>
@@ -329,8 +333,8 @@
                 <ul>
                     <li>Bookmark your favourite airport with <code>?icao=XXXX</code> in the URL.</li>
                     <li>Works great on a spare monitor in landscape or portrait orientation.</li>
-                    <li>Track your own flight to follow it automatically across the network.</li>
-                    <li>Right-click a flight for the gate display; use the map for a full radar overview.</li>
+                    <li>Track your own flight — the board follows it automatically, the compass pulses green, and the map opens straight to your aircraft.</li>
+                    <li>Right-click a flight for the gate display; the gate shows CLOSED en route and updates to TBA or your gate number on approach.</li>
                     <li>Print a boarding pass from the map's flight detail panel — great for immersion.</li>
                     <li>Data refreshes every 60 seconds via live VATSIM data, pushed instantly via WebSocket.</li>
                 </ul>
