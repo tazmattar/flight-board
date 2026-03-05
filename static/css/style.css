@@ -1024,7 +1024,6 @@ body.theme-eham .tracking-chip {
     pointer-events: none;
     color: #fff;
     text-align: left;
-    overflow: hidden;
 }
 
 #weatherWidget.active:hover .metar-popover {
