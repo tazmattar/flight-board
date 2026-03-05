@@ -44,5 +44,6 @@ static/scandinavian_stands.json
 data/traffic_stats.json
 data/navdata/
 
-# Personal scripts (contain private webhook URLs)
+# Personal scripts (contain private webhook URLs or setup details)
 scripts/discord_stats.py
+scripts/setup_navdata.sh
