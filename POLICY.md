@@ -9,4 +9,4 @@ All trademarks and logos remain the property of their respective owners.
 * **Non-Affiliation:** This project is not affiliated with any airline or airport authority.
 
 ## 3. Data Disclaimer
-* **NOT FOR REAL WORLD NAVIGATION:** Sourced from the VATSIM API, this information is strictly for virtual aviation and must never be used for real-world flight planning.
+* **For Flight Simulation Use Only:** Sourced from the VATSIM API, this information is strictly for virtual aviation and must never be used for real-world flight planning.

@@ -408,6 +408,7 @@ html, body {
 }
 
 .footer-group { display: flex; align-items: center; gap: 20px; }
+.footer-group.left { flex-direction: column; align-items: flex-start; gap: 4px; }
 .huge-arrow { font-size: 50px; font-weight: 900; }
 .gate-icon-box {
     display: flex; flex-direction: column; align-items: center;
@@ -1237,6 +1238,10 @@ body.theme-eham .tracking-chip {
 
     .footer-group {
         gap: 10px;
+    }
+
+    .sim-disclaimer {
+        display: none;
     }
 
     .huge-arrow {
