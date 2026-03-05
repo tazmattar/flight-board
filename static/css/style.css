@@ -487,6 +487,14 @@ html, body {
     height: 56px;
 }
 
+.sim-disclaimer {
+    font-size: 0.6rem;
+    color: #666;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
 /* MEDIA QUERIES */
 /* Force portrait when height > width (which should be true for 1080x1920) */
 @media (min-height: 1500px), (orientation: portrait) {
