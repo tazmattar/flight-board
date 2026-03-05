@@ -30,6 +30,140 @@
     });
     L.marker([APT_LAT, APT_LON], { icon: airportIcon, interactive: false }).addTo(map);
 
+    /* ── Airport features (OSM Overpass + stands.json) ──────── */
+    function calcBearing(lat1, lon1, lat2, lon2) {
+        var dLon = (lon2 - lon1) * Math.PI / 180;
+        var y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+        var x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180)
+              - Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+        return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    }
+
+    var runwayLabelGroup = L.layerGroup();
+    var taxiwayGroup     = L.layerGroup();
+    var standGroup       = L.layerGroup();
+
+    function updateFeatureVisibility() {
+        var z = map.getZoom();
+        function toggle(group, minZ) {
+            if (z >= minZ) { if (!map.hasLayer(group)) group.addTo(map); }
+            else           { if (map.hasLayer(group))  map.removeLayer(group); }
+        }
+        toggle(runwayLabelGroup, 12);
+        toggle(taxiwayGroup,     13);
+        toggle(standGroup,       14);
+    }
+    map.on('zoomend', updateFeatureVisibility);
+
+    function addRunwayLabel(latlng, text, rotation) {
+        L.marker(latlng, {
+            icon: L.divIcon({
+                className: '',
+                html: '<div class="map-runway-label" style="transform:translate(-50%,-50%) rotate(' + rotation + 'deg)">' + text + '</div>',
+                iconSize: [0, 0],
+                iconAnchor: [0, 0],
+            }),
+            interactive: false,
+        }).addTo(runwayLabelGroup);
+    }
+
+    function renderStands(stands) {
+        stands.forEach(function (s) {
+            if (s.lat == null || s.lon == null) return;
+            var label = s.name || s.ref || '';
+            if (!label) return;
+            L.marker([s.lat, s.lon], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div class="map-stand-label">' + label + '</div>',
+                    iconSize: [0, 0],
+                    iconAnchor: [0, 0],
+                }),
+                interactive: false,
+            }).addTo(standGroup);
+        });
+    }
+
+    function fetchAirportFeatures() {
+        var q = '[out:json];('
+            + 'way[aeroway=runway](around:4000,'   + APT_LAT + ',' + APT_LON + ');'
+            + 'way[aeroway=taxiway](around:4000,'  + APT_LAT + ',' + APT_LON + ');'
+            + 'way[aeroway=taxilane](around:4000,' + APT_LAT + ',' + APT_LON + ');'
+            + 'node[aeroway=parking_position](around:4000,' + APT_LAT + ',' + APT_LON + ');'
+            + 'way[aeroway=parking_position](around:4000,'  + APT_LAT + ',' + APT_LON + ');'
+            + ');out geom;';
+
+        var osmP    = fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(q)).then(function (r) { return r.json(); });
+        var standsP = fetch('/static/stands.json').then(function (r) { return r.json(); }).catch(function () { return {}; });
+
+        Promise.all([osmP, standsP]).then(function (results) {
+            var elements      = results[0].elements || [];
+            var standsJson    = results[1];
+            var useLocalStands = !!(standsJson[AIRPORT] && standsJson[AIRPORT].length);
+            var osmStands     = [];
+
+            elements.forEach(function (el) {
+                var aw = el.tags && el.tags.aeroway;
+
+                if (aw === 'runway' && el.geometry && el.geometry.length >= 2) {
+                    var coords = el.geometry.map(function (p) { return [p.lat, p.lon]; });
+                    L.polyline(coords, { color: '#555', weight: 6, opacity: 0.55, interactive: false }).addTo(map);
+                    L.polyline(coords, { color: '#888', weight: 1, opacity: 0.45, dashArray: '10 8', interactive: false }).addTo(map);
+                    var ref = el.tags.ref;
+                    if (!ref || ref.indexOf('/') === -1) return;
+                    var parts = ref.split('/');
+                    var p1 = coords[0], p2 = coords[coords.length - 1];
+                    var hdg = calcBearing(p1[0], p1[1], p2[0], p2[1]);
+                    var approxNum = Math.round(hdg / 10) % 36 || 36;
+                    var n1 = parseInt(parts[0]);
+                    var labelP1, labelP2;
+                    if (Math.abs(approxNum - n1) <= 2 || Math.abs(approxNum - n1) >= 34) {
+                        labelP1 = parts[0]; labelP2 = parts[1];
+                    } else {
+                        labelP1 = parts[1]; labelP2 = parts[0];
+                    }
+                    addRunwayLabel(p1, labelP1, hdg + 180);
+                    addRunwayLabel(p2, labelP2, hdg);
+                }
+
+                if ((aw === 'taxiway' || aw === 'taxilane') && el.geometry && el.geometry.length >= 2) {
+                    var txCoords = el.geometry.map(function (p) { return [p.lat, p.lon]; });
+                    L.polyline(txCoords, {
+                        color: '#aa9900',
+                        weight: aw === 'taxilane' ? 1.5 : 2.5,
+                        opacity: aw === 'taxilane' ? 0.4 : 0.55,
+                        interactive: false,
+                    }).addTo(taxiwayGroup);
+                }
+
+                if (aw === 'parking_position' && !useLocalStands) {
+                    var lat, lon;
+                    if (el.type === 'node') {
+                        lat = el.lat; lon = el.lon;
+                    } else if (el.geometry && el.geometry.length) {
+                        var sLat = 0, sLon = 0;
+                        el.geometry.forEach(function (p) { sLat += p.lat; sLon += p.lon; });
+                        lat = sLat / el.geometry.length;
+                        lon = sLon / el.geometry.length;
+                    }
+                    var label = el.tags && (el.tags.ref || el.tags.name);
+                    if (lat != null && label) osmStands.push({ name: label, lat: lat, lon: lon });
+                }
+            });
+
+            // Stands: local data takes priority over OSM
+            if (useLocalStands) {
+                renderStands(standsJson[AIRPORT]);
+            } else if (osmStands.length) {
+                renderStands(osmStands);
+            }
+
+            updateFeatureVisibility();
+        }).catch(function (e) { console.warn('Airport feature fetch failed', e); });
+    }
+
+    fetchAirportFeatures();
+
     /* ── Airline logo resolution (mirrors app.js logic) ──── */
     var virtualAirlines = new Set(['XNO']);
     var airlineMapping = {
@@ -71,9 +205,8 @@
 
     /* ── Aircraft markers ─────────────────────────────────── */
     const markers = {};
+    var userOffsets = {}; // callsign → {dx,dy} set by user drag
     let selectedCallsign = null;
-
-    const PLANE_SVG = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" fill="currentColor"/></svg>';
 
     function flightColor(f) {
         const gs = f.groundspeed || 0;
@@ -82,19 +215,57 @@
         return f.direction === 'ARR' ? '#42a5f5' : '#ffa726'; // blue arrivals, orange departures
     }
 
-    function makeIcon(f) {
-        const color = flightColor(f);
-        const heading = f.heading || 0;
-        const urls = getLogoUrl(f.callsign);
+    function boxEdgePoint(dx, dy, half) {
+        if (dx === 0 && dy === 0) return [0, 0];
+        var ax = Math.abs(dx), ay = Math.abs(dy);
+        var scale = ax >= ay ? half / ax : half / ay;
+        return [+(dx * scale).toFixed(2), +(dy * scale).toFixed(2)];
+    }
+
+    // Returns the point on the label box edge (hw×hh half-sizes) closest to the aircraft (0,0)
+    function labelEdgePoint(dx, dy, hw, hh) {
+        if (dx === 0 && dy === 0) return [0, 0];
+        var ax = Math.abs(dx), ay = Math.abs(dy);
+        var s = 1 / Math.max(ax / hw, ay / hh);
+        s = Math.min(1, s);
+        return [+(dx * (1 - s)).toFixed(2), +(dy * (1 - s)).toFixed(2)];
+    }
+
+    function makeIcon(f, dx, dy, tracked) {
+        var color = flightColor(f);
+        var urls = getLogoUrl(f.callsign);
         var logoHtml = '<img class="map-plane-logo" src="' + urls.primary + '"'
             + (urls.secondary ? ' onerror="this.onerror=function(){this.style.display=\'none\'};this.src=\'' + urls.secondary + '\'"' : ' onerror="this.style.display=\'none\'"')
             + '>';
+        var edge = boxEdgePoint(dx, dy, 3);
+        var lhw = tracked ? 52 : 40;
+        var lhh = tracked ? 16 : 8;
+        var labelEdge = labelEdgePoint(dx, dy, lhw, lhh);
         return L.divIcon({
             className: 'map-plane-icon',
-            html: '<div class="map-plane-svg" style="transform:rotate(' + heading + 'deg);color:' + color + '">' + PLANE_SVG + '</div>'
-                + '<div class="map-plane-label" style="color:' + color + '">' + logoHtml + f.callsign + '</div>',
-            iconSize: [90, 36],
-            iconAnchor: [45, 18],
+            html: '<div class="map-plane-wrap' + (tracked ? ' tracked-flight' : '') + '" style="color:' + color + '">'
+                + '<svg class="map-plane-stalk-svg">'
+                + '<line x1="' + edge[0] + '" y1="' + edge[1] + '" x2="' + labelEdge[0] + '" y2="' + labelEdge[1] + '" stroke="currentColor" stroke-width="1" stroke-opacity="0.65"/>'
+                + '<rect x="-3" y="-3" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>'
+                + '</svg>'
+                + '<div class="map-plane-label" style="left:' + dx + 'px;top:' + dy + 'px">'
+                + logoHtml
+                + '<span class="map-plane-label-text">'
+                + '<span class="map-plane-callsign">' + f.callsign + '</span>'
+                + '<span class="map-plane-stats">'
+                + (f.groundspeed || 0)
+                + ' ' + String(Math.round(f.heading || 0) % 360).padStart(3, '0')
+                + ' ' + (function(a) {
+                    return a >= 6000
+                        ? 'FL' + String(Math.round(a / 100)).padStart(3, '0')
+                        : String(a);
+                })(Math.round(f.altitude || 0))
+                + '</span>'
+                + '</span>'
+                + '</div>'
+                + '</div>',
+            iconSize: [1, 1],
+            iconAnchor: [0, 0],
         });
     }
 
@@ -112,10 +283,11 @@
         return dx * dx + dy * dy;
     }
 
-    function updateTrail(f) {
+    function updateTrail(f, dimmed) {
         var cs = f.callsign;
         var pos = [f.latitude, f.longitude];
         var color = f.direction === 'ARR' ? '#42a5f5' : '#ffa726';
+        var dimFactor = dimmed ? 0.2 : 1;
 
         if (!isAirborne(f)) return; // ground ops — no trail
 
@@ -153,7 +325,7 @@
         t.dots = [];
         for (var i = 0; i < t.positions.length - 1; i++) {
             var age = t.positions.length - 1 - i; // 0 = newest
-            var opacity = 0.1 + 0.5 * (1 - age / TRAIL_MAX);
+            var opacity = dimFactor * (0.1 + 0.5 * (1 - age / TRAIL_MAX));
             var radius = 1 + 0.5 * (1 - age / TRAIL_MAX);
             var dot = L.circleMarker(t.positions[i], {
                 radius: radius,
@@ -172,35 +344,254 @@
         delete trails[cs];
     }
 
+    /* ── Label collision avoidance ───────────────────────── */
+    function computeOffsets(flights) {
+        var LABEL_W = 78;
+        var LABEL_H = 14;
+        var ALL_ANGLES = [0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345];
+        var STALKS = [20, 35, 52, 72];
+        var offsets = {};
+        var placed = [];
+
+        // Pre-pass: lock in user-dragged labels and reserve their screen space
+        flights.forEach(function (f) {
+            if (f.latitude == null || f.longitude == null) return;
+            if (!userOffsets[f.callsign]) return;
+            var off = userOffsets[f.callsign];
+            offsets[f.callsign] = off;
+            var pt = map.latLngToContainerPoint([f.latitude, f.longitude]);
+            placed.push({
+                x1: pt.x + off.dx - LABEL_W / 2 - 2, y1: pt.y + off.dy - LABEL_H / 2 - 2,
+                x2: pt.x + off.dx + LABEL_W / 2 + 2, y2: pt.y + off.dy + LABEL_H / 2 + 2
+            });
+        });
+
+        // Auto-place the rest
+        flights.forEach(function (f) {
+            if (f.latitude == null || f.longitude == null) return;
+            if (offsets[f.callsign]) return; // already user-placed
+            var pt = map.latLngToContainerPoint([f.latitude, f.longitude]);
+            var preferred = ((f.heading || 0) + 90) % 360;
+            var sorted = ALL_ANGLES.slice().sort(function (a, b) {
+                var da = Math.abs(((a - preferred + 540) % 360) - 180);
+                var db = Math.abs(((b - preferred + 540) % 360) - 180);
+                return da - db;
+            });
+
+            var chosen = null;
+            for (var s = 0; s < STALKS.length && !chosen; s++) {
+                var stalk = STALKS[s];
+                for (var i = 0; i < sorted.length && !chosen; i++) {
+                    var rad = sorted[i] * Math.PI / 180;
+                    var dx = Math.round(stalk * Math.sin(rad));
+                    var dy = Math.round(-stalk * Math.cos(rad));
+                    var lx1 = pt.x + dx - LABEL_W / 2 - 2;
+                    var ly1 = pt.y + dy - LABEL_H / 2 - 2;
+                    var lx2 = lx1 + LABEL_W + 4;
+                    var ly2 = ly1 + LABEL_H + 4;
+                    var overlaps = false;
+                    for (var j = 0; j < placed.length; j++) {
+                        var p = placed[j];
+                        if (lx1 < p.x2 && lx2 > p.x1 && ly1 < p.y2 && ly2 > p.y1) {
+                            overlaps = true;
+                            break;
+                        }
+                    }
+                    if (!overlaps) {
+                        chosen = { dx: dx, dy: dy };
+                        placed.push({ x1: lx1, y1: ly1, x2: lx2, y2: ly2 });
+                    }
+                }
+            }
+            if (!chosen) {
+                var rad0 = sorted[0] * Math.PI / 180;
+                var sl = STALKS[STALKS.length - 1];
+                chosen = { dx: Math.round(sl * Math.sin(rad0)), dy: Math.round(-sl * Math.cos(rad0)) };
+            }
+            offsets[f.callsign] = chosen;
+        });
+
+        return offsets;
+    }
+
+    /* ── Draggable labels ────────────────────────────────── */
+    function attachLabelDrag(marker, callsign) {
+        var el = marker.getElement();
+        if (!el) return;
+        var label = el.querySelector('.map-plane-label');
+        var svgLine = el.querySelector('.map-plane-stalk-svg line');
+        if (!label || !svgLine) return;
+
+        label.addEventListener('mousedown', function (e) {
+            if (e.button !== 0) return;
+            var startX = e.clientX, startY = e.clientY;
+            var startDx = parseInt(label.style.left) || 14;
+            var startDy = parseInt(label.style.top) || -14;
+            var hasDragged = false;
+
+            function onMove(e) {
+                var ddx = e.clientX - startX, ddy = e.clientY - startY;
+                if (!hasDragged && Math.abs(ddx) < 4 && Math.abs(ddy) < 4) return;
+                if (!hasDragged) {
+                    hasDragged = true;
+                    label.style.cursor = 'grabbing';
+                    map.dragging.disable();
+                }
+                var newDx = startDx + ddx, newDy = startDy + ddy;
+                label.style.left = newDx + 'px';
+                label.style.top  = newDy + 'px';
+                var isTracked = el.querySelector('.map-plane-wrap').classList.contains('tracked-flight');
+                var lhw = isTracked ? 52 : 40;
+                var lhh = isTracked ? 16 : 8;
+                var le = labelEdgePoint(newDx, newDy, lhw, lhh);
+                svgLine.setAttribute('x2', le[0]);
+                svgLine.setAttribute('y2', le[1]);
+            }
+
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                label.style.cursor = 'grab';
+                map.dragging.enable();
+                if (hasDragged) {
+                    userOffsets[callsign] = {
+                        dx: parseInt(label.style.left),
+                        dy: parseInt(label.style.top)
+                    };
+                    // Swallow the synthetic click so the flight panel doesn't open
+                    label.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                    }, { once: true, capture: true });
+                }
+            }
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+
+        // Double-click resets to auto-placement
+        label.addEventListener('dblclick', function (e) {
+            delete userOffsets[callsign];
+            e.stopPropagation();
+        });
+    }
+
+    /* ── Tracked flight ──────────────────────────────────── */
+    let routeLayer = null;
+    let renderedRouteCallsign = null;
+
+    function clearRouteLayer() {
+        if (routeLayer) {
+            routeLayer.forEach(function (l) { map.removeLayer(l); });
+            routeLayer = null;
+        }
+        renderedRouteCallsign = null;
+    }
+
+    function renderTrackedRoute(callsign) {
+        if (renderedRouteCallsign === callsign) return; // already drawn
+        clearRouteLayer();
+        if (!callsign) return;
+
+        fetch('/api/route/' + encodeURIComponent(callsign) + '?airport=' + encodeURIComponent(AIRPORT))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var wps = data.waypoints || [];
+                if (wps.length < 2) return;
+
+                renderedRouteCallsign = callsign;
+                routeLayer = [];
+
+                var latlngs = wps.map(function (w) { return [w.lat, w.lon]; });
+                var line = L.polyline(latlngs, {
+                    color: '#f0b429',
+                    weight: 2,
+                    dashArray: '6 4',
+                    opacity: 0.8,
+                    interactive: false,
+                }).addTo(map);
+                routeLayer.push(line);
+
+                // Small dots for intermediate waypoints (not first/last)
+                for (var i = 1; i < wps.length - 1; i++) {
+                    var w = wps[i];
+                    var dot = L.circleMarker([w.lat, w.lon], {
+                        radius: 3,
+                        color: '#f0b429',
+                        fillColor: '#f0b429',
+                        fillOpacity: 0.7,
+                        weight: 1,
+                    }).bindTooltip(w.name, { permanent: false, direction: 'top' });
+                    dot.addTo(map);
+                    routeLayer.push(dot);
+                }
+
+                // Destination label at end of route
+                var destIcao = (markers[callsign] && markers[callsign]._flightData && markers[callsign]._flightData.destination) || '';
+                if (destIcao) {
+                    var last = wps[wps.length - 1];
+                    var destMarker = L.marker([last.lat, last.lon], {
+                        icon: L.divIcon({
+                            className: 'map-route-dest-label',
+                            html: '<div class="map-route-dest">' + destIcao + '</div>',
+                            iconSize: [0, 0],
+                            iconAnchor: [0, 0],
+                        }),
+                        interactive: false,
+                    }).addTo(map);
+                    routeLayer.push(destMarker);
+                }
+
+                // Auto-fit to route bounds
+                try {
+                    map.fitBounds(line.getBounds().pad(0.1));
+                } catch (e) { /* bounds too small */ }
+            })
+            .catch(function (e) { console.warn('Route fetch failed:', e); });
+    }
+
     function updateMarkers(flights) {
         const seen = {};
+        const trackedCallsign = localStorage.getItem('flightboard.tracked_callsign');
+        const offsets = computeOffsets(flights);
         flights.forEach(function (f) {
             if (f.latitude == null || f.longitude == null) return;
             seen[f.callsign] = true;
             const pos = [f.latitude, f.longitude];
+            const off = offsets[f.callsign] || { dx: 14, dy: -14 };
 
-            updateTrail(f);
-
+            const isTracked = f.callsign === trackedCallsign;
+            updateTrail(f, !!trackedCallsign && !isTracked);
             if (markers[f.callsign]) {
                 markers[f.callsign].setLatLng(pos);
-                markers[f.callsign].setIcon(makeIcon(f));
+                markers[f.callsign].setIcon(makeIcon(f, off.dx, off.dy, isTracked));
                 markers[f.callsign]._flightData = f;
+                attachLabelDrag(markers[f.callsign], f.callsign);
             } else {
-                const m = L.marker(pos, { icon: makeIcon(f) }).addTo(map);
+                const m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, isTracked) }).addTo(map);
                 m._flightData = f;
                 m.on('click', function () { showFlightPanel(m._flightData); });
                 markers[f.callsign] = m;
+                attachLabelDrag(m, f.callsign);
             }
+
         });
         // Remove stale
         Object.keys(markers).forEach(function (cs) {
             if (!seen[cs]) {
                 map.removeLayer(markers[cs]);
                 delete markers[cs];
+                delete userOffsets[cs];
                 removeTrail(cs);
                 if (selectedCallsign === cs) closeFlightPanel();
             }
         });
+
+        // Dim non-tracked markers via map container class
+        map.getContainer().classList.toggle('has-tracked', !!trackedCallsign);
+
+        // Render route for tracked flight (only once per callsign change)
+        renderTrackedRoute(trackedCallsign || null);
     }
 
     /* ── Flight detail panel ──────────────────────────────── */
@@ -531,5 +922,13 @@
             });
         })
         .catch(function (e) { console.warn('Initial map load failed:', e); });
+
+    // Re-render route when tracking changes from another tab
+    window.addEventListener('storage', function (e) {
+        if (e.key === 'flightboard.tracked_callsign') {
+            clearRouteLayer();
+            renderTrackedRoute(e.newValue || null);
+        }
+    });
 
 })();

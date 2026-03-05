@@ -4,6 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from vatsim_fetcher import VatsimFetcher
 from airport_languages import AirportLanguages
 from config import Config
+import route_parser
 import json
 import os
 import re
@@ -694,6 +695,33 @@ def api_map(icao):
         'flights': flights,
         'controllers': data.get('controllers', []),
     })
+
+@app.route('/api/route/<callsign>')
+def api_route(callsign):
+    callsign = re.sub(r'[^A-Za-z0-9]', '', str(callsign or ''))[:10].upper()
+    if not callsign:
+        return jsonify({'waypoints': [], 'error': 'invalid callsign'}), 400
+    airport = _normalize_icao(request.args.get('airport', ''))
+    # Search configured airports first, then all current data
+    search_airports = ([airport] if airport else []) + list(current_data.keys())
+    flight = None
+    for icao in search_airports:
+        data = current_data.get(icao, {})
+        for f in data.get('departures', []) + data.get('arrivals', []):
+            if f.get('callsign', '').upper() == callsign:
+                flight = f
+                break
+        if flight:
+            break
+    if not flight:
+        return jsonify({'callsign': callsign, 'waypoints': [], 'error': 'flight not found'})
+    waypoints = route_parser.resolve_route(
+        flight.get('route', ''),
+        flight.get('origin', ''),
+        flight.get('destination', ''),
+    )
+    return jsonify({'callsign': callsign, 'waypoints': waypoints})
+
 
 @app.route('/gate/<airport>/<callsign>')
 def gate_display(airport, callsign):

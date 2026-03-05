@@ -1829,31 +1829,83 @@ body.map-page {
 .map-plane-icon {
     background: none;
     border: none;
+    overflow: visible;
 }
-.map-plane-svg {
-    display: flex;
-    justify-content: center;
-    transition: transform 0.8s ease;
-    filter: drop-shadow(0 0 3px rgba(0,0,0,0.8));
+.map-plane-wrap {
+    position: relative;
+    width: 0;
+    height: 0;
+    overflow: visible;
+}
+.map-plane-stalk-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: visible;
+    pointer-events: none;
 }
 .map-plane-label {
+    position: absolute;
     font-size: 9px;
     font-weight: 700;
-    text-align: center;
     white-space: nowrap;
-    text-shadow: 0 0 3px #000, 0 0 6px #000;
-    margin-top: -2px;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 3px;
+    gap: 2px;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.45);
+    padding: 1px 4px;
+    border-radius: 2px;
+    cursor: grab;
 }
 .map-plane-logo {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     object-fit: contain;
     border-radius: 2px;
     flex-shrink: 0;
+}
+
+/* ── Runway labels ──────────────────────────────────────── */
+.map-runway-label {
+    position: absolute;
+    color: #aaa;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-data);
+    white-space: nowrap;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+}
+
+/* ── Stand labels ───────────────────────────────────────── */
+.map-stand-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #999;
+    font-size: 7px;
+    font-weight: 700;
+    font-family: var(--font-data);
+    white-space: nowrap;
+    text-shadow: 0 0 3px #000, 0 0 5px #000;
+    pointer-events: none;
+    letter-spacing: 0.03em;
+}
+.map-route-dest {
+    position: absolute;
+    transform: translate(6px, -50%);
+    color: #f0b429;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-data);
+    white-space: nowrap;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+    pointer-events: none;
+    letter-spacing: 0.05em;
 }
 
 /* ── ATC marker on map ──────────────────────────────────── */
@@ -1971,13 +2023,13 @@ body.map-page {
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 6px;
-    color: #42a5f5;
+    color: #fff;
     text-decoration: none;
     font-size: 0.85rem;
 }
 .map-panel-gate-link:hover {
     background: #222;
-    color: #90caf9;
+    color: #fff;
 }
 
 /* ── Legend (bottom-right) ──────────────────────────────── */
@@ -2034,14 +2086,14 @@ body.map-page {
     padding: 8px 12px;
     background: none;
     border: none;
-    color: #4caf50;
+    color: #fff;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     width: 100%;
     text-align: left;
 }
-.map-atc-toggle:hover { color: #81c784; }
+.map-atc-toggle:hover { color: #ccc; }
 .map-atc-chevron { margin-left: auto; font-size: 18px; }
 
 .map-atc-list {
@@ -2357,4 +2409,58 @@ body.map-page .leaflet-control-attribution a { color: #888; }
         margin-top: auto;
         padding-top: 8px;
     }
+}
+
+/* ── Tracked flight — dim non-tracked markers ───────────────────────────── */
+#map.has-tracked .map-plane-icon:not(:has(.tracked-flight)) {
+    opacity: 0.25;
+}
+
+/* ── Tracked flight marker ───────────────────────────────────────────────── */
+.map-plane-label-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.map-plane-stats {
+    display: none;
+}
+
+.map-plane-wrap.tracked-flight .map-plane-label {
+    background: rgba(0,0,0,0.65);
+    padding: 2px 3px;
+    gap: 3px;
+    border: 1px solid currentColor;
+}
+
+.map-plane-wrap.tracked-flight .map-plane-logo {
+    width: 20px;
+    height: 20px;
+}
+
+.map-plane-wrap.tracked-flight .map-plane-label-text {
+    height: 20px;
+    justify-content: space-between;
+    line-height: 1;
+}
+
+.map-plane-wrap.tracked-flight .map-plane-callsign {
+    font-size: 11px;
+    font-weight: 700;
+    animation: tracked-callsign-pulse 2s infinite;
+}
+
+.map-plane-wrap.tracked-flight .map-plane-stats {
+    display: block;
+    font-size: 9px;
+    color: #a0a0a0;
+    letter-spacing: 0.05em;
+}
+
+@keyframes tracked-callsign-pulse {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.5; }
+    100% { opacity: 1; }
 }
