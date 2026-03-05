@@ -139,7 +139,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 
 ## License
 
-This project is open-source and available under the MIT License.
+This project is open-source and available under the MIT License. See [POLICY.md](POLICY.md) for branding and data usage terms.
 
 ## Acknowledgements
 
