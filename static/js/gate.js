@@ -192,10 +192,10 @@
             .replace(/\s+Aerodrome$/i, '')
             .replace(/\s+Airfield$/i, '');
 
-        // Gate — CLOSED until flight is near destination; TBA/gate number when arriving
+        // Gate — show number/TBA until aircraft leaves the stand; CLOSED once departed
         var gate = flight.gate || 'TBA';
-        var nearDest = ['Approaching', 'Landing', 'Landed', 'At Gate'].indexOf(flight.status) !== -1;
-        if (!nearDest) gate = 'CLOSED';
+        var departed = ['Pushback', 'Taxiing', 'Departing', 'En Route'].indexOf(flight.status) !== -1;
+        if (departed) gate = 'CLOSED';
 
         var status = flight.status || '--';
 

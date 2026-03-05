@@ -164,6 +164,54 @@
 
     fetchAirportFeatures();
 
+    /* ── ATC sector boundaries ────────────────────────────── */
+    var boundaryLabelGroup = L.layerGroup();
+
+    function updateBoundaryLabelVisibility() {
+        var z = map.getZoom();
+        if (z >= 5) { if (!map.hasLayer(boundaryLabelGroup)) boundaryLabelGroup.addTo(map); }
+        else         { if (map.hasLayer(boundaryLabelGroup))  map.removeLayer(boundaryLabelGroup); }
+    }
+    map.on('zoomend', updateBoundaryLabelVisibility);
+
+    function fetchATCBoundaries() {
+        fetch('/static/data/Boundaries.geojson')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                L.geoJSON(data, {
+                    style: function () {
+                        return {
+                            color: '#4caf50',
+                            weight: 1,
+                            opacity: 0.3,
+                            fillOpacity: 0.02,
+                            interactive: false,
+                        };
+                    },
+                }).addTo(map);
+
+                // Sector labels at the provided label coordinates
+                data.features.forEach(function (feature) {
+                    var p = feature.properties;
+                    if (!p || !p.id || p.label_lat == null || p.label_lon == null) return;
+                    L.marker([parseFloat(p.label_lat), parseFloat(p.label_lon)], {
+                        icon: L.divIcon({
+                            className: 'map-boundary-label',
+                            html: '<div class="map-boundary-label-text">' + p.id + '</div>',
+                            iconSize: [0, 0],
+                            iconAnchor: [0, 0],
+                        }),
+                        interactive: false,
+                    }).addTo(boundaryLabelGroup);
+                });
+
+                updateBoundaryLabelVisibility();
+            })
+            .catch(function (err) { console.warn('ATC Boundary load failed:', err); });
+    }
+
+    fetchATCBoundaries();
+
     /* ── Airline logo resolution (mirrors app.js logic) ──── */
     var virtualAirlines = new Set(['XNO']);
     var airlineMapping = {

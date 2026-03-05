@@ -1926,6 +1926,24 @@ body.map-page {
     color: #81c784;
 }
 
+/* ── ATC boundary sector labels ─────────────────────────── */
+.map-boundary-label {
+    pointer-events: none;
+}
+.map-boundary-label-text {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #4caf50;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: var(--font-data);
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    white-space: nowrap;
+    text-shadow: 0 0 4px #000, 0 0 8px #000;
+    pointer-events: none;
+}
+
 /* ── Flight detail panel (right) ────────────────────────── */
 .map-flight-panel {
     position: absolute;
@@ -2125,13 +2143,32 @@ body.map-page {
 /* ── Footer ─────────────────────────────────────────────── */
 .map-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding: 4px 16px;
     background: #0a0a0a;
     border-top: 1px solid var(--border-dim);
     flex-shrink: 0;
     z-index: 1000;
+}
+.map-footer-logos {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.map-footer-powered-by {
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #fff;
+    line-height: 1;
+    padding-right: 4px;
+}
+.map-footer-logos img {
+    height: 22px;
+    width: auto;
+    opacity: 0.85;
+    display: block;
 }
 .map-simfixr-logo {
     height: 48px;

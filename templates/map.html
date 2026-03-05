@@ -149,6 +149,15 @@
     </div>
 
     <footer class="map-footer">
+        <div class="map-footer-logos">
+            <span class="map-footer-powered-by">Powered by</span>
+            <a href="https://vatsim.net/" target="_blank" rel="noopener">
+                <img src="{{ url_for('static', filename='vatsim_logos/VATSIM_Logo_White.png') }}" alt="VATSIM">
+            </a>
+            <a href="https://www.vatsim.uk/" target="_blank" rel="noopener">
+                <img src="{{ url_for('static', filename='vatsim_logos/vatsimuk_white.png') }}" alt="VATSIM UK">
+            </a>
+        </div>
         <a href="https://simfixr.com" target="_blank" rel="noopener">
             <img class="map-simfixr-logo" src="{{ url_for('static', filename='simfixr_logos/simfixr_logo_white.png', v=asset_version) }}" alt="SimFixr">
         </a>
