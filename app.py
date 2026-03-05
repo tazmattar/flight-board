@@ -884,8 +884,11 @@ def search_airport():
             
             # Ensure the board knows this airport now has stand data
             if icao not in flight_fetcher.configured_airports:
-                flight_fetcher.configured_airports[icao] = {'has_stands': True}
-                print(f"[SEARCH] Updated configured_airports[{icao}] with has_stands=True")
+                flight_fetcher.configured_airports[icao] = {
+                    'has_stands': True,
+                    'name': airport_info.get('name', icao),
+                }
+                print(f"[SEARCH] Updated configured_airports[{icao}] with has_stands=True, name={airport_info.get('name', icao)}")
         else:
             print(f"[SEARCH] OSM fetch returned no stands for {icao}")
     else:

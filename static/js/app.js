@@ -424,26 +424,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const exists = Array.from(elements.airportSelect.options).some(opt => opt.value === icao);
         if (exists) return true;
 
-        try {
-            const response = await fetch('/api/search_airport', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ icao })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                const option = document.createElement('option');
-                option.value = icao;
-                option.textContent = data.name;
-                option.title = icao;
-                elements.airportSelect.appendChild(option);
-                return true;
-            }
-        } catch (e) {
-            console.warn('Failed to preload dynamic airport:', icao, e);
-        }
+        // Add the option immediately so the select isn't blocked waiting for the API
+        const option = document.createElement('option');
+        option.value = icao;
+        option.textContent = airportMapping[icao]?.name || icao;
+        option.title = icao;
+        elements.airportSelect.appendChild(option);
 
-        return false;
+        // Fetch proper name + trigger OSM stand data in the background
+        fetch('/api/search_airport', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ icao })
+        }).then(r => r.json()).then(data => {
+            if (data.name) option.textContent = data.name;
+        }).catch(e => console.warn('Failed to preload dynamic airport:', icao, e));
+
+        return true;
     }
 
     function updateFlags(airportCode) {
