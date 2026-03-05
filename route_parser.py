@@ -138,33 +138,12 @@ def _haversine(lat1, lon1, lat2, lon2) -> float:
     return R * 2 * math.asin(math.sqrt(a))
 
 
-def _cross_track_distance(point, start, end) -> float:
-    """
-    Signed cross-track distance (km) from point to the great-circle path start→end.
-    Used to disambiguate duplicate fix idents.
-    """
-    R = 6371.0
-    d13 = _haversine(start[0], start[1], point[0], point[1]) / R   # angular distance start→point
-    theta13 = math.radians(_initial_bearing(start, point))
-    theta12 = math.radians(_initial_bearing(start, end))
-    return math.asin(math.sin(d13) * math.sin(theta13 - theta12)) * R
 
-
-def _initial_bearing(p1, p2) -> float:
-    lat1, lon1 = math.radians(p1[0]), math.radians(p1[1])
-    lat2, lon2 = math.radians(p2[0]), math.radians(p2[1])
-    dlon = lon2 - lon1
-    x = math.sin(dlon) * math.cos(lat2)
-    y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dlon)
-    return (math.degrees(math.atan2(x, y)) + 360) % 360
-
-
-def _pick_closest_to_path(candidates, origin, dest):
-    """Given a list of (lat, lon) candidates, return the one closest to the origin→dest great circle."""
+def _pick_closest(candidates, ref):
+    """Return the candidate (lat, lon) closest to ref by great-circle distance."""
     if len(candidates) == 1:
         return candidates[0]
-    best = min(candidates, key=lambda c: abs(_cross_track_distance(c, origin, dest)))
-    return best
+    return min(candidates, key=lambda c: _haversine(ref[0], ref[1], c[0], c[1]))
 
 
 # ── Token classification ────────────────────────────────────────────────────
@@ -207,8 +186,8 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
     if origin_coords:
         waypoints.append({'name': origin_icao, 'lat': origin_coords[0], 'lon': origin_coords[1], 'type': 'airport'})
 
-    path_start = origin_coords or (0.0, 0.0)
-    path_end = dest_coords or (0.0, 0.0)
+    # Tracks the last known position for nearest-neighbour disambiguation
+    last_coords = origin_coords or dest_coords or (0.0, 0.0)
 
     for raw_token in (route_str or '').split():
         token = _strip_runway_suffix(raw_token).upper()
@@ -227,6 +206,7 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
             coords = airports.get(token)
             if coords:
                 waypoints.append({'name': token, 'lat': coords[0], 'lon': coords[1], 'type': 'airport'})
+                last_coords = coords
                 continue
 
         # 2-5 char alphanumeric — try fix, then navaid
@@ -234,8 +214,9 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
             candidates = fixes.get(token) or navaids.get(token)
             nav_type = 'fix' if fixes.get(token) else 'navaid'
             if candidates:
-                chosen = _pick_closest_to_path(candidates, path_start, path_end)
+                chosen = _pick_closest(candidates, last_coords)
                 waypoints.append({'name': token, 'lat': chosen[0], 'lon': chosen[1], 'type': nav_type})
+                last_coords = chosen
                 continue
 
         # Unknown token — skip silently
