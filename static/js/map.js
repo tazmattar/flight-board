@@ -351,9 +351,9 @@
         document.getElementById('bpSeat').textContent = seat;
         document.getElementById('bpAircraft').textContent = f.aircraft || '--';
 
-        // Random class — weighted towards economy
+        // Random class — weighted but with visible variety
         var classRoll = Math.random();
-        var cabinClass = classRoll < 0.05 ? 'FIRST' : classRoll < 0.2 ? 'BUSINESS' : 'ECONOMY';
+        var cabinClass = classRoll < 0.1 ? 'FIRST' : classRoll < 0.35 ? 'BUSINESS' : 'ECONOMY';
         document.getElementById('bpClass').textContent = cabinClass;
 
         // Boarding time (depart minus ~30 min, or just show --)
