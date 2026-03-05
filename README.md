@@ -146,7 +146,7 @@ This project is open-source and available under the MIT License.
 * **Data:** VATSIM Network & UK Controller Panel (UKCP)
 * **Logos:** Kiwi.com, Kayak, and airline-codes database
 * **Fonts:** Roboto Condensed, JetBrains Mono, and B612 via Google Fonts
-* **Stand Data:** Extracted from airport charts and Google Earth
+* **Stand Data:** Extracted from airport charts and Google Earth; dynamic stand data provided by [OpenStreetMap](https://www.openstreetmap.org/) contributors via the Overpass API
 
 ## Roadmap
 
