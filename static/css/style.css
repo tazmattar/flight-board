@@ -376,8 +376,8 @@ html, body {
 }
 
 @keyframes actualArrPulse {
-    0%, 100% { color: var(--fids-green); opacity: 1; }
-    50%       { color: var(--fids-green); opacity: 0.4; }
+    0%, 100% { color: var(--fids-amber); opacity: 1; }
+    50%       { color: var(--fids-amber); opacity: 0.4; }
 }
 
 .time-actual-arr {
