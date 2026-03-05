@@ -96,6 +96,18 @@ class VatsimFetcher:
                 'country': db_data.get('country', '')
             }
         
+        # Check custom_airports BEFORE airport_db so custom entries override GitHub data
+        if icao in self.custom_airports:
+            data = self.custom_airports[icao]
+            return {
+                'name': data.get('name', icao),
+                'lat': data.get('lat'),
+                'lon': data.get('lon'),
+                'ceiling': data.get('ceiling', 6000),
+                'has_stands': data.get('has_stands', False),
+                'country': data.get('country', '')
+            }
+        
         if icao in self.airport_db:
             data = self.airport_db[icao]
             is_ukcp = False
@@ -107,17 +119,6 @@ class VatsimFetcher:
                 'lon': data.get('lon'),
                 'ceiling': 6000,
                 'has_stands': is_ukcp,
-                'country': data.get('country', '')
-            }
-
-        if icao in self.custom_airports:
-            data = self.custom_airports[icao]
-            return {
-                'name': data.get('name', icao),
-                'lat': data.get('lat'),
-                'lon': data.get('lon'),
-                'ceiling': data.get('ceiling', 6000),
-                'has_stands': data.get('has_stands', False),
                 'country': data.get('country', '')
             }
 
