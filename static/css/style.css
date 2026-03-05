@@ -1065,7 +1065,7 @@ body.theme-eham .tracking-chip {
     text-align: right;
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 
     /* Flight Plan Tooltip */
