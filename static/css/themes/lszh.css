@@ -7,8 +7,8 @@
 /* This is the base theme - minimal overrides needed */
 
 body.theme-lszh {
-    --font-ui: 'Roboto Condensed', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    --font-data: 'Roboto Condensed', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    --font-ui: 'Inter', sans-serif;
+    --font-data: 'Inter', sans-serif;
 }
 
 body.theme-lszh .fids-header {
@@ -26,6 +26,7 @@ body.theme-lszh .section-divider {
     background: #111;
     color: #ffffff;
     border-bottom: 2px solid var(--border-dim);
+    text-transform: none;
 }
 
 body.theme-lszh .flight-table th {
