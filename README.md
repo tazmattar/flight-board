@@ -41,6 +41,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 
 ### Intelligent Logic
 * **UKCP Stand Integration:** Direct integration with the VATSIM UK Controller Panel API to display real-time stand assignments for UK airports (EGLL, EGKK, etc.).
+* **Dynamic OSM Fallback Stand Data:** When an airport is not in the manual `stands.json` database, the system automatically queries OpenStreetMap via the Overpass API to fetch real-time parking position data. This ensures gate detection and status accuracy even for unconfigured airports. OSM data is only fetched on-demand when an airport is searched, maintaining `stands.json` as the primary source.
 * **Status Detection:** Automatically determines flight phases (Boarding, Taxiing, Departing, Landing) based on transponder codes, ground speed, and altitude.
 * **Smart Delay Calculation:** Compares scheduled departure times against current UTC time to generate accurate delay warnings.
 * **Geospatial Filtering:**
@@ -112,6 +113,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
     * VATSIM Data API v3
     * VATSIM Events API (Event ticker)
     * UKCP API (Stand assignments)
+    * OpenStreetMap Overpass API (Dynamic stand fallback for unconfigured airports)
     * GitHub Airline Codes Database (Logo mapping)
 * **Theme System:** Modular CSS architecture with dynamic loading
 

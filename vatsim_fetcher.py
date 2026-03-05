@@ -338,6 +338,45 @@ class VatsimFetcher:
             traceback.print_exc()
             return None
 
+    def fetch_osm_stands_live(self, icao):
+        """
+        Live fallback to OSM for stand data if not in stands.json.
+        Maintains stands.json as primary source.
+        """
+        # Overpass QL query to find parking positions within a specific aerodrome area
+        query = f"""
+        [out:json][timeout:25];
+        area["icao"="{icao}"]["aeroway"="aerodrome"]->.airport;
+        (node["aeroway"="parking_position"](area.airport);
+         way["aeroway"="parking_position"](area.airport);
+         relation["aeroway"="parking_position"](area.airport););
+        out center tags;
+        """
+        try:
+            resp = requests.post("https://overpass-api.de/api/interpreter", data={"data": query}, timeout=10)
+            if resp.status_code == 200:
+                elements = resp.json().get('elements', [])
+                new_stands = []
+                for el in elements:
+                    tags = el.get('tags', {})
+                    # Normalize name lookup: ref > name > local_ref
+                    name = tags.get('ref') or tags.get('name') or tags.get('local_ref')
+                    center = el.get('center') or el # ways/relations use 'center', nodes use lat/lon
+                    
+                    if name and 'lat' in center:
+                        new_stands.append({
+                            "name": str(name).upper().replace(" ", ""),
+                            "lat": center['lat'],
+                            "lon": center['lon'],
+                            "radius": 35, # Default geofence radius
+                            "type": "contact" 
+                        })
+                print(f"OSM: Dynamically loaded {len(new_stands)} stands for {icao}")
+                return new_stands
+        except Exception as e:
+            print(f"OSM Live Fetch failed for {icao}: {e}")
+        return []
+
     def process_flight(self, pilot, airport_code, direction, airport_data, airport_info):
         dist_km = self.calculate_distance_m(pilot['latitude'], pilot['longitude'], airport_info['lat'], airport_info['lon']) / 1000.0
         flight_info = self.format_flight(pilot, direction, airport_info['ceiling'], airport_code, dist_km, airport_info.get('has_stands', False))

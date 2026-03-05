@@ -869,6 +869,19 @@ def search_airport():
     if airport_info['lat'] is None or airport_info['lon'] is None:
         return jsonify({'error': f'Airport {icao} has no coordinate data'}), 400
     
+    # --- NEW FALLBACK LOGIC ---
+    # Only hit OSM if we don't already have manual data in stands.json
+    if icao not in flight_fetcher.stands:
+        dynamic_stands = flight_fetcher.fetch_osm_stands_live(icao)
+        if dynamic_stands:
+            # Add to memory so find_stand() can use it immediately
+            flight_fetcher.stands[icao] = dynamic_stands
+            
+            # Ensure the board knows this airport now has stand data
+            if icao not in flight_fetcher.configured_airports:
+                flight_fetcher.configured_airports[icao] = {'has_stands': True}
+    # ---------------------------
+    
     # Fetch data for this specific airport
     print(f"Fetching data for dynamic airport: {icao}")
     airport_data = flight_fetcher.fetch_single_airport(icao)
