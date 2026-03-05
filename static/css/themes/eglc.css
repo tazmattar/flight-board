@@ -60,6 +60,10 @@ body.theme-eglc .col-status .flap-container {
     color: #000000;
 }
 
+body.theme-eglc .col-status[data-status="En Route"] .flap-container {
+    color: var(--city-blue) !important;
+}
+
 /* Destination text: blue */
 body.theme-eglc .flap-dest {
     color: var(--city-blue) !important;
