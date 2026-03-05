@@ -139,16 +139,21 @@ def _haversine(lat1, lon1, lat2, lon2) -> float:
 
 
 
+_MAX_STEP_KM = 1000  # skip any fix whose nearest candidate is further than this
+
+
 def _pick_closest(candidates, ref):
-    """Return the candidate (lat, lon) closest to ref by great-circle distance."""
-    if len(candidates) == 1:
-        return candidates[0]
-    return min(candidates, key=lambda c: _haversine(ref[0], ref[1], c[0], c[1]))
+    """Return the nearest candidate to ref, or None if all are beyond _MAX_STEP_KM."""
+    best = min(candidates, key=lambda c: _haversine(ref[0], ref[1], c[0], c[1]))
+    if _haversine(ref[0], ref[1], best[0], best[1]) > _MAX_STEP_KM:
+        return None
+    return best
 
 
 # ── Token classification ────────────────────────────────────────────────────
 
 _SPEED_ALT_RE = re.compile(r'^[NKM]\d{4}[FSAM]\d{3,4}$', re.IGNORECASE)
+_AIRWAY_RE = re.compile(r'^[A-Z]{1,2}\d{1,4}[A-Z]?$', re.IGNORECASE)  # L612, UN601, N57, Y803
 _SKIP_WORDS = frozenset(['DCT', 'SID', 'STAR', 'TRANS', 'RNAV'])
 
 
@@ -198,6 +203,8 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
             continue
         if _SPEED_ALT_RE.match(token):
             continue
+        if _AIRWAY_RE.match(token):
+            continue
         # 4-letter ICAO airport?
         if len(token) == 4 and token.isalpha():
             # Skip if it's the origin or destination (already added as endpoints)
@@ -215,8 +222,9 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
             nav_type = 'fix' if fixes.get(token) else 'navaid'
             if candidates:
                 chosen = _pick_closest(candidates, last_coords)
-                waypoints.append({'name': token, 'lat': chosen[0], 'lon': chosen[1], 'type': nav_type})
-                last_coords = chosen
+                if chosen:
+                    waypoints.append({'name': token, 'lat': chosen[0], 'lon': chosen[1], 'type': nav_type})
+                    last_coords = chosen
                 continue
 
         # Unknown token — skip silently
