@@ -738,6 +738,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTableSmart(flights, container, type) {
         const existingRows = Array.from(container.children);
         const seenIds = new Set();
+        
+        if (flights.length > 0) {
+            console.log(`[RENDER] ${type}: ${flights.length} flights. Sample:`, {
+                callsign: flights[0].callsign,
+                status: flights[0].status,
+                gate: flights[0].gate
+            });
+        }
 
         flights.forEach(flight => {
             const safeCallsign = String(flight.callsign || '').trim().toUpperCase();
@@ -1356,11 +1364,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 const data = await response.json();
+                console.log('[SEARCH] API Response:', { status: response.ok, icao, has_stands: data.has_stands, data });
                 
                 if (response.ok) {
                     searchResult.textContent = `✓ ${data.name} (${icao}) added!`;
                     searchResult.className = 'success';
                     searchResult.style.display = 'block';
+                    console.log(`[SEARCH] Successfully added ${icao}, has_stands=${data.has_stands}`);
                     
                     // Add to dropdown if not already there
                     const exists = Array.from(airportSelect.options).some(opt => opt.value === icao);

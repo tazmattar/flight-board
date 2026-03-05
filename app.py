@@ -856,48 +856,65 @@ def admin_custom_airports():
 def search_airport():
     """Search for a dynamic airport by ICAO code and fetch its data"""
     icao = request.json.get('icao', '').upper().strip()
+    print(f"[SEARCH] User searching for airport: {icao}")
     
     if not icao or len(icao) != 4:
         return jsonify({'error': 'Please enter a valid 4-letter ICAO code'}), 400
     
-    # Check if airport exists in database
+    # Check if airport exists in base database (doesn't check stands yet)
     airport_info = flight_fetcher.get_airport_info(icao)
     
     if not airport_info:
+        print(f"[SEARCH] {icao} not found in airport database")
         return jsonify({'error': f'Airport {icao} not found in database'}), 404
     
     if airport_info['lat'] is None or airport_info['lon'] is None:
+        print(f"[SEARCH] {icao} has no coordinate data")
         return jsonify({'error': f'Airport {icao} has no coordinate data'}), 400
     
     # --- NEW FALLBACK LOGIC ---
     # Only hit OSM if we don't already have manual data in stands.json
     if icao not in flight_fetcher.stands:
+        print(f"[SEARCH] {icao} not in stands.json, attempting OSM fetch...")
         dynamic_stands = flight_fetcher.fetch_osm_stands_live(icao)
         if dynamic_stands:
+            print(f"[SEARCH] Successfully fetched {len(dynamic_stands)} stands from OSM for {icao}")
             # Add to memory so find_stand() can use it immediately
             flight_fetcher.stands[icao] = dynamic_stands
             
             # Ensure the board knows this airport now has stand data
             if icao not in flight_fetcher.configured_airports:
                 flight_fetcher.configured_airports[icao] = {'has_stands': True}
+                print(f"[SEARCH] Updated configured_airports[{icao}] with has_stands=True")
+        else:
+            print(f"[SEARCH] OSM fetch returned no stands for {icao}")
+    else:
+        print(f"[SEARCH] {icao} already in stands.json, skipping OSM fetch")
     # ---------------------------
     
     # Fetch data for this specific airport
-    print(f"Fetching data for dynamic airport: {icao}")
+    print(f"[SEARCH] Fetching flight data for {icao}")
     airport_data = flight_fetcher.fetch_single_airport(icao)
     
     if airport_data:
         # Store in current_data so it persists
         current_data.update(airport_data)
         
+        # Re-fetch airport_info to get the updated has_stands flag
+        final_airport_info = flight_fetcher.get_airport_info(icao)
+        has_stands = final_airport_info.get('has_stands', False) if final_airport_info else False
+        print(f"[SEARCH] {icao} final has_stands state: {has_stands}")
+        
         return jsonify({
             'success': True,
             'icao': icao,
-            'name': airport_info['name'],
-            'country': airport_info.get('country', ''),
-            'data': airport_data[icao]
+            'name': final_airport_info['name'] if final_airport_info else airport_info['name'],
+            'country': final_airport_info.get('country', '') if final_airport_info else airport_info.get('country', ''),
+            'data': airport_data[icao],
+            'has_stands': has_stands
         })
     else:
+        print(f"[SEARCH] Failed to fetch flight data for {icao}")
         return jsonify({'error': f'Failed to fetch data for {icao}'}), 500
 
 @app.route('/api/events')

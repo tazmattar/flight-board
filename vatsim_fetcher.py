@@ -342,6 +342,7 @@ class VatsimFetcher:
         """
         Live fallback to OSM for stand data if not in stands.json.
         Maintains stands.json as primary source.
+        Uses Overpass API to query parking positions.
         """
         # Overpass QL query to find parking positions within a specific aerodrome area
         query = f"""
@@ -352,10 +353,16 @@ class VatsimFetcher:
          relation["aeroway"="parking_position"](area.airport););
         out center tags;
         """
+        print(f"[OSM] Querying Overpass API for parking positions at {icao}")
         try:
-            resp = requests.post("https://overpass-api.de/api/interpreter", data={"data": query}, timeout=10)
+            resp = requests.post("https://overpass-api.de/api/interpreter", data={"data": query}, timeout=15)
+            print(f"[OSM] Overpass API response status: {resp.status_code}")
+            
             if resp.status_code == 200:
-                elements = resp.json().get('elements', [])
+                data = resp.json()
+                elements = data.get('elements', [])
+                print(f"[OSM] Found {len(elements)} elements for {icao}")
+                
                 new_stands = []
                 for el in elements:
                     tags = el.get('tags', {})
@@ -363,18 +370,28 @@ class VatsimFetcher:
                     name = tags.get('ref') or tags.get('name') or tags.get('local_ref')
                     center = el.get('center') or el # ways/relations use 'center', nodes use lat/lon
                     
-                    if name and 'lat' in center:
-                        new_stands.append({
+                    if name and 'lat' in center and 'lon' in center:
+                        stand_obj = {
                             "name": str(name).upper().replace(" ", ""),
                             "lat": center['lat'],
                             "lon": center['lon'],
                             "radius": 35, # Default geofence radius
                             "type": "contact" 
-                        })
-                print(f"OSM: Dynamically loaded {len(new_stands)} stands for {icao}")
+                        }
+                        new_stands.append(stand_obj)
+                        print(f"[OSM] Added stand {stand_obj['name']} ({stand_obj['lat']}, {stand_obj['lon']})")
+                
+                print(f"[OSM] Successfully parsed {len(new_stands)} stands for {icao}")
                 return new_stands
+            else:
+                print(f"[OSM] Overpass API returned status {resp.status_code} for {icao}")
+                try:
+                    print(f"[OSM] Response: {resp.text[:500]}")
+                except:
+                    pass
         except Exception as e:
-            print(f"OSM Live Fetch failed for {icao}: {e}")
+            print(f"[OSM] Exception during OSM fetch for {icao}: {e}")
+            traceback.print_exc()
         return []
 
     def process_flight(self, pilot, airport_code, direction, airport_data, airport_info):
