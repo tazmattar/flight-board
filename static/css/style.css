@@ -399,16 +399,16 @@ html, body {
    ========================================= */
 
 .fids-footer {
-    padding: 15px 40px; 
-    display: flex; 
+    position: relative;
+    padding: 15px 40px;
+    display: flex;
     justify-content: space-between;
-    align-items: center; 
-    height: 100px; 
+    align-items: center;
+    height: 100px;
     flex-shrink: 0;
 }
 
 .footer-group { display: flex; align-items: center; gap: 20px; }
-.footer-group.left { flex-direction: column; align-items: flex-start; gap: 4px; }
 .huge-arrow { font-size: 50px; font-weight: 900; }
 .gate-icon-box {
     display: flex; flex-direction: column; align-items: center;
@@ -489,9 +489,11 @@ html, body {
 }
 
 .sim-disclaimer {
+    position: absolute;
+    bottom: 6px;
+    left: 40px;
     font-size: 0.6rem;
     color: #666;
-    margin-top: 6px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
