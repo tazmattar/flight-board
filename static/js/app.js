@@ -1347,7 +1347,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Show loading state
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
+            
+            // Show loading state in modal
             searchResult.textContent = 'Searching...';
             searchResult.className = '';
             searchResult.style.display = 'block';
@@ -1390,6 +1394,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         ensureInSelect: false
                     });
                     
+                    // Hide loading overlay after a brief delay
+                    setTimeout(() => {
+                        if (loadingOverlay) loadingOverlay.style.display = 'none';
+                    }, 500);
+                    
                     // Close modal after delay
                     setTimeout(() => {
                         modal.style.display = 'none';
@@ -1399,11 +1408,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     searchResult.textContent = data.error || 'Airport not found';
                     searchResult.className = 'error';
                     searchResult.style.display = 'block';
+                    if (loadingOverlay) loadingOverlay.style.display = 'none';
                 }
             } catch (error) {
                 searchResult.textContent = 'Network error. Please try again.';
                 searchResult.className = 'error';
                 searchResult.style.display = 'block';
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
                 console.error('Search error:', error);
             } finally {
                 // Reset button

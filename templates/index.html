@@ -21,6 +21,14 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading airport data...</p>
+        </div>
+    </div>
+
     <div class="monitor-frame">
         <header class="fids-header">
     <div class="airport-selector">
