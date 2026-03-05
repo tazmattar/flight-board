@@ -112,10 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTrackingChip(state) {
         if (!elements.trackingChip || !elements.trackingChipText) return;
 
+        const mapLink = document.getElementById('mapLink');
+
         if (!state || !state.enabled) {
             elements.trackingChip.hidden = true;
             elements.trackingChipText.textContent = '';
             elements.trackingChip.removeAttribute('title');
+            if (mapLink) mapLink.classList.remove('tracking-active');
             return;
         }
 
@@ -126,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.trackingChipText.textContent = text;
         elements.trackingChip.title = text;
         elements.trackingChip.hidden = false;
+        if (mapLink) mapLink.classList.add('tracking-active');
     }
 
     function refreshTrackedRowHighlights() {

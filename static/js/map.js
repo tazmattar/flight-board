@@ -207,6 +207,7 @@
     const markers = {};
     var userOffsets = {}; // callsign → {dx,dy} set by user drag
     let selectedCallsign = null;
+    let panelAutoOpened = false;
 
     function flightColor(f) {
         const gs = f.groundspeed || 0;
@@ -570,7 +571,11 @@
             } else {
                 const m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, isTracked) }).addTo(map);
                 m._flightData = f;
-                m.on('click', function () { showFlightPanel(m._flightData); });
+                m.on('click', function () {
+                    const tc = localStorage.getItem('flightboard.tracked_callsign');
+                    if (tc && m._flightData.callsign !== tc) return;
+                    showFlightPanel(m._flightData);
+                });
                 markers[f.callsign] = m;
                 attachLabelDrag(m, f.callsign);
             }
@@ -589,6 +594,14 @@
 
         // Dim non-tracked markers via map container class
         map.getContainer().classList.toggle('has-tracked', !!trackedCallsign);
+
+        // Auto-open panel for tracked flight on first data load
+        if (!panelAutoOpened && trackedCallsign && markers[trackedCallsign]) {
+            panelAutoOpened = true;
+            showFlightPanel(markers[trackedCallsign]._flightData);
+        }
+        // Reset auto-open flag if tracking is cleared
+        if (!trackedCallsign) panelAutoOpened = false;
 
         // Render route for tracked flight (only once per callsign change)
         renderTrackedRoute(trackedCallsign || null);
