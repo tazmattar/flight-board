@@ -914,14 +914,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const isActualDep = type === 'Departures'
                 && flight.status === 'Departing'
                 && flight.actual_dep_time;
+            const isActualArr = type === 'Arrivals'
+                && (flight.status === 'Landed' || flight.status === 'At Gate')
+                && flight.actual_arr_time;
             const isEddf = document.body.classList.contains('theme-eddf');
 
             if (isActualDep && !isEddf) {
                 updateFlapText(timeFlap, flight.actual_dep_time);
                 timeFlap.classList.add('time-actual-dep');
+                timeFlap.classList.remove('time-actual-arr');
+            } else if (isActualArr && !isEddf) {
+                updateFlapText(timeFlap, flight.actual_arr_time);
+                timeFlap.classList.add('time-actual-arr');
+                timeFlap.classList.remove('time-actual-dep');
             } else {
                 updateFlapText(timeFlap, timeStr);
                 timeFlap.classList.remove('time-actual-dep');
+                timeFlap.classList.remove('time-actual-arr');
             }
             
             const checkinFlap = document.getElementById(`${rowId}-checkin`);

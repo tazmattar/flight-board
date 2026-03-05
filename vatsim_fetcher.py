@@ -54,6 +54,7 @@ class VatsimFetcher:
         self.checkin_system = CheckinAssignments()
 
         self._dep_times = {}  # callsign -> "HH:MM" actual UTC departure time
+        self._arr_times = {}  # callsign -> "HH:MM" actual UTC arrival time
 
         self.cleanup_dist_dep = 80
         self.ground_range = 15
@@ -290,12 +291,20 @@ class VatsimFetcher:
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
             # Prune _dep_times of callsigns no longer appearing as Departing on any board
-            active_callsigns = set()
+            active_dep = set()
             for airport_result in results.values():
                 for f in airport_result.get('departures', []):
                     if f.get('actual_dep_time'):
-                        active_callsigns.add(f['callsign'])
-            self._dep_times = {k: v for k, v in self._dep_times.items() if k in active_callsigns}
+                        active_dep.add(f['callsign'])
+            self._dep_times = {k: v for k, v in self._dep_times.items() if k in active_dep}
+
+            # Prune _arr_times of callsigns no longer appearing as Landed on any board
+            active_arr = set()
+            for airport_result in results.values():
+                for f in airport_result.get('arrivals', []):
+                    if f.get('actual_arr_time'):
+                        active_arr.add(f['callsign'])
+            self._arr_times = {k: v for k, v in self._arr_times.items() if k in active_arr}
 
             return results
         except Exception as e:
@@ -549,6 +558,13 @@ class VatsimFetcher:
                 self._dep_times[key] = datetime.utcnow().strftime('%H:%M')
             actual_dep_time = self._dep_times[key]
 
+        actual_arr_time = None
+        if direction == 'ARR' and raw_status == 'Landed':
+            key = callsign
+            if key not in self._arr_times:
+                self._arr_times[key] = datetime.utcnow().strftime('%H:%M')
+            actual_arr_time = self._arr_times[key]
+
         gate_display = gate or 'TBA'
         if direction == 'DEP':
             if raw_status == 'Check-in': gate_display = 'TBA'
@@ -584,6 +600,7 @@ class VatsimFetcher:
             'status': display_status, 'status_raw': raw_status, 'delay_text': delay_text,
             'gate': gate_display, 'checkin': checkin_area, 'time_display': time_display,
             'actual_dep_time': actual_dep_time,
+            'actual_arr_time': actual_arr_time,
             'direction': direction, 'distance': dist_km,
             'route': fp.get('route', 'No route available'),
             'squawk': pilot.get('transponder', ''),

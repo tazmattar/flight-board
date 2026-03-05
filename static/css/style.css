@@ -375,6 +375,16 @@ html, body {
     font-weight: 700;
 }
 
+@keyframes actualArrPulse {
+    0%, 100% { color: var(--fids-green); opacity: 1; }
+    50%       { color: var(--fids-green); opacity: 0.4; }
+}
+
+.time-actual-arr {
+    animation: actualArrPulse 1.8s ease-in-out infinite;
+    font-weight: 700;
+}
+
 /* --- SMOOTH OPACITY FADE FOR STATUS CHANGES --- */
 .col-status .flap-container {
     transition: opacity 0.35s ease-in-out;
