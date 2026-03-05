@@ -182,7 +182,7 @@
         var notFound = document.getElementById('gateNotFound');
         var monitor  = document.getElementById('gateMonitor');
 
-        var airportCode = isDep ? flight.destination : flight.origin;
+        var airportCode = flight.destination;
         var airportName = airportNames[airportCode] || airportCode;
         // Strip common suffixes — we know it's an airport
         airportName = airportName
@@ -192,9 +192,10 @@
             .replace(/\s+Aerodrome$/i, '')
             .replace(/\s+Airfield$/i, '');
 
-        // Gate — match main board: show gate value, CLOSED when taxiing/departing
+        // Gate — CLOSED until flight is near destination; TBA/gate number when arriving
         var gate = flight.gate || 'TBA';
-        if (isDep && (flight.status === 'Taxiing' || flight.status === 'Departing')) gate = 'CLOSED';
+        var nearDest = ['Approaching', 'Landing', 'Landed', 'At Gate'].indexOf(flight.status) !== -1;
+        if (!nearDest) gate = 'CLOSED';
 
         var status = flight.status || '--';
 

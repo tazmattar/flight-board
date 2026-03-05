@@ -1259,7 +1259,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = document.getElementById('gateDisplayContent');
         if (!modal || !content) return;
 
-        const airportCode = isDep ? flight.destination : flight.origin;
+        const airportCode = flight.destination;
         const airportName = airportMapping[airportCode]?.name || airportCode;
 
         // Logo (reuse existing logo resolution logic)
@@ -1275,8 +1275,8 @@ document.addEventListener('DOMContentLoaded', () => {
             logoSrc = `https://images.kiwi.com/airlines/64/${code}.png`;
         }
 
-        let gate = flight.gate || 'TBA';
-        if (isDep && (flight.status === 'Taxiing' || flight.status === 'Departing')) gate = 'CLOSED';
+        const nearDest = ['Approaching', 'Landing', 'Landed', 'At Gate'].includes(flight.status);
+        let gate = nearDest ? (flight.gate || 'TBA') : 'CLOSED';
 
         const status = flight.status || '–';
         const timeLabel = isDep ? 'Departure' : 'Arrival';
