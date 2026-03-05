@@ -65,7 +65,6 @@ body.theme-lfpg .flight-table td {
     border-bottom: 1px solid #0e1e35;
     color: var(--adp-white);
     font-family: 'Inter', sans-serif;
-    font-size: 1.1rem;
 }
 
 body.theme-lfpg .flight-table th {
