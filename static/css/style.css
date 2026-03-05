@@ -1024,6 +1024,7 @@ body.theme-eham .tracking-chip {
     pointer-events: none;
     color: #fff;
     text-align: left;
+    overflow: hidden;
 }
 
 #weatherWidget.active:hover .metar-popover {
@@ -1062,6 +1063,9 @@ body.theme-eham .tracking-chip {
     font-family: var(--font-data);
     color: #fff;
     text-align: right;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
     /* Flight Plan Tooltip */
