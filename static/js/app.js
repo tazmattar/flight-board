@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // These map to the logo code we want to display, which may differ from the
     // airline's actual IATA code used operationally.
     const airlineLogoAliasGroups = {
-        BA: ['SHT'],
+        BA: ['SHT', 'EFW'],
         W6: ['WAU', 'WAZ', 'WIZ', 'WMT', 'WUK', 'WVL', 'WZZ']
     };
     const airlineLogoAliases = Object.entries(airlineLogoAliasGroups).reduce((acc, [logoCode, prefixes]) => {
