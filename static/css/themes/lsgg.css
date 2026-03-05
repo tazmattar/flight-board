@@ -5,6 +5,8 @@
 
 body.theme-lsgg {
     --geneva-blue: #0506F7;
+    --font-ui: 'Inter', sans-serif;
+    --font-data: 'Inter', sans-serif;
 }
 
 body.theme-lsgg .fids-header {
@@ -36,6 +38,11 @@ body.theme-lsgg .flight-table th {
     background: #ffffff;
     color: #000000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-transform: none;
+}
+
+body.theme-lsgg .col-status .flap-container {
+    text-transform: none;
 }
 
 body.theme-lsgg .event-ticker {
