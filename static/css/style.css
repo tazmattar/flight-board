@@ -2166,7 +2166,6 @@ body.map-page {
     list-style: none;
     margin: 0;
     padding: 0 12px 8px;
-    opacity: 0.9;
     overflow-y: auto;
     max-height: 200px;
 }
