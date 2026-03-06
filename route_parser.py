@@ -250,10 +250,19 @@ def _best_star_transition(transitions: dict, airport_ref: tuple, prev_fix_ref: t
     if best_key is None:
         return all_idents
 
-    chosen = list(all_idents)
-    for ident in runway_transitions[best_key]:
-        if ident not in chosen:
-            chosen.append(ident)
+    # Runway transitions (RW06L etc.) append after the common route.
+    # Entry transitions (fix-named, e.g. HAKMN) are the approach path INTO the
+    # common route, so they come first.
+    if re.match(r'^RW', best_key, re.IGNORECASE):
+        chosen = list(all_idents)
+        for ident in runway_transitions[best_key]:
+            if ident not in chosen:
+                chosen.append(ident)
+    else:
+        chosen = list(runway_transitions[best_key])
+        for ident in all_idents:
+            if ident not in chosen:
+                chosen.append(ident)
     return chosen
 
 
