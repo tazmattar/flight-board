@@ -191,7 +191,8 @@
     /* ── ATC sector boundaries ────────────────────────────── */
     var boundaryLabelGroup = L.layerGroup();
     var boundaryLayer = null;
-    var activeCtrPrefixes = new Set();
+    var sectorLabelMarkers = {};          // sector id → L.marker
+    var activeCtrControllers = new Map(); // prefix → {callsign, frequency}
 
     var SECTOR_DIM  = { color: '#4caf50', weight: 1,   opacity: 0.3, fillOpacity: 0.02 };
     var SECTOR_LIT  = { color: '#69f0ae', weight: 1.5, opacity: 0.8, fillOpacity: 0.10 };
@@ -201,11 +202,28 @@
         boundaryLayer.eachLayer(function (layer) {
             var id = layer.feature && layer.feature.properties && layer.feature.properties.id;
             if (!id) return;
-            var active = false;
-            activeCtrPrefixes.forEach(function (prefix) {
-                if (id === prefix || id.startsWith(prefix + '-')) active = true;
+            var ctrl = null;
+            activeCtrControllers.forEach(function (info, prefix) {
+                if (id === prefix || id.startsWith(prefix + '-')) ctrl = info;
             });
-            layer.setStyle(active ? SECTOR_LIT : SECTOR_DIM);
+            layer.setStyle(ctrl ? SECTOR_LIT : SECTOR_DIM);
+
+            // Update label content
+            var labelMarker = sectorLabelMarkers[id];
+            if (!labelMarker) return;
+            var el = labelMarker.getElement();
+            if (!el) return;
+            var div = el.querySelector('.map-boundary-label-text');
+            if (!div) return;
+            if (ctrl) {
+                div.classList.add('sector-active');
+                div.innerHTML = '<span class="sector-id">' + id + '</span>'
+                    + '<span class="sector-cs">' + ctrl.callsign + '</span>'
+                    + '<span class="sector-freq">' + ctrl.frequency + '</span>';
+            } else {
+                div.classList.remove('sector-active');
+                div.textContent = id;
+            }
         });
     }
 
@@ -229,7 +247,7 @@
                 data.features.forEach(function (feature) {
                     var p = feature.properties;
                     if (!p || !p.id || p.label_lat == null || p.label_lon == null) return;
-                    L.marker([parseFloat(p.label_lat), parseFloat(p.label_lon)], {
+                    var m = L.marker([parseFloat(p.label_lat), parseFloat(p.label_lon)], {
                         icon: L.divIcon({
                             className: 'map-boundary-label',
                             html: '<div class="map-boundary-label-text">' + p.id + '</div>',
@@ -238,6 +256,7 @@
                         }),
                         interactive: false,
                     }).addTo(boundaryLabelGroup);
+                    sectorLabelMarkers[p.id] = m;
                 });
 
                 updateBoundaryLabelVisibility();
@@ -935,13 +954,13 @@
 
     function updateATC(controllers) {
         // Sector highlights: use local CTR data only when not in tracking mode.
-        // In tracking mode, refreshGlobalATC() manages activeCtrPrefixes instead.
+        // In tracking mode, refreshGlobalATC() manages activeCtrControllers instead.
         if (!lastTrackedCallsign) {
-            activeCtrPrefixes = new Set();
+            activeCtrControllers = new Map();
             controllers.forEach(function (c) {
                 if ((c.position || '').toUpperCase() === 'CTR') {
                     var prefix = c.callsign.split('_')[0].toUpperCase();
-                    activeCtrPrefixes.add(prefix);
+                    activeCtrControllers.set(prefix, { callsign: c.callsign, frequency: c.frequency });
                 }
             });
             highlightActiveSectors();
@@ -1009,10 +1028,10 @@
         fetch('/api/controllers')
             .then(function (r) { return r.json(); })
             .then(function (data) {
-                activeCtrPrefixes = new Set();
+                activeCtrControllers = new Map();
                 (data.controllers || []).forEach(function (c) {
                     if ((c.position || '').toUpperCase() === 'CTR') {
-                        activeCtrPrefixes.add(c.callsign.split('_')[0].toUpperCase());
+                        activeCtrControllers.set(c.callsign.split('_')[0].toUpperCase(), { callsign: c.callsign, frequency: c.frequency });
                     }
                 });
                 highlightActiveSectors();

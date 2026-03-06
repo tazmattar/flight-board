@@ -1943,6 +1943,35 @@ body.map-page {
     text-shadow: 0 0 4px #000, 0 0 8px #000;
     pointer-events: none;
 }
+.map-boundary-label-text.sector-active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    opacity: 1;
+    color: #69f0ae;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-shadow: none;
+    white-space: nowrap;
+}
+.map-boundary-label-text.sector-active .sector-id {
+    font-size: 8px;
+    opacity: 0.65;
+    letter-spacing: 0.08em;
+}
+.map-boundary-label-text.sector-active .sector-cs {
+    font-size: 10px;
+    font-weight: 700;
+    color: #69f0ae;
+}
+.map-boundary-label-text.sector-active .sector-freq {
+    font-size: 9px;
+    font-weight: 400;
+    color: #a5d6a7;
+    letter-spacing: 0.04em;
+}
 
 /* ── Flight detail panel (right) ────────────────────────── */
 .map-flight-panel {
