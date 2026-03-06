@@ -190,6 +190,24 @@
 
     /* ── ATC sector boundaries ────────────────────────────── */
     var boundaryLabelGroup = L.layerGroup();
+    var boundaryLayer = null;
+    var activeCtrPrefixes = new Set();
+
+    var SECTOR_DIM  = { color: '#4caf50', weight: 1,   opacity: 0.3, fillOpacity: 0.02 };
+    var SECTOR_LIT  = { color: '#69f0ae', weight: 1.5, opacity: 0.8, fillOpacity: 0.10 };
+
+    function highlightActiveSectors() {
+        if (!boundaryLayer) return;
+        boundaryLayer.eachLayer(function (layer) {
+            var id = layer.feature && layer.feature.properties && layer.feature.properties.id;
+            if (!id) return;
+            var active = false;
+            activeCtrPrefixes.forEach(function (prefix) {
+                if (id === prefix || id.startsWith(prefix + '-')) active = true;
+            });
+            layer.setStyle(active ? SECTOR_LIT : SECTOR_DIM);
+        });
+    }
 
     function updateBoundaryLabelVisibility() {
         var z = map.getZoom();
@@ -202,16 +220,9 @@
         fetch('/static/data/Boundaries.geojson')
             .then(function (r) { return r.json(); })
             .then(function (data) {
-                L.geoJSON(data, {
-                    style: function () {
-                        return {
-                            color: '#4caf50',
-                            weight: 1,
-                            opacity: 0.3,
-                            fillOpacity: 0.02,
-                            interactive: false,
-                        };
-                    },
+                boundaryLayer = L.geoJSON(data, {
+                    style: function () { return SECTOR_DIM; },
+                    interactive: false,
                 }).addTo(map);
 
                 // Sector labels at the provided label coordinates
@@ -230,6 +241,7 @@
                 });
 
                 updateBoundaryLabelVisibility();
+                highlightActiveSectors(); // apply any already-known CTR state
             })
             .catch(function (err) { console.warn('ATC Boundary load failed:', err); });
     }
@@ -921,6 +933,16 @@
     }
 
     function updateATC(controllers) {
+        // Update active CTR sector highlights
+        activeCtrPrefixes = new Set();
+        controllers.forEach(function (c) {
+            if ((c.position || '').toUpperCase() === 'CTR') {
+                var prefix = c.callsign.split('_')[0].toUpperCase();
+                activeCtrPrefixes.add(prefix);
+            }
+        });
+        highlightActiveSectors();
+
         // List
         atcListEl.innerHTML = '';
         controllers.forEach(function (c) {
