@@ -641,7 +641,7 @@
                 markers[f.callsign]._flightData = f;
                 attachLabelDrag(markers[f.callsign], f.callsign);
             } else {
-                const m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, isTracked) }).addTo(map);
+                const m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, isTracked), zIndexOffset: 1000 }).addTo(map);
                 m._flightData = f;
                 m.on('click', function () {
                     const tc = localStorage.getItem('flightboard.tracked_callsign');
