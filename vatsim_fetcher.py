@@ -297,7 +297,7 @@ class VatsimFetcher:
             self.all_controllers = [
                 {
                     'callsign': c['callsign'],
-                    'frequency': c.get('frequency_mhz', ''),
+                    'frequency': c.get('frequency', ''),
                     'position': c['callsign'].split('_')[-1],
                 }
                 for c in data.get('controllers', [])
