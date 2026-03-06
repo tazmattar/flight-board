@@ -1007,16 +1007,18 @@
             highlightActiveSectors();
         }
 
-        // List
-        atcListEl.innerHTML = '';
-        controllers.forEach(function (c) {
-            var li = document.createElement('li');
-            li.className = 'map-atc-item';
-            li.innerHTML = '<span class="map-atc-dot"></span>'
-                + '<span class="map-atc-cs">' + c.callsign + '</span>'
-                + '<span class="map-atc-freq">' + c.frequency + '</span>';
-            atcListEl.appendChild(li);
-        });
+        // List — skip while tracking (refreshGlobalATC owns the list in that mode)
+        if (!lastTrackedCallsign) {
+            atcListEl.innerHTML = '';
+            controllers.forEach(function (c) {
+                var li = document.createElement('li');
+                li.className = 'map-atc-item';
+                li.innerHTML = '<span class="map-atc-dot"></span>'
+                    + '<span class="map-atc-cs">' + c.callsign + '</span>'
+                    + '<span class="map-atc-freq">' + c.frequency + '</span>';
+                atcListEl.appendChild(li);
+            });
+        }
 
         // Markers
         var seen = {};
@@ -1069,13 +1071,25 @@
         fetch('/api/controllers')
             .then(function (r) { return r.json(); })
             .then(function (data) {
+                var controllers = data.controllers || [];
                 activeCtrControllers = new Map();
-                (data.controllers || []).forEach(function (c) {
+                controllers.forEach(function (c) {
                     if ((c.position || '').toUpperCase() === 'CTR' && c.boundary_id) {
                         activeCtrControllers.set(c.boundary_id, { callsign: c.callsign, frequency: c.frequency });
                     }
                 });
                 highlightActiveSectors();
+
+                // Populate the ATC list with all global controllers while tracking
+                atcListEl.innerHTML = '';
+                controllers.forEach(function (c) {
+                    var li = document.createElement('li');
+                    li.className = 'map-atc-item';
+                    li.innerHTML = '<span class="map-atc-dot"></span>'
+                        + '<span class="map-atc-cs">' + c.callsign + '</span>'
+                        + '<span class="map-atc-freq">' + c.frequency + '</span>';
+                    atcListEl.appendChild(li);
+                });
             })
             .catch(function (e) { console.warn('Global ATC fetch failed:', e); });
     }
