@@ -21,14 +21,44 @@
         maxZoom: 19,
     }).addTo(map);
 
-    // Airport marker
-    const airportIcon = L.divIcon({
-        className: 'map-airport-icon',
-        html: '<div class="map-airport-dot"></div><div class="map-airport-label">' + AIRPORT + '</div>',
-        iconSize: [60, 30],
-        iconAnchor: [30, 15],
-    });
-    L.marker([APT_LAT, APT_LON], { icon: airportIcon, interactive: false }).addTo(map);
+    // Airport marker — stored so ATC badges can be updated dynamically
+    function makeAirportIcon(icao, badges) {
+        var badgeHtml = '';
+        if (badges && badges.length) {
+            badgeHtml = '<div class="map-airport-atc-badges">'
+                + badges.map(function (b) {
+                    return '<span class="map-atc-badge map-atc-badge--' + b.type + '" data-tip="' + b.callsign + ' ' + b.freq + '">' + b.letter + '</span>';
+                }).join('')
+                + '</div>';
+        }
+        return L.divIcon({
+            className: 'map-airport-icon',
+            html: '<div class="map-airport-dot"></div><div class="map-airport-label">' + icao + '</div>' + badgeHtml,
+            iconSize: [60, badges && badges.length ? 44 : 30],
+            iconAnchor: [30, 15],
+        });
+    }
+    var airportMarker = L.marker([APT_LAT, APT_LON], { icon: makeAirportIcon(AIRPORT, []), interactive: false }).addTo(map);
+
+    // Shared badge builder — pass icao to filter from a global list, omit to use pre-filtered list
+    function buildAirportBadges(controllers, icao) {
+        var posOrder = ['DEL', 'GND', 'TWR', 'APP', 'DEP'];
+        var posLetter = { DEL: 'D', GND: 'G', TWR: 'T', APP: 'A', DEP: 'P' };
+        var seenPos = {};
+        (controllers || []).forEach(function (c) {
+            if ((c.callsign || '').toUpperCase().endsWith('_OBS')) return;
+            if (icao && !(c.callsign || '').toUpperCase().startsWith(icao.toUpperCase() + '_')) return;
+            var freq = (c.frequency || '').trim();
+            if (!freq || freq === '199.998') return;
+            var pos = (c.position || '').toUpperCase();
+            if (posOrder.indexOf(pos) !== -1 && !seenPos[pos]) {
+                seenPos[pos] = { callsign: c.callsign, freq: c.frequency };
+            }
+        });
+        return posOrder
+            .filter(function (p) { return seenPos[p]; })
+            .map(function (p) { return { type: p.toLowerCase(), letter: posLetter[p], callsign: seenPos[p].callsign, freq: seenPos[p].freq }; });
+    }
 
     /* ── Airport features (OSM Overpass + stands.json) ──────── */
     function calcBearing(lat1, lon1, lat2, lon2) {
@@ -590,6 +620,7 @@
     let routeLayer = null;
     let renderedRouteCallsign = null;
     var waypointLabelGroup = L.layerGroup();
+    var endpointMarkers = {}; // icao -> L.marker for non-AIRPORT route endpoints
 
     function updateWaypointLabelVisibility() {
         var z = map.getZoom();
@@ -604,6 +635,8 @@
             routeLayer = null;
         }
         waypointLabelGroup.clearLayers();
+        Object.keys(endpointMarkers).forEach(function (icao) { map.removeLayer(endpointMarkers[icao]); });
+        endpointMarkers = {};
         renderedRouteCallsign = null;
     }
 
@@ -671,20 +704,36 @@
                 }
                 updateWaypointLabelVisibility();
 
-                // Destination label at end of route
-                var destIcao = (markers[callsign] && markers[callsign]._flightData && markers[callsign]._flightData.destination) || '';
-                if (destIcao) {
-                    var last = wps[wps.length - 1];
-                    var destMarker = L.marker([last.lat, last.lon], {
-                        icon: L.divIcon({
-                            className: 'map-route-dest-label',
-                            html: '<div class="map-route-dest">' + destIcao + '</div>',
-                            iconSize: [0, 0],
-                            iconAnchor: [0, 0],
-                        }),
+                // Origin and destination — white dot + ICAO + ATC badges (matching airport marker style)
+                var fd = markers[callsign] && markers[callsign]._flightData;
+                var originIcao = (fd && fd.origin) || wps[0].name || '';
+                var destIcao   = (fd && fd.destination) || wps[wps.length - 1].name || '';
+
+                // Draw endpoint markers for airports that are NOT the selected airport
+                // (the selected airport is already shown by airportMarker with live badges)
+                function addEndpointMarker(icao, lat, lon) {
+                    if (!icao || icao === AIRPORT) return;
+                    var m = L.marker([lat, lon], {
+                        icon: makeAirportIcon(icao, []),
                         interactive: false,
+                        zIndexOffset: -100,
                     }).addTo(map);
-                    routeLayer.push(destMarker);
+                    endpointMarkers[icao] = m;
+                }
+                addEndpointMarker(originIcao, wps[0].lat, wps[0].lon);
+                addEndpointMarker(destIcao, wps[wps.length - 1].lat, wps[wps.length - 1].lon);
+
+                // Fetch badges for endpoint airports from the global controller list
+                if (Object.keys(endpointMarkers).length > 0) {
+                    fetch('/api/controllers')
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            var allCtrl = data.controllers || [];
+                            Object.keys(endpointMarkers).forEach(function (icao) {
+                                endpointMarkers[icao].setIcon(makeAirportIcon(icao, buildAirportBadges(allCtrl, icao)));
+                            });
+                        })
+                        .catch(function () {});
                 }
 
                 // Auto-fit to route bounds
@@ -980,20 +1029,6 @@
         document.getElementById('atcChevron').textContent = atcExpanded ? 'expand_less' : 'expand_more';
     });
 
-    function atcOffset(position) {
-        // Return [latOffset, lonOffset] for different ATC types
-        switch ((position || '').toUpperCase()) {
-            case 'TWR': case 'GND': case 'DEL':
-                return [0.005, 0.005];
-            case 'APP': case 'DEP':
-                return [0.15, 0.15];
-            case 'CTR':
-                return [0.45, 0.45];
-            default:
-                return [0.08, 0.08];
-        }
-    }
-
     function updateATC(controllers) {
         // Sector highlights: use local CTR data only when not in tracking mode.
         // In tracking mode, refreshGlobalATC() manages activeCtrControllers instead.
@@ -1026,30 +1061,8 @@
             });
         }
 
-        // Markers
-        var seen = {};
-        controllers.forEach(function (c) {
-            seen[c.callsign] = true;
-            var off = atcOffset(c.position);
-            var pos = [APT_LAT + off[0], APT_LON + off[1]];
-            if (atcMarkers[c.callsign]) {
-                atcMarkers[c.callsign].setLatLng(pos);
-            } else {
-                var icon = L.divIcon({
-                    className: 'map-atc-marker',
-                    html: '<div class="map-atc-marker-label">' + c.callsign + '<br><span class="map-atc-marker-freq">' + c.frequency + '</span></div>',
-                    iconSize: [100, 30],
-                    iconAnchor: [50, 15],
-                });
-                atcMarkers[c.callsign] = L.marker(pos, { icon: icon, interactive: false }).addTo(map);
-            }
-        });
-        Object.keys(atcMarkers).forEach(function (cs) {
-            if (!seen[cs]) {
-                map.removeLayer(atcMarkers[cs]);
-                delete atcMarkers[cs];
-            }
-        });
+        // Airport ATC position badges
+        airportMarker.setIcon(makeAirportIcon(AIRPORT, buildAirportBadges(controllers)));
     }
 
     /* ── Stats + clock ────────────────────────────────────── */
@@ -1126,6 +1139,12 @@
                         atcListEl.appendChild(li);
                     });
                 }
+
+                // Refresh badges on selected airport marker and any route endpoint markers
+                airportMarker.setIcon(makeAirportIcon(AIRPORT, buildAirportBadges(controllers, AIRPORT)));
+                Object.keys(endpointMarkers).forEach(function (icao) {
+                    endpointMarkers[icao].setIcon(makeAirportIcon(icao, buildAirportBadges(controllers, icao)));
+                });
             })
             .catch(function (e) { console.warn('Global ATC fetch failed:', e); });
     }
@@ -1134,11 +1153,12 @@
         if (!f || f.latitude == null) return;
         var cs = f.callsign;
         var pos = [f.latitude, f.longitude];
-        var off = { dx: 14, dy: -14 };
+        var off = userOffsets[cs] || { dx: 14, dy: -14 };
         if (markers[cs]) {
             markers[cs].setLatLng(pos);
             markers[cs].setIcon(makeIcon(f, off.dx, off.dy, true));
             markers[cs]._flightData = f;
+            attachLabelDrag(markers[cs], cs); // setIcon recreates the DOM — re-attach drag handler
         } else {
             var m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, true), zIndexOffset: 1000 }).addTo(map);
             m._flightData = f;
