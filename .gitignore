@@ -47,3 +47,4 @@ data/navdata/
 # Personal scripts (contain private webhook URLs or setup details)
 scripts/discord_stats.py
 scripts/setup_navdata.sh
+data/navdata/CIFP/

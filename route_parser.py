@@ -5,6 +5,7 @@ Navdata sources (all in data/navdata/, gitignored):
   VATSpy.dat       — airport lat/lon (VATSpy Data Project)
   earth_fix.dat    — waypoint fixes (X-Plane 12 format)
   earth_nav.dat    — VORs and NDBs (X-Plane 12 format)
+  CIFP/<ICAO>.dat  — SID/STAR procedures (X-Plane 12 CIFP format)
 
 If any navdata file is missing, resolve_route() returns [] gracefully.
 """
@@ -17,6 +18,7 @@ import re
 log = logging.getLogger(__name__)
 
 _NAVDATA_DIR = os.path.join(os.path.dirname(__file__), 'data', 'navdata')
+_CIFP_DIR    = os.path.join(_NAVDATA_DIR, 'CIFP')
 
 # Loaded once at import time
 airports: dict = {}   # ICAO → (lat, lon)
@@ -24,6 +26,10 @@ fixes: dict = {}      # ident → [(lat, lon), ...]
 navaids: dict = {}    # ident → [(lat, lon), ...]
 
 _loaded = False
+
+# Lazy per-airport CIFP cache
+# ICAO → {'SID': {proc_name: [ident, ...]}, 'STAR': {proc_name: [ident, ...]}}
+_cifp_cache: dict = {}
 
 
 def _parse_vatspy(path: str) -> dict:
@@ -115,6 +121,67 @@ def _parse_navaids(path: str) -> dict:
     return result
 
 
+def _parse_cifp(icao: str) -> dict:
+    """
+    Load and parse the CIFP procedure file for an airport.
+    Returns {'SID': {name: [ident, ...]}, 'STAR': {name: [ident, ...]}}
+    where each list is the ordered sequence of named fixes for that procedure.
+    Legs with no named fix (CA, VA, etc.) are omitted.
+    Results are cached after first load.
+    """
+    if icao in _cifp_cache:
+        return _cifp_cache[icao]
+
+    result: dict = {'SID': {}, 'STAR': {}}
+    path = os.path.join(_CIFP_DIR, icao + '.dat')
+    try:
+        with open(path, encoding='utf-8', errors='replace') as f:
+            for line in f:
+                line = line.strip().rstrip(';')
+                if not line:
+                    continue
+                parts = line.split(',')
+                if len(parts) < 12:
+                    continue
+                type_seq = parts[0]
+                if ':' not in type_seq:
+                    continue
+                proc_type = type_seq.split(':', 1)[0].strip().upper()
+                if proc_type not in ('SID', 'STAR'):
+                    continue
+                proc_name = parts[2].strip()
+                if not proc_name:
+                    continue
+                ident = parts[4].strip()
+                if not ident:
+                    continue  # leg has no named fix (CA, VA, etc.)
+                bucket = result[proc_type].setdefault(proc_name, [])
+                if ident not in bucket:
+                    bucket.append(ident)
+    except FileNotFoundError:
+        pass  # No CIFP data for this airport — silently skip
+    except Exception as e:
+        log.warning('Error parsing CIFP for %s: %s', icao, e)
+
+    _cifp_cache[icao] = result
+    return result
+
+
+def _expand_procedure(idents: list, ref: tuple, wp_type: str) -> list:
+    """Resolve a list of fix idents to waypoint dicts, skipping unresolvable ones."""
+    out = []
+    pos = ref
+    for ident in idents:
+        candidates = fixes.get(ident) or navaids.get(ident)
+        if not candidates:
+            continue
+        chosen = _pick_closest(candidates, pos)
+        if chosen:
+            out.append({'name': ident, 'lat': chosen[0], 'lon': chosen[1], 'type': wp_type})
+            pos = chosen
+    return out
+
+
 def _load_navdata():
     global airports, fixes, navaids, _loaded
     if _loaded:
@@ -186,6 +253,10 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
     origin_coords = airports.get(origin_icao)
     dest_coords = airports.get(dest_icao)
 
+    # Load CIFP procedure data for origin and destination (cached, silently absent if missing)
+    origin_cifp = _parse_cifp(origin_icao) if origin_icao else {'SID': {}, 'STAR': {}}
+    dest_cifp   = _parse_cifp(dest_icao)   if dest_icao   else {'SID': {}, 'STAR': {}}
+
     waypoints = []
 
     if origin_coords:
@@ -216,6 +287,22 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
                 last_coords = coords
                 continue
 
+        # SID procedure at origin airport?
+        if token in origin_cifp['SID']:
+            expanded = _expand_procedure(origin_cifp['SID'][token], origin_coords or last_coords, 'sid')
+            waypoints.extend(expanded)
+            if expanded:
+                last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
+            continue
+
+        # STAR procedure at destination airport?
+        if token in dest_cifp['STAR']:
+            expanded = _expand_procedure(dest_cifp['STAR'][token], last_coords, 'star')
+            waypoints.extend(expanded)
+            if expanded:
+                last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
+            continue
+
         # 2-5 char alphanumeric — try fix, then navaid
         if 2 <= len(token) <= 5 and token.isalnum():
             candidates = fixes.get(token) or navaids.get(token)
@@ -232,4 +319,10 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
     if dest_coords:
         waypoints.append({'name': dest_icao, 'lat': dest_coords[0], 'lon': dest_coords[1], 'type': 'airport'})
 
-    return waypoints
+    # Remove consecutive duplicate fixes (e.g. SID exit fix repeated in route string)
+    deduped = []
+    for wp in waypoints:
+        if deduped and deduped[-1]['name'] == wp['name']:
+            continue
+        deduped.append(wp)
+    return deduped

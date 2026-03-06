@@ -1920,6 +1920,8 @@ body.map-page {
     pointer-events: none;
     letter-spacing: 0.05em;
 }
+.map-waypoint-label--sid  { color: #69f0ae; }
+.map-waypoint-label--star { color: #64b5f6; }
 
 /* ── ATC marker on map ──────────────────────────────────── */
 .map-atc-marker {

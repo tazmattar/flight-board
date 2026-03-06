@@ -615,23 +615,31 @@
                 renderedRouteCallsign = callsign;
                 routeLayer = [];
 
-                var latlngs = wps.map(function (w) { return [w.lat, w.lon]; });
-                var line = L.polyline(latlngs, {
-                    color: '#f0b429',
-                    weight: 2,
-                    dashArray: '6 4',
-                    opacity: 0.8,
-                    interactive: false,
-                }).addTo(map);
-                routeLayer.push(line);
+
+                // Colour segments and dots by waypoint type
+                var TYPE_COLOR = { sid: '#69f0ae', star: '#64b5f6', fix: '#f0b429', navaid: '#f0b429', airport: '#f0b429' };
+
+                // Draw segments between consecutive waypoints, coloured by the segment's type
+                for (var i = 0; i < wps.length - 1; i++) {
+                    var segColor = TYPE_COLOR[wps[i + 1].type] || '#f0b429';
+                    var seg = L.polyline([[wps[i].lat, wps[i].lon], [wps[i + 1].lat, wps[i + 1].lon]], {
+                        color: segColor,
+                        weight: 2,
+                        dashArray: '6 4',
+                        opacity: 0.8,
+                        interactive: false,
+                    }).addTo(map);
+                    routeLayer.push(seg);
+                }
 
                 // Small dots + permanent name labels for intermediate waypoints
                 for (var i = 1; i < wps.length - 1; i++) {
                     var w = wps[i];
+                    var dotColor = TYPE_COLOR[w.type] || '#f0b429';
                     var dot = L.circleMarker([w.lat, w.lon], {
                         radius: 3,
-                        color: '#f0b429',
-                        fillColor: '#f0b429',
+                        color: dotColor,
+                        fillColor: dotColor,
                         fillOpacity: 0.7,
                         weight: 1,
                         interactive: false,
@@ -640,10 +648,13 @@
                     routeLayer.push(dot);
 
                     if (w.name) {
+                        var labelClass = 'map-waypoint-label'
+                            + (w.type === 'sid'  ? ' map-waypoint-label--sid'  : '')
+                            + (w.type === 'star' ? ' map-waypoint-label--star' : '');
                         var wLabel = L.marker([w.lat, w.lon], {
                             icon: L.divIcon({
                                 className: '',
-                                html: '<div class="map-waypoint-label">' + w.name + '</div>',
+                                html: '<div class="' + labelClass + '">' + w.name + '</div>',
                                 iconSize: [0, 0],
                                 iconAnchor: [0, 0],
                             }),
@@ -672,7 +683,8 @@
 
                 // Auto-fit to route bounds
                 try {
-                    map.fitBounds(line.getBounds().pad(0.1));
+                    var allLatLngs = wps.map(function (w) { return [w.lat, w.lon]; });
+                    map.fitBounds(L.polyline(allLatLngs).getBounds().pad(0.1));
                 } catch (e) { /* bounds too small */ }
             })
             .catch(function (e) { console.warn('Route fetch failed:', e); });
