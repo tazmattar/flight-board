@@ -84,6 +84,79 @@
         });
     }
 
+    var OVERPASS_ENDPOINTS = [
+        'https://overpass-api.de/api/interpreter',
+        'https://overpass.kumi.systems/api/interpreter',
+        'https://overpass.openstreetmap.ru/api/interpreter',
+    ];
+
+    function fetchOverpass(q, endpointIndex) {
+        endpointIndex = endpointIndex || 0;
+        if (endpointIndex >= OVERPASS_ENDPOINTS.length) return Promise.reject(new Error('All Overpass endpoints failed'));
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, 15000);
+        return fetch(OVERPASS_ENDPOINTS[endpointIndex] + '?data=' + encodeURIComponent(q), { signal: controller.signal })
+            .then(function (r) { clearTimeout(timer); return r.json(); })
+            .catch(function (e) {
+                clearTimeout(timer);
+                console.warn('Overpass endpoint ' + OVERPASS_ENDPOINTS[endpointIndex] + ' failed, trying next:', e);
+                return fetchOverpass(q, endpointIndex + 1);
+            });
+    }
+
+    function processOsmElements(elements, useLocalStands) {
+        var osmStands = [];
+        elements.forEach(function (el) {
+            var aw = el.tags && el.tags.aeroway;
+
+            if (aw === 'runway' && el.geometry && el.geometry.length >= 2) {
+                var coords = el.geometry.map(function (p) { return [p.lat, p.lon]; });
+                L.polyline(coords, { color: '#555', weight: 6, opacity: 0.55, interactive: false }).addTo(map);
+                L.polyline(coords, { color: '#888', weight: 1, opacity: 0.45, dashArray: '10 8', interactive: false }).addTo(map);
+                var ref = el.tags.ref;
+                if (!ref || ref.indexOf('/') === -1) return;
+                var parts = ref.split('/');
+                var p1 = coords[0], p2 = coords[coords.length - 1];
+                var hdg = calcBearing(p1[0], p1[1], p2[0], p2[1]);
+                var approxNum = Math.round(hdg / 10) % 36 || 36;
+                var n1 = parseInt(parts[0]);
+                var labelP1, labelP2;
+                if (Math.abs(approxNum - n1) <= 2 || Math.abs(approxNum - n1) >= 34) {
+                    labelP1 = parts[0]; labelP2 = parts[1];
+                } else {
+                    labelP1 = parts[1]; labelP2 = parts[0];
+                }
+                addRunwayLabel(p1, labelP1, hdg + 180);
+                addRunwayLabel(p2, labelP2, hdg);
+            }
+
+            if ((aw === 'taxiway' || aw === 'taxilane') && el.geometry && el.geometry.length >= 2) {
+                var txCoords = el.geometry.map(function (p) { return [p.lat, p.lon]; });
+                L.polyline(txCoords, {
+                    color: '#aa9900',
+                    weight: aw === 'taxilane' ? 1.5 : 2.5,
+                    opacity: aw === 'taxilane' ? 0.4 : 0.55,
+                    interactive: false,
+                }).addTo(taxiwayGroup);
+            }
+
+            if (aw === 'parking_position' && !useLocalStands) {
+                var lat, lon;
+                if (el.type === 'node') {
+                    lat = el.lat; lon = el.lon;
+                } else if (el.geometry && el.geometry.length) {
+                    var sLat = 0, sLon = 0;
+                    el.geometry.forEach(function (p) { sLat += p.lat; sLon += p.lon; });
+                    lat = sLat / el.geometry.length;
+                    lon = sLon / el.geometry.length;
+                }
+                var label = el.tags && (el.tags.ref || el.tags.name);
+                if (lat != null && label) osmStands.push({ name: label, lat: lat, lon: lon });
+            }
+        });
+        return osmStands;
+    }
+
     function fetchAirportFeatures() {
         var q = '[out:json];('
             + 'way[aeroway=runway](around:4000,'   + APT_LAT + ',' + APT_LON + ');'
@@ -93,73 +166,24 @@
             + 'way[aeroway=parking_position](around:4000,'  + APT_LAT + ',' + APT_LON + ');'
             + ');out geom;';
 
-        var osmP    = fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(q)).then(function (r) { return r.json(); });
+        // Stands are fetched and rendered independently — OSM failure won't block them
         var standsP = fetch('/static/stands.json').then(function (r) { return r.json(); }).catch(function () { return {}; });
-
-        Promise.all([osmP, standsP]).then(function (results) {
-            var elements      = results[0].elements || [];
-            var standsJson    = results[1];
+        standsP.then(function (standsJson) {
             var useLocalStands = !!(standsJson[AIRPORT] && standsJson[AIRPORT].length);
-            var osmStands     = [];
-
-            elements.forEach(function (el) {
-                var aw = el.tags && el.tags.aeroway;
-
-                if (aw === 'runway' && el.geometry && el.geometry.length >= 2) {
-                    var coords = el.geometry.map(function (p) { return [p.lat, p.lon]; });
-                    L.polyline(coords, { color: '#555', weight: 6, opacity: 0.55, interactive: false }).addTo(map);
-                    L.polyline(coords, { color: '#888', weight: 1, opacity: 0.45, dashArray: '10 8', interactive: false }).addTo(map);
-                    var ref = el.tags.ref;
-                    if (!ref || ref.indexOf('/') === -1) return;
-                    var parts = ref.split('/');
-                    var p1 = coords[0], p2 = coords[coords.length - 1];
-                    var hdg = calcBearing(p1[0], p1[1], p2[0], p2[1]);
-                    var approxNum = Math.round(hdg / 10) % 36 || 36;
-                    var n1 = parseInt(parts[0]);
-                    var labelP1, labelP2;
-                    if (Math.abs(approxNum - n1) <= 2 || Math.abs(approxNum - n1) >= 34) {
-                        labelP1 = parts[0]; labelP2 = parts[1];
-                    } else {
-                        labelP1 = parts[1]; labelP2 = parts[0];
-                    }
-                    addRunwayLabel(p1, labelP1, hdg + 180);
-                    addRunwayLabel(p2, labelP2, hdg);
-                }
-
-                if ((aw === 'taxiway' || aw === 'taxilane') && el.geometry && el.geometry.length >= 2) {
-                    var txCoords = el.geometry.map(function (p) { return [p.lat, p.lon]; });
-                    L.polyline(txCoords, {
-                        color: '#aa9900',
-                        weight: aw === 'taxilane' ? 1.5 : 2.5,
-                        opacity: aw === 'taxilane' ? 0.4 : 0.55,
-                        interactive: false,
-                    }).addTo(taxiwayGroup);
-                }
-
-                if (aw === 'parking_position' && !useLocalStands) {
-                    var lat, lon;
-                    if (el.type === 'node') {
-                        lat = el.lat; lon = el.lon;
-                    } else if (el.geometry && el.geometry.length) {
-                        var sLat = 0, sLon = 0;
-                        el.geometry.forEach(function (p) { sLat += p.lat; sLon += p.lon; });
-                        lat = sLat / el.geometry.length;
-                        lon = sLon / el.geometry.length;
-                    }
-                    var label = el.tags && (el.tags.ref || el.tags.name);
-                    if (lat != null && label) osmStands.push({ name: label, lat: lat, lon: lon });
-                }
-            });
-
-            // Stands: local data takes priority over OSM
             if (useLocalStands) {
                 renderStands(standsJson[AIRPORT]);
-            } else if (osmStands.length) {
-                renderStands(osmStands);
+                updateFeatureVisibility();
             }
 
-            updateFeatureVisibility();
-        }).catch(function (e) { console.warn('Airport feature fetch failed', e); });
+            // OSM fetch: try primary + mirrors with per-request timeout
+            fetchOverpass(q)
+                .then(function (data) {
+                    var osmStands = processOsmElements(data.elements || [], useLocalStands);
+                    if (!useLocalStands && osmStands.length) renderStands(osmStands);
+                    updateFeatureVisibility();
+                })
+                .catch(function (e) { console.warn('All Overpass endpoints failed:', e); });
+        });
     }
 
     fetchAirportFeatures();
