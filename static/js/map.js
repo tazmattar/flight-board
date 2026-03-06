@@ -525,9 +525,15 @@
         var label = el.querySelector('.map-plane-label');
         var svgLine = el.querySelector('.map-plane-stalk-svg line');
         if (!label || !svgLine) return;
+        if (label._dragAttached) return;  // already wired up — don't add duplicate listeners
+        label._dragAttached = true;
 
         label.addEventListener('mousedown', function (e) {
             if (e.button !== 0) return;
+            // In tracking mode only the tracked flight's label is draggable
+            var tc = localStorage.getItem('flightboard.tracked_callsign');
+            if (tc && callsign !== tc) return;
+            e.stopPropagation(); // prevent Leaflet map drag from starting
             var startX = e.clientX, startY = e.clientY;
             var startDx = parseInt(label.style.left) || 14;
             var startDy = parseInt(label.style.top) || -14;
@@ -706,7 +712,7 @@
                 markers[f.callsign].setLatLng(pos);
                 markers[f.callsign].setIcon(makeIcon(f, off.dx, off.dy, isTracked));
                 markers[f.callsign]._flightData = f;
-                attachLabelDrag(markers[f.callsign], f.callsign);
+                attachLabelDrag(markers[f.callsign], f.callsign); // setIcon recreates the DOM element so re-attach
             } else {
                 const m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, isTracked), zIndexOffset: 1000 }).addTo(map);
                 m._flightData = f;
