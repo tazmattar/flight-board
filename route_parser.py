@@ -167,40 +167,91 @@ def _parse_cifp(icao: str) -> dict:
     return result
 
 
-def _best_transition(transitions: dict, ref: tuple) -> list:
+def _resolve_fix(ident: str, ref: tuple, max_km: float = 500) -> tuple | None:
+    """Return the best (lat, lon) for a fix ident near ref, or None."""
+    candidates = fixes.get(ident) or navaids.get(ident)
+    if not candidates:
+        return None
+    return _pick_closest(candidates, ref, max_km=max_km)
+
+
+def _best_sid_transition(transitions: dict, airport_ref: tuple, next_fix_ref: tuple | None) -> list:
     """
-    Given a dict of {transition: [ident, ...]} pick the transition whose first
-    resolvable fix is closest to ref. Prefer the 'ALL' transition if present and
-    it's the only one. Returns the ident list for the chosen transition.
+    Pick the SID transition whose EXIT (last) fix is closest to next_fix_ref
+    (the first en-route waypoint after the SID in the filed route).
+    Falls back to nearest ENTRY fix from airport if next_fix_ref is unavailable.
+    Prepends the common 'ALL' transition idents if present.
     """
     if not transitions:
         return []
-
-    # If only one transition, use it regardless
     if len(transitions) == 1:
         return next(iter(transitions.values()))
 
-    # If 'ALL' is the only non-runway transition, combine ALL + nearest runway transition
     all_idents = transitions.get('ALL', [])
+    runway_transitions = {k: v for k, v in transitions.items() if k != 'ALL'}
 
-    # For each transition, find the distance from ref to its first resolvable fix
+    if not runway_transitions:
+        return all_idents
+
+    ref = next_fix_ref if next_fix_ref else airport_ref
+    # For SID: score by distance from ref to the LAST resolvable fix in each transition
     best_key, best_dist = None, float('inf')
-    for key, idents in transitions.items():
-        for ident in idents:
-            candidates = fixes.get(ident) or navaids.get(ident)
-            if candidates:
-                dist = min(_haversine(ref[0], ref[1], c[0], c[1]) for c in candidates)
+    for key, idents in runway_transitions.items():
+        for ident in reversed(idents):  # last fix first
+            pos = _resolve_fix(ident, airport_ref)
+            if pos:
+                dist = _haversine(ref[0], ref[1], pos[0], pos[1])
                 if dist < best_dist:
                     best_dist = dist
                     best_key = key
-                break  # only use first resolvable fix per transition for comparison
+                break
 
     if best_key is None:
-        return all_idents or next(iter(transitions.values()))
+        return all_idents + list(runway_transitions.values())[0]
 
-    # Return ALL idents + chosen runway idents (deduped, ALL first)
     chosen = list(all_idents)
-    for ident in transitions[best_key]:
+    for ident in runway_transitions[best_key]:
+        if ident not in chosen:
+            chosen.append(ident)
+    return chosen
+
+
+def _best_star_transition(transitions: dict, airport_ref: tuple, prev_fix_ref: tuple | None) -> list:
+    """
+    Pick the STAR transition whose ENTRY (first) fix is closest to prev_fix_ref
+    (the last en-route waypoint before the STAR in the filed route).
+    Falls back to airport ref if prev_fix_ref is unavailable.
+    Appends the common 'ALL' transition idents if present.
+    """
+    if not transitions:
+        return []
+    if len(transitions) == 1:
+        return next(iter(transitions.values()))
+
+    all_idents = transitions.get('ALL', [])
+    runway_transitions = {k: v for k, v in transitions.items() if k != 'ALL'}
+
+    if not runway_transitions:
+        return all_idents
+
+    ref = prev_fix_ref if prev_fix_ref else airport_ref
+    # For STAR: score by distance from ref to the FIRST resolvable fix in each transition
+    best_key, best_dist = None, float('inf')
+    for key, idents in runway_transitions.items():
+        for ident in idents:  # first fix first
+            pos = _resolve_fix(ident, airport_ref)
+            if pos:
+                dist = _haversine(ref[0], ref[1], pos[0], pos[1])
+                if dist < best_dist:
+                    best_dist = dist
+                    best_key = key
+                break
+
+    if best_key is None:
+        return all_idents
+
+    chosen = list(all_idents)
+    for ident in runway_transitions[best_key]:
         if ident not in chosen:
             chosen.append(ident)
     return chosen
@@ -306,6 +357,41 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
     sid_token  = next((t for t in tokens if t in origin_cifp['SID']), None)
     star_token = next((t for t in reversed(tokens) if t in dest_cifp['STAR']), None)
 
+    # Find the first en-route fix after the SID (used to pick the right runway transition)
+    def _first_enroute_fix_after_sid():
+        if sid_token is None:
+            return None
+        idx = tokens.index(sid_token)
+        ref = origin_coords or (0.0, 0.0)
+        for t in tokens[idx + 1:]:
+            if t in _SKIP_WORDS or _SPEED_ALT_RE.match(t) or _AIRWAY_RE.match(t):
+                continue
+            if t == star_token:
+                break
+            pos = _resolve_fix(t, ref, max_km=8000)
+            if pos:
+                return pos
+        return None
+
+    # Find the last en-route fix before the STAR (used to pick the right runway transition)
+    def _last_enroute_fix_before_star():
+        if star_token is None:
+            return None
+        idx = len(tokens) - 1 - list(reversed(tokens)).index(star_token)
+        ref = dest_coords or (0.0, 0.0)
+        for t in reversed(tokens[:idx]):
+            if t in _SKIP_WORDS or _SPEED_ALT_RE.match(t) or _AIRWAY_RE.match(t):
+                continue
+            if t == sid_token:
+                break
+            pos = _resolve_fix(t, ref, max_km=8000)
+            if pos:
+                return pos
+        return None
+
+    sid_next_ref  = _first_enroute_fix_after_sid()
+    star_prev_ref = _last_enroute_fix_before_star()
+
     waypoints = []
 
     if origin_coords:
@@ -330,8 +416,9 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
         # SID — only expand the first matching token
         if token == sid_token and not sid_done:
             sid_done = True
-            idents = _best_transition(origin_cifp['SID'][token], origin_coords or last_coords)
-            expanded = _expand_procedure(idents, origin_coords or last_coords, 'sid')
+            sid_ref = origin_coords or last_coords
+            idents = _best_sid_transition(origin_cifp['SID'][token], sid_ref, sid_next_ref)
+            expanded = _expand_procedure(idents, sid_ref, 'sid')
             waypoints.extend(expanded)
             if expanded:
                 last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
@@ -344,7 +431,7 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
             if star_token not in remaining:
                 star_done = True
                 star_ref = dest_coords or last_coords
-                idents = _best_transition(dest_cifp['STAR'][token], star_ref)
+                idents = _best_star_transition(dest_cifp['STAR'][token], star_ref, star_prev_ref)
                 expanded = _expand_procedure(idents, star_ref, 'star')
                 waypoints.extend(expanded)
                 if expanded:
