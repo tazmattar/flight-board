@@ -20,6 +20,7 @@ If the flight board adds a little extra joy to your sim experience, a coffee hel
 * **Live WebSockets:** Uses Socket.IO to push updates immediately to the client without requiring a page refresh.
 * **Header Widgets:** Live ATC status with controller popover, METAR-driven weather icon and temperature display, and a compass link to the Live Map. Hover the weather widget to reveal a **METAR popover** with the raw string and decoded wind, visibility, cloud, temperature/dewpoint, and QNH.
 * **Live Radar Map:** Dedicated page at `/map/<ICAO>` showing all departures and arrivals as real-time aircraft markers on a dark Leaflet map. Markers are color-coded (green = ground ops, blue = arrivals, orange = departures) and rotated to show heading. Click any aircraft to open a detail panel with callsign, status, route, gate, and a link to the gate display. An ATC panel lists online controllers with markers at approximate positions. Uses Socket.IO for live updates.
+* **TCAS-Style Conflict Detection:** En-route and approaching aircraft are continuously monitored for proximity conflicts using ICAO separation minima. Three severity tiers are visualised as pulsing SVG rings on aircraft icons and dashed connecting polylines: yellow (<10 NM / <2,000 ft), orange (<5 NM / <1,000 ft), red (<2 NM / <800 ft). Aircraft below 1,000 ft or in ground/departure phases are excluded. In tracked-flight mode only pairs involving the tracked callsign are shown. Toggleable from the map legend with state persisted in localStorage.
 * **Gate Display Board:** Right-click any flight row to open an airport-style gate information card showing flight number, airline logo, destination/origin city, status badge, gate, scheduled time, and aircraft type.
 * **Full-Page Gate Display (Streamer Mode):** Dedicated full-page gate monitor at `/gate/<ICAO>/<callsign>` — designed for OBS overlays and streaming. Features a clean white layout with large gate number, airline logo, flight number, destination, departure time, aircraft, and status pill. Accent colours are dynamically extracted from the airline's logo. Also accessible via the ↗ link inside the gate display modal.
 * **Help / User Guide:** Built-in modal accessible from the header, covering all features and keyboard shortcuts.
@@ -165,6 +166,7 @@ This project is open-source and available under the MIT License. See [POLICY.md]
 - [x] Gate Display Board modal (per-flight info card with status badge)
 - [x] Full-page Gate Display for streamers with dynamic airline accent colours
 - [x] Live Radar Map with real-time aircraft tracking and ATC overlay
+- [x] TCAS-style conflict detection on the radar map (three severity tiers, toggleable)
 
 ## Bonus - Running as a Dedicated Kiosk Display
 
