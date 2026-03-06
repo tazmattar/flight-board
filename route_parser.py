@@ -124,8 +124,9 @@ def _parse_navaids(path: str) -> dict:
 def _parse_cifp(icao: str) -> dict:
     """
     Load and parse the CIFP procedure file for an airport.
-    Returns {'SID': {name: [ident, ...]}, 'STAR': {name: [ident, ...]}}
-    where each list is the ordered sequence of named fixes for that procedure.
+    Returns:
+      {'SID':  {proc_name: {transition: [ident, ...]}},
+       'STAR': {proc_name: {transition: [ident, ...]}}}
     Legs with no named fix (CA, VA, etc.) are omitted.
     Results are cached after first load.
     """
@@ -149,13 +150,12 @@ def _parse_cifp(icao: str) -> dict:
                 proc_type = type_seq.split(':', 1)[0].strip().upper()
                 if proc_type not in ('SID', 'STAR'):
                     continue
-                proc_name = parts[2].strip()
-                if not proc_name:
+                proc_name  = parts[2].strip()
+                transition = parts[3].strip()
+                ident      = parts[4].strip()
+                if not proc_name or not transition or not ident:
                     continue
-                ident = parts[4].strip()
-                if not ident:
-                    continue  # leg has no named fix (CA, VA, etc.)
-                bucket = result[proc_type].setdefault(proc_name, [])
+                bucket = result[proc_type].setdefault(proc_name, {}).setdefault(transition, [])
                 if ident not in bucket:
                     bucket.append(ident)
     except FileNotFoundError:
@@ -167,18 +167,62 @@ def _parse_cifp(icao: str) -> dict:
     return result
 
 
-def _expand_procedure(idents: list, ref: tuple, wp_type: str) -> list:
-    """Resolve a list of fix idents to waypoint dicts, skipping unresolvable ones."""
+def _best_transition(transitions: dict, ref: tuple) -> list:
+    """
+    Given a dict of {transition: [ident, ...]} pick the transition whose first
+    resolvable fix is closest to ref. Prefer the 'ALL' transition if present and
+    it's the only one. Returns the ident list for the chosen transition.
+    """
+    if not transitions:
+        return []
+
+    # If only one transition, use it regardless
+    if len(transitions) == 1:
+        return next(iter(transitions.values()))
+
+    # If 'ALL' is the only non-runway transition, combine ALL + nearest runway transition
+    all_idents = transitions.get('ALL', [])
+
+    # For each transition, find the distance from ref to its first resolvable fix
+    best_key, best_dist = None, float('inf')
+    for key, idents in transitions.items():
+        for ident in idents:
+            candidates = fixes.get(ident) or navaids.get(ident)
+            if candidates:
+                dist = min(_haversine(ref[0], ref[1], c[0], c[1]) for c in candidates)
+                if dist < best_dist:
+                    best_dist = dist
+                    best_key = key
+                break  # only use first resolvable fix per transition for comparison
+
+    if best_key is None:
+        return all_idents or next(iter(transitions.values()))
+
+    # Return ALL idents + chosen runway idents (deduped, ALL first)
+    chosen = list(all_idents)
+    for ident in transitions[best_key]:
+        if ident not in chosen:
+            chosen.append(ident)
+    return chosen
+
+
+def _expand_procedure(idents: list, airport_ref: tuple, wp_type: str) -> list:
+    """
+    Resolve CIFP procedure fix idents to waypoint dicts.
+    Uses the airport position as the reference throughout — procedure fixes
+    are always local to their airport, so we use a tight 500km cap and don't
+    chain positions across the Atlantic.
+    """
     out = []
-    pos = ref
+    pos = airport_ref
     for ident in idents:
         candidates = fixes.get(ident) or navaids.get(ident)
         if not candidates:
             continue
-        chosen = _pick_closest(candidates, pos)
+        chosen = _pick_closest(candidates, pos, max_km=500)
         if chosen:
             out.append({'name': ident, 'lat': chosen[0], 'lon': chosen[1], 'type': wp_type})
-            pos = chosen
+            pos = chosen  # chain within the procedure for ordering
     return out
 
 
@@ -206,13 +250,13 @@ def _haversine(lat1, lon1, lat2, lon2) -> float:
 
 
 
-_MAX_STEP_KM = 1000  # skip any fix whose nearest candidate is further than this
+_MAX_STEP_KM = 8000  # raised to handle transatlantic/transpacific routes
 
 
-def _pick_closest(candidates, ref):
-    """Return the nearest candidate to ref, or None if all are beyond _MAX_STEP_KM."""
+def _pick_closest(candidates, ref, max_km=_MAX_STEP_KM):
+    """Return the nearest candidate to ref, or None if all are beyond max_km."""
     best = min(candidates, key=lambda c: _haversine(ref[0], ref[1], c[0], c[1]))
-    if _haversine(ref[0], ref[1], best[0], best[1]) > _MAX_STEP_KM:
+    if _haversine(ref[0], ref[1], best[0], best[1]) > max_km:
         return None
     return best
 
@@ -257,6 +301,11 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
     origin_cifp = _parse_cifp(origin_icao) if origin_icao else {'SID': {}, 'STAR': {}}
     dest_cifp   = _parse_cifp(dest_icao)   if dest_icao   else {'SID': {}, 'STAR': {}}
 
+    # Pre-scan tokens to identify exactly one SID (first match) and one STAR (last match)
+    tokens = [_strip_runway_suffix(t).upper() for t in (route_str or '').split()]
+    sid_token  = next((t for t in tokens if t in origin_cifp['SID']), None)
+    star_token = next((t for t in reversed(tokens) if t in dest_cifp['STAR']), None)
+
     waypoints = []
 
     if origin_coords:
@@ -265,9 +314,10 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
     # Tracks the last known position for nearest-neighbour disambiguation
     last_coords = origin_coords or dest_coords or (0.0, 0.0)
 
-    for raw_token in (route_str or '').split():
-        token = _strip_runway_suffix(raw_token).upper()
+    sid_done  = False
+    star_done = False
 
+    for token in tokens:
         if not token:
             continue
         if token in _SKIP_WORDS:
@@ -276,9 +326,33 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
             continue
         if _AIRWAY_RE.match(token):
             continue
+
+        # SID — only expand the first matching token
+        if token == sid_token and not sid_done:
+            sid_done = True
+            idents = _best_transition(origin_cifp['SID'][token], origin_coords or last_coords)
+            expanded = _expand_procedure(idents, origin_coords or last_coords, 'sid')
+            waypoints.extend(expanded)
+            if expanded:
+                last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
+            continue
+
+        # STAR — only expand the last matching token
+        if token == star_token and not star_done:
+            # Check this is the last occurrence
+            remaining = tokens[tokens.index(token) + 1:]
+            if star_token not in remaining:
+                star_done = True
+                star_ref = dest_coords or last_coords
+                idents = _best_transition(dest_cifp['STAR'][token], star_ref)
+                expanded = _expand_procedure(idents, star_ref, 'star')
+                waypoints.extend(expanded)
+                if expanded:
+                    last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
+                continue
+
         # 4-letter ICAO airport?
         if len(token) == 4 and token.isalpha():
-            # Skip if it's the origin or destination (already added as endpoints)
             if token in (origin_icao, dest_icao):
                 continue
             coords = airports.get(token)
@@ -286,22 +360,6 @@ def resolve_route(route_str: str, origin_icao: str, dest_icao: str) -> list:
                 waypoints.append({'name': token, 'lat': coords[0], 'lon': coords[1], 'type': 'airport'})
                 last_coords = coords
                 continue
-
-        # SID procedure at origin airport?
-        if token in origin_cifp['SID']:
-            expanded = _expand_procedure(origin_cifp['SID'][token], origin_coords or last_coords, 'sid')
-            waypoints.extend(expanded)
-            if expanded:
-                last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
-            continue
-
-        # STAR procedure at destination airport?
-        if token in dest_cifp['STAR']:
-            expanded = _expand_procedure(dest_cifp['STAR'][token], last_coords, 'star')
-            waypoints.extend(expanded)
-            if expanded:
-                last_coords = (expanded[-1]['lat'], expanded[-1]['lon'])
-            continue
 
         # 2-5 char alphanumeric — try fix, then navaid
         if 2 <= len(token) <= 5 and token.isalnum():
