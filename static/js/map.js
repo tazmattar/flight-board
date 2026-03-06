@@ -583,12 +583,21 @@
     /* ── Tracked flight ──────────────────────────────────── */
     let routeLayer = null;
     let renderedRouteCallsign = null;
+    var waypointLabelGroup = L.layerGroup();
+
+    function updateWaypointLabelVisibility() {
+        var z = map.getZoom();
+        if (z >= 7) { if (!map.hasLayer(waypointLabelGroup)) waypointLabelGroup.addTo(map); }
+        else         { if (map.hasLayer(waypointLabelGroup))  map.removeLayer(waypointLabelGroup); }
+    }
+    map.on('zoomend', updateWaypointLabelVisibility);
 
     function clearRouteLayer() {
         if (routeLayer) {
             routeLayer.forEach(function (l) { map.removeLayer(l); });
             routeLayer = null;
         }
+        waypointLabelGroup.clearLayers();
         renderedRouteCallsign = null;
     }
 
@@ -616,7 +625,7 @@
                 }).addTo(map);
                 routeLayer.push(line);
 
-                // Small dots for intermediate waypoints (not first/last)
+                // Small dots + permanent name labels for intermediate waypoints
                 for (var i = 1; i < wps.length - 1; i++) {
                     var w = wps[i];
                     var dot = L.circleMarker([w.lat, w.lon], {
@@ -625,10 +634,25 @@
                         fillColor: '#f0b429',
                         fillOpacity: 0.7,
                         weight: 1,
-                    }).bindTooltip(w.name, { permanent: false, direction: 'top' });
+                        interactive: false,
+                    });
                     dot.addTo(map);
                     routeLayer.push(dot);
+
+                    if (w.name) {
+                        var wLabel = L.marker([w.lat, w.lon], {
+                            icon: L.divIcon({
+                                className: '',
+                                html: '<div class="map-waypoint-label">' + w.name + '</div>',
+                                iconSize: [0, 0],
+                                iconAnchor: [0, 0],
+                            }),
+                            interactive: false,
+                        });
+                        wLabel.addTo(waypointLabelGroup);
+                    }
                 }
+                updateWaypointLabelVisibility();
 
                 // Destination label at end of route
                 var destIcao = (markers[callsign] && markers[callsign]._flightData && markers[callsign]._flightData.destination) || '';

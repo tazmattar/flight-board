@@ -1907,6 +1907,19 @@ body.map-page {
     pointer-events: none;
     letter-spacing: 0.05em;
 }
+.map-waypoint-label {
+    position: absolute;
+    transform: translate(4px, -100%);
+    color: #f0b429;
+    font-size: 8px;
+    font-weight: 600;
+    font-family: var(--font-data);
+    white-space: nowrap;
+    opacity: 0.75;
+    text-shadow: 0 0 3px #000, 0 0 6px #000;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+}
 
 /* ── ATC marker on map ──────────────────────────────────── */
 .map-atc-marker {
