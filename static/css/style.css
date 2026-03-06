@@ -2176,11 +2176,11 @@ body.map-page {
     align-items: center;
     gap: 8px;
     padding: 4px 0;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
 }
 .map-atc-dot {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     background: #4caf50;
     border-radius: 50%;
     flex-shrink: 0;
