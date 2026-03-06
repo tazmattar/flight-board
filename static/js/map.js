@@ -220,7 +220,7 @@
         'GEC': 'LH', 'BCS': 'QY', 'SAZ': 'REGA', 'SHT': 'BA'
     };
     var airlineLogoAliasGroups = {
-        BA: ['SHT'],
+        BA: ['SHT', 'EFW'],
         W6: ['WAU', 'WAZ', 'WIZ', 'WMT', 'WUK', 'WVL', 'WZZ']
     };
     var airlineLogoAliases = {};
