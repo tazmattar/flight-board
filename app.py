@@ -696,6 +696,26 @@ def api_map(icao):
         'controllers': data.get('controllers', []),
     })
 
+@app.route('/api/controllers')
+def api_all_controllers():
+    return jsonify({'controllers': flight_fetcher.all_controllers})
+
+@app.route('/api/flight/<callsign>')
+def api_flight(callsign):
+    callsign = re.sub(r'[^A-Za-z0-9]', '', str(callsign or ''))[:10].upper()
+    if not callsign:
+        return jsonify({'flight': None, 'error': 'invalid callsign'}), 400
+    # Search current_data first — has richer status/gate info
+    for data in current_data.values():
+        for f in data.get('departures', []) + data.get('arrivals', []):
+            if f.get('callsign', '').upper() == callsign:
+                return jsonify({'flight': f})
+    # Fall back to raw global pilot snapshot
+    pilot = flight_fetcher.all_pilots.get(callsign)
+    if pilot:
+        return jsonify({'flight': pilot})
+    return jsonify({'flight': None}), 404
+
 @app.route('/api/route/<callsign>')
 def api_route(callsign):
     callsign = re.sub(r'[^A-Za-z0-9]', '', str(callsign or ''))[:10].upper()

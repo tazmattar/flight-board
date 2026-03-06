@@ -56,6 +56,9 @@ class VatsimFetcher:
         self._dep_times = {}  # callsign -> "HH:MM" actual UTC departure time
         self._arr_times = {}  # callsign -> "HH:MM" actual UTC arrival time
 
+        self.all_controllers = []  # All online controllers from latest VATSIM fetch
+        self.all_pilots = {}       # callsign -> basic position data for all airborne pilots
+
         self.cleanup_dist_dep = 80
         self.ground_range = 15
         
@@ -290,6 +293,36 @@ class VatsimFetcher:
                 results[code]['metar'] = self.get_metar(code)
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
+            # Store global controller + pilot snapshots for tracking API
+            self.all_controllers = [
+                {
+                    'callsign': c['callsign'],
+                    'frequency': c.get('frequency_mhz', ''),
+                    'position': c['callsign'].split('_')[-1],
+                }
+                for c in data.get('controllers', [])
+                if c.get('callsign') and not c['callsign'].endswith('_ATIS')
+            ]
+            self.all_pilots = {}
+            for pilot in data.get('pilots', []):
+                cs = pilot.get('callsign')
+                fp = pilot.get('flight_plan') or {}
+                if cs and pilot.get('latitude') is not None:
+                    self.all_pilots[cs] = {
+                        'callsign': cs,
+                        'latitude': pilot['latitude'],
+                        'longitude': pilot['longitude'],
+                        'heading': pilot.get('heading', 0),
+                        'groundspeed': pilot.get('groundspeed', 0),
+                        'altitude': pilot.get('altitude', 0),
+                        'origin': fp.get('departure', ''),
+                        'destination': fp.get('arrival', ''),
+                        'route': fp.get('route', ''),
+                        'status': 'En Route',
+                        'status_raw': 'En Route',
+                        'direction': 'ARR',
+                    }
+
             # Prune _dep_times of callsigns no longer appearing as Departing on any board
             active_dep = set()
             for airport_result in results.values():

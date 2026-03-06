@@ -665,9 +665,10 @@
             }
 
         });
-        // Remove stale
+        // Remove stale — but preserve the tracked flight if it's being tracked en route
         Object.keys(markers).forEach(function (cs) {
             if (!seen[cs]) {
+                if (trackedEnRoute && cs === trackedCallsign) return;
                 map.removeLayer(markers[cs]);
                 delete markers[cs];
                 delete userOffsets[cs];
@@ -933,15 +934,18 @@
     }
 
     function updateATC(controllers) {
-        // Update active CTR sector highlights
-        activeCtrPrefixes = new Set();
-        controllers.forEach(function (c) {
-            if ((c.position || '').toUpperCase() === 'CTR') {
-                var prefix = c.callsign.split('_')[0].toUpperCase();
-                activeCtrPrefixes.add(prefix);
-            }
-        });
-        highlightActiveSectors();
+        // Sector highlights: use local CTR data only when not in tracking mode.
+        // In tracking mode, refreshGlobalATC() manages activeCtrPrefixes instead.
+        if (!lastTrackedCallsign) {
+            activeCtrPrefixes = new Set();
+            controllers.forEach(function (c) {
+                if ((c.position || '').toUpperCase() === 'CTR') {
+                    var prefix = c.callsign.split('_')[0].toUpperCase();
+                    activeCtrPrefixes.add(prefix);
+                }
+            });
+            highlightActiveSectors();
+        }
 
         // List
         atcListEl.innerHTML = '';
@@ -995,16 +999,113 @@
     updateClock();
     setInterval(updateClock, 10000);
 
+    /* ── En-route flight tracking ─────────────────────────── */
+    var lastTrackedCallsign = null;
+    var trackedEnRoute = false;   // true when tracked flight is not in local airport data
+    var trackPoller = null;       // setInterval handle for flight position polling
+    var globalAtcPoller = null;   // setInterval handle for global CTR refresh
+
+    function refreshGlobalATC() {
+        fetch('/api/controllers')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                activeCtrPrefixes = new Set();
+                (data.controllers || []).forEach(function (c) {
+                    if ((c.position || '').toUpperCase() === 'CTR') {
+                        activeCtrPrefixes.add(c.callsign.split('_')[0].toUpperCase());
+                    }
+                });
+                highlightActiveSectors();
+            })
+            .catch(function (e) { console.warn('Global ATC fetch failed:', e); });
+    }
+
+    function updateEnRouteMarker(f) {
+        if (!f || f.latitude == null) return;
+        var cs = f.callsign;
+        var pos = [f.latitude, f.longitude];
+        var off = { dx: 14, dy: -14 };
+        if (markers[cs]) {
+            markers[cs].setLatLng(pos);
+            markers[cs].setIcon(makeIcon(f, off.dx, off.dy, true));
+            markers[cs]._flightData = f;
+        } else {
+            var m = L.marker(pos, { icon: makeIcon(f, off.dx, off.dy, true), zIndexOffset: 1000 }).addTo(map);
+            m._flightData = f;
+            m.on('click', function () { showFlightPanel(m._flightData); });
+            markers[cs] = m;
+            attachLabelDrag(m, cs);
+        }
+        updateTrail(f, false);
+        // Auto-pan if flight has moved outside current view
+        if (!map.getBounds().contains(pos)) {
+            map.panTo(pos, { animate: true, duration: 1.0 });
+        }
+        // Auto-open panel on first en-route detection
+        if (!panelAutoOpened) {
+            panelAutoOpened = true;
+            showFlightPanel(f);
+        }
+        if (selectedCallsign === cs) showFlightPanel(f);
+    }
+
+    function pollTrackedFlight(callsign) {
+        fetch('/api/flight/' + encodeURIComponent(callsign))
+            .then(function (r) { return r.json(); })
+            .then(function (data) { updateEnRouteMarker(data.flight); })
+            .catch(function (e) { console.warn('Tracked flight poll failed:', e); });
+    }
+
+    function ensureTrackPoller(callsign) {
+        if (trackPoller) return;
+        trackedEnRoute = true;
+        pollTrackedFlight(callsign);
+        trackPoller = setInterval(function () { pollTrackedFlight(callsign); }, 15000);
+    }
+
+    function stopTrackPoller() {
+        if (trackPoller) { clearInterval(trackPoller); trackPoller = null; }
+        trackedEnRoute = false;
+    }
+
+    function onTrackingStart(callsign) {
+        refreshGlobalATC();
+        if (globalAtcPoller) clearInterval(globalAtcPoller);
+        globalAtcPoller = setInterval(refreshGlobalATC, 30000);
+    }
+
+    function onTrackingStop() {
+        stopTrackPoller();
+        if (globalAtcPoller) { clearInterval(globalAtcPoller); globalAtcPoller = null; }
+        // Sector highlights will revert to local CTR on the next updateATC call
+    }
+
     /* ── Socket.IO ────────────────────────────────────────── */
     var socket = io({ transports: ['websocket', 'polling'] });
 
     function handleUpdate(data) {
+        var tc = localStorage.getItem('flightboard.tracked_callsign');
+
+        // Detect tracking state changes
+        if (tc !== lastTrackedCallsign) {
+            if (tc) onTrackingStart(tc);
+            else onTrackingStop();
+            lastTrackedCallsign = tc;
+        }
+
         var deps = data.departures || [];
         var arrs = data.arrivals || [];
         var allFlights = deps.concat(arrs).filter(function (f) { return f.latitude != null; });
         updateMarkers(allFlights);
         updateATC(data.controllers || []);
         updateStats(allFlights.length, (data.controllers || []).length);
+
+        // Manage en-route poller based on whether tracked flight is in local data
+        if (tc) {
+            var inLocal = allFlights.some(function (f) { return f.callsign === tc; });
+            if (inLocal) stopTrackPoller();
+            else ensureTrackPoller(tc);
+        }
 
         // Refresh selected panel if still open
         if (selectedCallsign && markers[selectedCallsign]) {
@@ -1030,11 +1131,14 @@
         })
         .catch(function (e) { console.warn('Initial map load failed:', e); });
 
-    // Re-render route when tracking changes from another tab
+    // Re-render route + tracking mode when tracking changes from another tab
     window.addEventListener('storage', function (e) {
         if (e.key === 'flightboard.tracked_callsign') {
             clearRouteLayer();
             renderTrackedRoute(e.newValue || null);
+            if (e.newValue && e.newValue !== lastTrackedCallsign) onTrackingStart(e.newValue);
+            else if (!e.newValue) onTrackingStop();
+            lastTrackedCallsign = e.newValue || null;
         }
     });
 
