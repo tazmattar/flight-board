@@ -1009,8 +1009,14 @@
 
         // List — skip while tracking (refreshGlobalATC owns the list in that mode)
         if (!lastTrackedCallsign) {
+            var filtered = controllers.filter(function (c) {
+                if ((c.callsign || '').toUpperCase().endsWith('_OBS')) return false;
+                var freq = (c.frequency || '').trim();
+                return freq && freq !== '199.998';
+            });
+            filtered.sort(function (a, b) { return a.callsign.localeCompare(b.callsign); });
             atcListEl.innerHTML = '';
-            controllers.forEach(function (c) {
+            filtered.forEach(function (c) {
                 var li = document.createElement('li');
                 li.className = 'map-atc-item';
                 li.innerHTML = '<span class="map-atc-dot"></span>'
@@ -1067,6 +1073,25 @@
     var trackPoller = null;       // setInterval handle for flight position polling
     var globalAtcPoller = null;   // setInterval handle for global CTR refresh
 
+    var TRACK_RADIUS_KM = 800; // ~500 miles
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+        var R = 6371, toRad = Math.PI / 180;
+        var dLat = (lat2 - lat1) * toRad, dLon = (lon2 - lon1) * toRad;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+              + Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad)
+              * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function isControllerRelevant(c, flightLat, flightLon) {
+        if ((c.callsign || '').toUpperCase().endsWith('_OBS')) return false;
+        var freq = (c.frequency || '').trim();
+        if (!freq || freq === '199.998') return false;
+        if (c.lat == null || c.lon == null) return false;
+        return haversineKm(flightLat, flightLon, c.lat, c.lon) <= TRACK_RADIUS_KM;
+    }
+
     function refreshGlobalATC() {
         fetch('/api/controllers')
             .then(function (r) { return r.json(); })
@@ -1080,16 +1105,27 @@
                 });
                 highlightActiveSectors();
 
-                // Populate the ATC list with all global controllers while tracking
+                // Populate ATC list: filter to ~500-mile radius around the tracked flight
+                var fd = lastTrackedCallsign && markers[lastTrackedCallsign]
+                    ? markers[lastTrackedCallsign]._flightData : null;
+                var flightLat = fd ? fd.latitude  : null;
+                var flightLon = fd ? fd.longitude : null;
+
                 atcListEl.innerHTML = '';
-                controllers.forEach(function (c) {
-                    var li = document.createElement('li');
-                    li.className = 'map-atc-item';
-                    li.innerHTML = '<span class="map-atc-dot"></span>'
-                        + '<span class="map-atc-cs">' + c.callsign + '</span>'
-                        + '<span class="map-atc-freq">' + c.frequency + '</span>';
-                    atcListEl.appendChild(li);
-                });
+                if (flightLat != null && flightLon != null) {
+                    var relevant = controllers.filter(function (c) {
+                        return isControllerRelevant(c, flightLat, flightLon);
+                    });
+                    relevant.sort(function (a, b) { return a.callsign.localeCompare(b.callsign); });
+                    relevant.forEach(function (c) {
+                        var li = document.createElement('li');
+                        li.className = 'map-atc-item';
+                        li.innerHTML = '<span class="map-atc-dot"></span>'
+                            + '<span class="map-atc-cs">' + c.callsign + '</span>'
+                            + '<span class="map-atc-freq">' + c.frequency + '</span>';
+                        atcListEl.appendChild(li);
+                    });
+                }
             })
             .catch(function (e) { console.warn('Global ATC fetch failed:', e); });
     }

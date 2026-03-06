@@ -58,6 +58,8 @@ class VatsimFetcher:
 
         self.all_controllers = []  # All online controllers from latest VATSIM fetch
         self.all_pilots = {}       # callsign -> basic position data for all airborne pilots
+        self.fir_map = self.load_fir_map()          # callsign_prefix -> boundary_id
+        self.airport_coords = self.load_airport_coords()  # ICAO -> (lat, lon)
 
         self.cleanup_dist_dep = 80
         self.ground_range = 15
@@ -68,6 +70,70 @@ class VatsimFetcher:
         else:
             self.ukcp_fetcher = None
     
+    def load_fir_map(self):
+        """
+        Parse VATSpy.dat [FIRs] section to build a callsign-prefix → boundary_id map.
+        Format: boundary_id|name|callsign_prefix|boundary_id
+        e.g. EGTT-S|London ACC (South)|LON_S|EGTT-S  →  'LON_S': 'EGTT-S'
+        """
+        result = {}
+        path = os.path.join(os.path.dirname(__file__), 'data', 'navdata', 'VATSpy.dat')
+        try:
+            in_firs = False
+            with open(path, encoding='utf-8', errors='replace') as f:
+                for line in f:
+                    line = line.strip()
+                    if line == '[FIRs]':
+                        in_firs = True
+                        continue
+                    if line.startswith('[') and in_firs:
+                        break
+                    if not in_firs or not line or line.startswith(';'):
+                        continue
+                    parts = line.split('|')
+                    if len(parts) < 4:
+                        continue
+                    boundary_id = parts[0].strip()
+                    prefix      = parts[2].strip()
+                    if prefix:
+                        result[prefix] = boundary_id
+        except Exception as e:
+            print(f'Warning: could not load FIR map: {e}')
+        return result
+
+    def load_airport_coords(self):
+        """
+        Parse VATSpy.dat [Airports] section to build ICAO → (lat, lon).
+        Used to attach a position to each controller for distance-based filtering.
+        """
+        result = {}
+        path = os.path.join(os.path.dirname(__file__), 'data', 'navdata', 'VATSpy.dat')
+        try:
+            in_airports = False
+            with open(path, encoding='utf-8', errors='replace') as f:
+                for line in f:
+                    line = line.strip()
+                    if line == '[Airports]':
+                        in_airports = True
+                        continue
+                    if line.startswith('[') and in_airports:
+                        break
+                    if not in_airports or not line or line.startswith(';'):
+                        continue
+                    parts = line.split('|')
+                    if len(parts) < 4:
+                        continue
+                    icao = parts[0].strip().upper()
+                    try:
+                        lat = float(parts[2])
+                        lon = float(parts[3])
+                        result[icao] = (lat, lon)
+                    except ValueError:
+                        continue
+        except Exception as e:
+            print(f'Warning: could not load airport coords: {e}')
+        return result
+
     def load_airport_database(self):
         try:
             response = requests.get('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json', timeout=10)
@@ -294,15 +360,29 @@ class VatsimFetcher:
                 results[code]['controllers'] = self.get_controllers(data.get('controllers', []), code)
             
             # Store global controller + pilot snapshots for tracking API
-            self.all_controllers = [
-                {
-                    'callsign': c['callsign'],
-                    'frequency': c.get('frequency', ''),
-                    'position': c['callsign'].split('_')[-1],
-                }
-                for c in data.get('controllers', [])
-                if c.get('callsign') and not c['callsign'].endswith('_ATIS')
-            ]
+            new_controllers = []
+            for c in data.get('controllers', []):
+                cs = c.get('callsign', '')
+                if not cs or cs.endswith('_ATIS'):
+                    continue
+                boundary_id = self._boundary_id(cs)
+                # Estimate controller position: try ICAO prefix, then boundary root
+                icao = cs.split('_')[0].upper()
+                coords = self.airport_coords.get(icao)
+                if not coords:
+                    # boundary_id may be like 'EGTT-S' — try the root part
+                    root = boundary_id.split('-')[0]
+                    coords = self.airport_coords.get(root)
+                lat, lon = coords if coords else (None, None)
+                new_controllers.append({
+                    'callsign':    cs,
+                    'frequency':   c.get('frequency', ''),
+                    'position':    cs.split('_')[-1],
+                    'boundary_id': boundary_id,
+                    'lat':         lat,
+                    'lon':         lon,
+                })
+            self.all_controllers = new_controllers
             self.all_pilots = {}
             for pilot in data.get('pilots', []):
                 cs = pilot.get('callsign')
@@ -681,9 +761,23 @@ class VatsimFetcher:
         try: return requests.get(f'https://metar.vatsim.net/{code}', timeout=2).text.strip()
         except: return 'Unavailable'
 
+    def _callsign_prefix(self, callsign):
+        """Strip position suffix (last _XXX) to get the VATSpy callsign prefix."""
+        return callsign.rsplit('_', 1)[0] if '_' in callsign else callsign
+
+    def _boundary_id(self, callsign):
+        """Resolve a controller callsign to its VATSpy boundary_id."""
+        prefix = self._callsign_prefix(callsign)
+        return self.fir_map.get(prefix, prefix)
+
     def get_controllers(self, ctrls, code):
         res = []
         for c in ctrls:
             if c['callsign'].startswith(code):
-                res.append({'callsign': c['callsign'], 'frequency': c['frequency'], 'position': c['callsign'].split('_')[-1]})
+                res.append({
+                    'callsign':    c['callsign'],
+                    'frequency':   c['frequency'],
+                    'position':    c['callsign'].split('_')[-1],
+                    'boundary_id': self._boundary_id(c['callsign']),
+                })
         return res
