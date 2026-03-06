@@ -2011,6 +2011,10 @@ body.map-page {
 .map-body:has(.map-flight-panel.open) .map-legend {
     right: 316px;
 }
+.map-body:has(.map-flight-panel.open) .leaflet-top.leaflet-right {
+    right: 300px;
+    transition: right 0.25s ease;
+}
 
 .map-panel-close {
     position: absolute;
@@ -2223,6 +2227,9 @@ body.map-page {
 .map-simfixr-logo:hover { opacity: 1; }
 
 /* ── Leaflet dark overrides ─────────────────────────────── */
+body.map-page .leaflet-top.leaflet-right {
+    transition: right 0.25s ease;
+}
 body.map-page .leaflet-control-zoom a {
     background: #1a1a1a;
     color: #ccc;
@@ -2263,6 +2270,7 @@ body.map-page .leaflet-control-attribution a { color: #888; }
     .map-flight-panel { width: 100%; }
     .map-flight-panel.open ~ .map-legend,
     .map-body:has(.map-flight-panel.open) .map-legend { right: 12px; }
+    .map-body:has(.map-flight-panel.open) .leaflet-top.leaflet-right { right: 0; }
     .map-header { padding: 6px 10px; gap: 8px; }
     .map-airport-name { font-size: 0.95rem; }
 }
