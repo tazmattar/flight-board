@@ -88,6 +88,10 @@
             <div class="map-legend-item"><span class="map-atc-badge map-atc-badge--twr map-legend-badge">T</span>Tower</div>
             <div class="map-legend-item"><span class="map-atc-badge map-atc-badge--app map-legend-badge">A</span>Approach</div>
             <div class="map-legend-item"><span class="map-atc-badge map-atc-badge--dep map-legend-badge">P</span>Departure</div>
+            <div class="map-legend-sep"></div>
+            <button id="conflictToggleBtn" class="map-legend-toggle" title="Toggle conflict detection">
+                Conflicts <span class="legend-toggle-indicator">ON</span>
+            </button>
         </div>
 
         <!-- ATC panel (bottom-left) -->
@@ -166,9 +170,12 @@
                 <img src="{{ url_for('static', filename='vatsim_logos/vatsimuk_white.png') }}" alt="VATSIM UK">
             </a>
         </div>
-        <a href="https://simfixr.com" target="_blank" rel="noopener">
-            <img class="map-simfixr-logo" src="{{ url_for('static', filename='simfixr_logos/simfixr_logo_white.png', v=asset_version) }}" alt="SimFixr">
-        </a>
+        <div class="map-footer-right">
+            <a href="https://simfixr.com" target="_blank" rel="noopener">
+                <img class="map-simfixr-logo" src="{{ url_for('static', filename='simfixr_logos/simfixr_logo_white.png', v=asset_version) }}" alt="SimFixr">
+            </a>
+            <button id="mapFullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+        </div>
     </footer>
 
     <script src="{{ url_for('static', filename='js/map.js', v=asset_version) }}"></script>

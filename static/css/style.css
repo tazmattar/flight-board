@@ -1792,7 +1792,6 @@ body.map-page {
     font-size: 0.75rem;
     color: #888;
 }
-
 /* ── Map body ───────────────────────────────────────────── */
 .map-body {
     flex: 1;
@@ -2267,6 +2266,11 @@ body.map-page {
     opacity: 0.85;
     display: block;
 }
+.map-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 .map-simfixr-logo {
     height: 48px;
     width: auto;
@@ -2565,7 +2569,7 @@ body.map-page .leaflet-control-attribution a { color: #888; }
 
 /* ── Tracked flight — dim non-tracked markers ───────────────────────────── */
 #map.has-tracked .map-plane-icon:not(:has(.tracked-flight)) {
-    opacity: 0.25;
+    opacity: 0.4;
 }
 
 /* ── Tracked flight marker ───────────────────────────────────────────────── */
@@ -2615,4 +2619,61 @@ body.map-page .leaflet-control-attribution a { color: #888; }
     0%   { opacity: 1; }
     50%  { opacity: 0.5; }
     100% { opacity: 1; }
+}
+
+/* ── Conflict detection rings ───────────────────────────── */
+.map-plane-wrap.conflict-yellow .map-plane-stalk-svg rect,
+.map-plane-wrap.conflict-orange .map-plane-stalk-svg rect,
+.map-plane-wrap.conflict-red    .map-plane-stalk-svg rect { stroke-width: 2; }
+
+.map-plane-wrap.conflict-yellow .map-plane-stalk-svg rect {
+    stroke: #fdd835;
+    animation: conflict-pulse 1.8s ease-in-out infinite;
+}
+.map-plane-wrap.conflict-orange .map-plane-stalk-svg rect {
+    stroke: #ff7043;
+    animation: conflict-pulse 1.2s ease-in-out infinite;
+}
+.map-plane-wrap.conflict-red .map-plane-stalk-svg rect {
+    stroke: #ef5350;
+    stroke-width: 2.5;
+    animation: conflict-pulse 0.7s ease-in-out infinite;
+}
+@keyframes conflict-pulse {
+    0%, 100% { stroke-opacity: 1;    }
+    50%       { stroke-opacity: 0.2; }
+}
+
+/* Lift opacity in tracked mode for non-tracked aircraft that are in conflict */
+#map.has-tracked .map-plane-icon:not(:has(.tracked-flight)):has(.conflict-red),
+#map.has-tracked .map-plane-icon:not(:has(.tracked-flight)):has(.conflict-orange),
+#map.has-tracked .map-plane-icon:not(:has(.tracked-flight)):has(.conflict-yellow) {
+    opacity: 0.85;
+}
+
+/* ── Conflict toggle in legend ──────────────────────────── */
+.map-legend-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.62rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    width: 100%;
+}
+.map-legend-toggle:hover { color: #fff; }
+.legend-toggle-indicator {
+    margin-left: auto;
+    font-size: 0.6rem;
+    color: #69f0ae;
+    font-weight: 700;
+}
+.map-legend-toggle.legend-toggle--off { color: #555; }
+.map-legend-toggle.legend-toggle--off .legend-toggle-indicator {
+    color: #555;
 }

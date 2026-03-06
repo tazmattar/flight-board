@@ -342,6 +342,10 @@
     let selectedCallsign = null;
     let panelAutoOpened = false;
 
+    var conflictLines = {};  // pairKey → L.polyline on map
+    var conflictTiers = {};  // callsign → 'yellow'|'orange'|'red'
+    var showConflicts = localStorage.getItem('flightboard.show_conflicts') !== 'false'; // default on
+
     function flightColor(f) {
         const gs = f.groundspeed || 0;
         const onGround = gs < 50 && (f.altitude || 0) < 500;
@@ -775,6 +779,9 @@
             }
 
         });
+
+        updateConflicts(flights, trackedCallsign);
+
         // Remove stale — but preserve the tracked flight if it's being tracked en route
         Object.keys(markers).forEach(function (cs) {
             if (!seen[cs]) {
@@ -783,6 +790,12 @@
                 delete markers[cs];
                 delete userOffsets[cs];
                 removeTrail(cs);
+                Object.keys(conflictLines).forEach(function (key) {
+                    if (key.split('|').indexOf(cs) !== -1) {
+                        map.removeLayer(conflictLines[key]);
+                        delete conflictLines[key];
+                    }
+                });
                 if (selectedCallsign === cs) closeFlightPanel();
             }
         });
@@ -1080,6 +1093,36 @@
     updateClock();
     setInterval(updateClock, 10000);
 
+    /* ── Fullscreen ───────────────────────────────────────── */
+    var fsBtn = document.getElementById('mapFullscreenBtn');
+    if (fsBtn) {
+        fsBtn.addEventListener('click', function () {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function (e) {
+                    console.warn('Fullscreen request failed:', e);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+        document.addEventListener('fullscreenchange', function () {
+            fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+        });
+    }
+
+    var conflictToggleBtn = document.getElementById('conflictToggleBtn');
+    if (conflictToggleBtn) {
+        conflictToggleBtn.classList.toggle('legend-toggle--off', !showConflicts);
+        conflictToggleBtn.addEventListener('click', function () {
+            showConflicts = !showConflicts;
+            localStorage.setItem('flightboard.show_conflicts', showConflicts);
+            conflictToggleBtn.classList.toggle('legend-toggle--off', !showConflicts);
+            var indicator = conflictToggleBtn.querySelector('.legend-toggle-indicator');
+            if (indicator) indicator.textContent = showConflicts ? 'ON' : 'OFF';
+            if (!showConflicts) clearAllConflicts();
+        });
+    }
+
     /* ── En-route flight tracking ─────────────────────────── */
     var lastTrackedCallsign = null;
     var trackedEnRoute = false;   // true when tracked flight is not in local airport data
@@ -1095,6 +1138,137 @@
               + Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad)
               * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function haversineNm(lat1, lon1, lat2, lon2) {
+        return haversineKm(lat1, lon1, lat2, lon2) / 1.852;
+    }
+
+    function conflictKey(cs1, cs2) {
+        return cs1 < cs2 ? cs1 + '|' + cs2 : cs2 + '|' + cs1;
+    }
+
+    function detectConflicts(flights) {
+        var ELIGIBLE_STATUSES = ['En Route', 'Approaching'];
+        var result = {};
+        var RANK = { yellow: 1, orange: 2, red: 3 };
+
+        for (var i = 0; i < flights.length; i++) {
+            var a = flights[i];
+            if (ELIGIBLE_STATUSES.indexOf(a.status) === -1) continue;
+            if (a.latitude == null || a.longitude == null) continue;
+            if ((a.altitude || 0) < 1000) continue;
+
+            for (var j = i + 1; j < flights.length; j++) {
+                var b = flights[j];
+                if (ELIGIBLE_STATUSES.indexOf(b.status) === -1) continue;
+                if (b.latitude == null || b.longitude == null) continue;
+                if ((b.altitude || 0) < 1000) continue;
+
+                var altDiff = Math.abs((a.altitude || 0) - (b.altitude || 0));
+                var horizNm = haversineNm(a.latitude, a.longitude, b.latitude, b.longitude);
+
+                var tier = null;
+                if      (horizNm < 2  && altDiff < 800)  tier = 'red';
+                else if (horizNm < 5  && altDiff < 1000) tier = 'orange';
+                else if (horizNm < 10 && altDiff < 2000) tier = 'yellow';
+
+                if (tier) {
+                    var key = conflictKey(a.callsign, b.callsign);
+                    if (!result[key] || RANK[tier] > RANK[result[key]]) result[key] = tier;
+                }
+            }
+        }
+        return result;
+    }
+
+    function clearAllConflicts() {
+        Object.keys(conflictLines).forEach(function (key) {
+            map.removeLayer(conflictLines[key]);
+        });
+        conflictLines = {};
+        conflictTiers = {};
+        Object.keys(markers).forEach(function (cs) {
+            var el = markers[cs].getElement();
+            if (!el) return;
+            var wrap = el.querySelector('.map-plane-wrap');
+            if (wrap) wrap.classList.remove('conflict-yellow', 'conflict-orange', 'conflict-red');
+        });
+    }
+
+    function updateConflicts(flights, trackedCallsign) {
+        if (!showConflicts) { clearAllConflicts(); return; }
+
+        var TIER_COLOR = { yellow: '#fdd835', orange: '#ff7043', red: '#ef5350' };
+        var RANK       = { yellow: 1, orange: 2, red: 3 };
+        var active     = detectConflicts(flights);
+
+        // Per-callsign highest-tier lookup
+        var newTiers = {};
+        Object.keys(active).forEach(function (key) {
+            var parts = key.split('|');
+            var tier = active[key];
+            [parts[0], parts[1]].forEach(function (cs) {
+                if (!newTiers[cs] || RANK[tier] > RANK[newTiers[cs]]) newTiers[cs] = tier;
+            });
+        });
+
+        // In tracked mode: only show pairs involving the tracked flight
+        function pairVisible(key) {
+            if (!trackedCallsign) return true;
+            var parts = key.split('|');
+            return parts[0] === trackedCallsign || parts[1] === trackedCallsign;
+        }
+
+        // Remove stale lines
+        Object.keys(conflictLines).forEach(function (key) {
+            if (!active[key] || !pairVisible(key)) {
+                map.removeLayer(conflictLines[key]);
+                delete conflictLines[key];
+            }
+        });
+
+        // Add / update active lines
+        Object.keys(active).forEach(function (key) {
+            if (!pairVisible(key)) return;
+            var parts = key.split('|');
+            var fa, fb;
+            flights.forEach(function (f) {
+                if (f.callsign === parts[0]) fa = f;
+                if (f.callsign === parts[1]) fb = f;
+            });
+            if (!fa || !fb) return;
+
+            var lls   = [[fa.latitude, fa.longitude], [fb.latitude, fb.longitude]];
+            var color = TIER_COLOR[active[key]];
+            if (conflictLines[key]) {
+                conflictLines[key].setLatLngs(lls);
+                conflictLines[key].setStyle({ color: color });
+            } else {
+                conflictLines[key] = L.polyline(lls, {
+                    color: color, weight: 1.5, opacity: 0.75,
+                    dashArray: '4 4', interactive: false,
+                }).addTo(map);
+            }
+        });
+
+        // Apply / remove conflict classes on live marker DOM
+        Object.keys(markers).forEach(function (cs) {
+            var el = markers[cs].getElement();
+            if (!el) return;
+            var wrap = el.querySelector('.map-plane-wrap');
+            if (!wrap) return;
+            wrap.classList.remove('conflict-yellow', 'conflict-orange', 'conflict-red');
+            if (!newTiers[cs]) return;
+            var isVisible = Object.keys(active).some(function (key) {
+                if (!pairVisible(key)) return false;
+                var p = key.split('|');
+                return p[0] === cs || p[1] === cs;
+            });
+            if (isVisible) wrap.classList.add('conflict-' + newTiers[cs]);
+        });
+
+        conflictTiers = newTiers;
     }
 
     function isControllerRelevant(c, flightLat, flightLon) {
@@ -1226,6 +1400,11 @@
         var deps = data.departures || [];
         var arrs = data.arrivals || [];
         var allFlights = deps.concat(arrs).filter(function (f) { return f.latitude != null; });
+        if (trackedEnRoute && tc && markers[tc] && markers[tc]._flightData) {
+            var enRouteFd = markers[tc]._flightData;
+            if (!allFlights.some(function (f) { return f.callsign === tc; }))
+                allFlights = allFlights.concat([enRouteFd]);
+        }
         updateMarkers(allFlights);
         updateATC(data.controllers || []);
         updateStats(allFlights.length, (data.controllers || []).length);
