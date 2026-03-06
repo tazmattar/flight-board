@@ -203,8 +203,8 @@
             var id = layer.feature && layer.feature.properties && layer.feature.properties.id;
             if (!id) return;
             var ctrl = null;
-            activeCtrControllers.forEach(function (info, prefix) {
-                if (id === prefix || id.startsWith(prefix + '-')) ctrl = info;
+            activeCtrControllers.forEach(function (info, boundaryId) {
+                if (id === boundaryId) ctrl = info;
             });
             layer.setStyle(ctrl ? SECTOR_LIT : SECTOR_DIM);
 
@@ -994,9 +994,8 @@
         if (!lastTrackedCallsign) {
             activeCtrControllers = new Map();
             controllers.forEach(function (c) {
-                if ((c.position || '').toUpperCase() === 'CTR') {
-                    var prefix = c.callsign.split('_')[0].toUpperCase();
-                    activeCtrControllers.set(prefix, { callsign: c.callsign, frequency: c.frequency });
+                if ((c.position || '').toUpperCase() === 'CTR' && c.boundary_id) {
+                    activeCtrControllers.set(c.boundary_id, { callsign: c.callsign, frequency: c.frequency });
                 }
             });
             highlightActiveSectors();
@@ -1066,8 +1065,8 @@
             .then(function (data) {
                 activeCtrControllers = new Map();
                 (data.controllers || []).forEach(function (c) {
-                    if ((c.position || '').toUpperCase() === 'CTR') {
-                        activeCtrControllers.set(c.callsign.split('_')[0].toUpperCase(), { callsign: c.callsign, frequency: c.frequency });
+                    if ((c.position || '').toUpperCase() === 'CTR' && c.boundary_id) {
+                        activeCtrControllers.set(c.boundary_id, { callsign: c.callsign, frequency: c.frequency });
                     }
                 });
                 highlightActiveSectors();
