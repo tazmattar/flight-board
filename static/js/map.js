@@ -344,6 +344,12 @@
 
     var conflictLines = {};  // pairKey → L.polyline on map
     var conflictTiers = {};  // callsign → 'yellow'|'orange'|'red'
+
+    /* ── Nearby traffic state ─────────────────────────────── */
+    var nearbyMarkers = {};      // callsign → L.marker for nearby traffic
+    var nearbyFlights = [];      // current nearby flight data array
+    var nearbyPoller = null;     // interval handle
+    var _nearbyTooltipEl = null; // active hover tooltip element
     var showConflicts = localStorage.getItem('flightboard.show_conflicts') !== 'false'; // default on
 
     function flightColor(f) {
@@ -381,7 +387,7 @@
         var labelEdge = labelEdgePoint(dx, dy, lhw, lhh);
         return L.divIcon({
             className: 'map-plane-icon',
-            html: '<div class="map-plane-wrap' + (tracked ? ' tracked-flight' : '') + '" style="color:' + color + '">'
+            html: '<div class="map-plane-wrap' + (tracked ? ' tracked-flight' : '') + (isAirborne(f) ? ' flight-airborne' : '') + '" style="color:' + color + '">'
                 + '<svg class="map-plane-stalk-svg">'
                 + '<line x1="' + edge[0] + '" y1="' + edge[1] + '" x2="' + labelEdge[0] + '" y2="' + labelEdge[1] + '" stroke="currentColor" stroke-width="1" stroke-opacity="0.65"/>'
                 + '<rect x="-3" y="-3" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>'
@@ -421,10 +427,11 @@
         return dx * dx + dy * dy;
     }
 
-    function updateTrail(f, dimmed) {
+    function updateTrail(f, dimmed, opts) {
         var cs = f.callsign;
         var pos = [f.latitude, f.longitude];
-        var color = f.direction === 'ARR' ? '#42a5f5' : '#ffa726';
+        var maxLen = (opts && opts.maxLength) || TRAIL_MAX;
+        var color  = (opts && opts.color) || (f.direction === 'ARR' ? '#42a5f5' : '#ffa726');
         var dimFactor = dimmed ? 0.2 : 1;
 
         if (!isAirborne(f)) return; // ground ops — no trail
@@ -453,7 +460,7 @@
         t.color = color;
 
         // Trim oldest
-        while (t.positions.length > TRAIL_MAX) {
+        while (t.positions.length > maxLen) {
             t.positions.shift();
             if (t.dots.length > 0) { map.removeLayer(t.dots.shift()); }
         }
@@ -463,8 +470,8 @@
         t.dots = [];
         for (var i = 0; i < t.positions.length - 1; i++) {
             var age = t.positions.length - 1 - i; // 0 = newest
-            var opacity = dimFactor * (0.1 + 0.5 * (1 - age / TRAIL_MAX));
-            var radius = 1 + 0.5 * (1 - age / TRAIL_MAX);
+            var opacity = dimFactor * (0.1 + 0.5 * (1 - age / maxLen));
+            var radius = 1 + 0.5 * (1 - age / maxLen);
             var dot = L.circleMarker(t.positions[i], {
                 radius: radius,
                 fillColor: t.color,
@@ -753,6 +760,11 @@
         const seen = {};
         const trackedCallsign = localStorage.getItem('flightboard.tracked_callsign');
         const offsets = computeOffsets(flights);
+
+        // Determine whether the tracked flight itself is airborne
+        const trackedFlight = trackedCallsign && flights.find(function(f) { return f.callsign === trackedCallsign; });
+        const trackedIsAirborne = trackedEnRoute || !!(trackedFlight && isAirborne(trackedFlight));
+
         flights.forEach(function (f) {
             if (f.latitude == null || f.longitude == null) return;
             seen[f.callsign] = true;
@@ -760,7 +772,8 @@
             const off = offsets[f.callsign] || { dx: 14, dy: -14 };
 
             const isTracked = f.callsign === trackedCallsign;
-            updateTrail(f, !!trackedCallsign && !isTracked);
+            // Dim if in a different zone (airborne vs ground) to the tracked flight
+            updateTrail(f, !!trackedCallsign && !isTracked && (isAirborne(f) !== trackedIsAirborne));
             if (markers[f.callsign]) {
                 markers[f.callsign].setLatLng(pos);
                 markers[f.callsign].setIcon(makeIcon(f, off.dx, off.dy, isTracked));
@@ -780,7 +793,7 @@
 
         });
 
-        updateConflicts(flights, trackedCallsign);
+        updateConflicts(flights.concat(nearbyFlights), trackedCallsign);
 
         // Remove stale — but preserve the tracked flight if it's being tracked en route
         Object.keys(markers).forEach(function (cs) {
@@ -802,6 +815,8 @@
 
         // Dim non-tracked markers via map container class
         map.getContainer().classList.toggle('has-tracked', !!trackedCallsign);
+        map.getContainer().classList.toggle('tracked-airborne', !!trackedCallsign && trackedIsAirborne);
+        map.getContainer().classList.toggle('tracked-ground',   !!trackedCallsign && !trackedIsAirborne);
 
         // Auto-open panel for tracked flight on first data load
         if (!panelAutoOpened && trackedCallsign && markers[trackedCallsign]) {
@@ -810,6 +825,20 @@
         }
         // Reset auto-open flag if tracking is cleared
         if (!trackedCallsign) panelAutoOpened = false;
+
+        // Start nearby poller once tracked flight is airborne (and not already polling)
+        if (trackedCallsign && !nearbyPoller && trackedIsAirborne) {
+            pollNearbyFlights(trackedCallsign);
+            nearbyPoller = setInterval(function() { pollNearbyFlights(trackedCallsign); }, 15000);
+        }
+        // Stop nearby if tracked flight has landed (or tracking cleared)
+        if (nearbyPoller && (!trackedCallsign || !trackedIsAirborne)) {
+            clearInterval(nearbyPoller); nearbyPoller = null;
+            nearbyFlights = [];
+            Object.keys(nearbyMarkers).forEach(function(cs) { map.removeLayer(nearbyMarkers[cs]); removeTrail(cs); });
+            nearbyMarkers = {};
+            hideNearbyTooltip();
+        }
 
         // Render route for tracked flight (only once per callsign change)
         renderTrackedRoute(trackedCallsign || null);
@@ -1129,6 +1158,15 @@
     var trackPoller = null;       // setInterval handle for flight position polling
     var globalAtcPoller = null;   // setInterval handle for global CTR refresh
 
+    var AIRBORNE_STATUSES = ['Departing', 'En Route', 'Approaching', 'Landing'];
+
+    function isTrackedAirborne(callsign) {
+        if (trackedEnRoute) return true;
+        var m = markers[callsign];
+        if (!m || !m._flightData) return false;
+        return AIRBORNE_STATUSES.indexOf(m._flightData.status) !== -1;
+    }
+
     var TRACK_RADIUS_KM = 800; // ~500 miles
 
     function haversineKm(lat1, lon1, lat2, lon2) {
@@ -1360,11 +1398,90 @@
             .catch(function (e) { console.warn('Tracked flight poll failed:', e); });
     }
 
+    /* ── Nearby traffic markers ──────────────────────────── */
+    var NEARBY_TRAIL_OPTS = { maxLength: 15, color: '#ffffff' };
+
+    function makeNearbyIcon() {
+        return L.divIcon({
+            className: 'map-plane-icon map-nearby-flight',
+            html: '<div class="map-plane-wrap" style="color:#fff">'
+                + '<svg class="map-plane-stalk-svg">'
+                + '<rect x="-14" y="-14" width="28" height="28" fill="transparent" stroke="none"/>'
+                + '<rect x="-3" y="-3" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/>'
+                + '</svg>'
+                + '</div>',
+            iconSize: [1, 1],
+            iconAnchor: [0, 0],
+        });
+    }
+
+    function showNearbyTooltip(marker) {
+        hideNearbyTooltip();
+        var f = marker._flightData;
+        var pt = map.latLngToContainerPoint(marker.getLatLng());
+        var urls = getLogoUrl(f.callsign);
+        var el = document.createElement('div');
+        el.className = 'map-nearby-tooltip';
+        el.innerHTML = '<img src="' + urls.primary + '" onerror="this.style.display=\'none\'">'
+            + '<span>' + f.callsign + '</span>';
+        el.style.left = (pt.x + 10) + 'px';
+        el.style.top  = (pt.y - 10) + 'px';
+        map.getContainer().appendChild(el);
+        _nearbyTooltipEl = el;
+    }
+
+    function hideNearbyTooltip() {
+        if (_nearbyTooltipEl) { _nearbyTooltipEl.remove(); _nearbyTooltipEl = null; }
+    }
+
+    function updateNearbyMarkers(flights) {
+        var seen = {};
+        flights.forEach(function(f) {
+            if (f.latitude == null || f.longitude == null) return;
+            if (markers[f.callsign]) return; // airport flight — leave it alone
+            seen[f.callsign] = true;
+            var pos = [f.latitude, f.longitude];
+            if (nearbyMarkers[f.callsign]) {
+                nearbyMarkers[f.callsign].setLatLng(pos);
+                nearbyMarkers[f.callsign]._flightData = f;
+            } else {
+                var m = L.marker(pos, { icon: makeNearbyIcon(), zIndexOffset: 500 }).addTo(map);
+                m._flightData = f;
+                m.on('mouseover', function() { showNearbyTooltip(m); });
+                m.on('mouseout', function() { hideNearbyTooltip(); });
+                nearbyMarkers[f.callsign] = m;
+            }
+            updateTrail(f, false, NEARBY_TRAIL_OPTS);
+        });
+        // Remove stale nearby markers
+        Object.keys(nearbyMarkers).forEach(function(cs) {
+            if (!seen[cs]) {
+                map.removeLayer(nearbyMarkers[cs]);
+                removeTrail(cs);
+                delete nearbyMarkers[cs];
+            }
+        });
+    }
+
+    function pollNearbyFlights(callsign) {
+        fetch('/api/nearby/' + encodeURIComponent(callsign))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                nearbyFlights = data.nearby || [];
+                updateNearbyMarkers(nearbyFlights);
+            })
+            .catch(function(e) { console.warn('Nearby poll failed:', e); });
+    }
+
     function ensureTrackPoller(callsign) {
         if (trackPoller) return;
         trackedEnRoute = true;
         pollTrackedFlight(callsign);
         trackPoller = setInterval(function () { pollTrackedFlight(callsign); }, 15000);
+        if (!nearbyPoller) {
+            pollNearbyFlights(callsign);
+            nearbyPoller = setInterval(function() { pollNearbyFlights(callsign); }, 15000);
+        }
     }
 
     function stopTrackPoller() {
@@ -1382,6 +1499,11 @@
         stopTrackPoller();
         if (globalAtcPoller) { clearInterval(globalAtcPoller); globalAtcPoller = null; }
         // Sector highlights will revert to local CTR on the next updateATC call
+        if (nearbyPoller) { clearInterval(nearbyPoller); nearbyPoller = null; }
+        nearbyFlights = [];
+        Object.keys(nearbyMarkers).forEach(function(cs) { map.removeLayer(nearbyMarkers[cs]); removeTrail(cs); });
+        nearbyMarkers = {};
+        hideNearbyTooltip();
     }
 
     /* ── Socket.IO ────────────────────────────────────────── */

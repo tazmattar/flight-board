@@ -6,6 +6,7 @@ from airport_languages import AirportLanguages
 from config import Config
 import route_parser
 import json
+import math
 import os
 import re
 import atexit
@@ -15,6 +16,13 @@ from contextlib import contextmanager
 from datetime import datetime, timezone, timedelta
 import requests
 import psycopg2
+
+def _haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+    return R * 2 * math.asin(math.sqrt(a))
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -715,6 +723,52 @@ def api_flight(callsign):
     if pilot:
         return jsonify({'flight': pilot})
     return jsonify({'flight': None}), 404
+
+@app.route('/api/nearby/<callsign>')
+def api_nearby(callsign):
+    callsign = re.sub(r'[^A-Za-z0-9]', '', str(callsign or ''))[:10].upper()
+    if not callsign:
+        return jsonify({'error': 'invalid callsign'}), 400
+    # Find tracked flight position — prefer richer current_data entry
+    tracked = None
+    for data in current_data.values():
+        for f in data.get('departures', []) + data.get('arrivals', []):
+            if f.get('callsign', '').upper() == callsign:
+                tracked = f
+                break
+        if tracked:
+            break
+    if not tracked:
+        tracked = flight_fetcher.all_pilots.get(callsign)
+    if not tracked or tracked.get('latitude') is None:
+        return jsonify({'nearby': []}), 200
+
+    tlat, tlng = tracked['latitude'], tracked['longitude']
+    RADIUS_KM = 92.6  # 50 nautical miles
+
+    # Build set of callsigns already shown as airport flights (full label) — exclude from nearby
+    airport_callsigns = set()
+    for data in current_data.values():
+        for f in data.get('departures', []) + data.get('arrivals', []):
+            airport_callsigns.add(f.get('callsign', '').upper())
+
+    nearby = []
+    for cs, pilot in flight_fetcher.all_pilots.items():
+        if cs == callsign:
+            continue
+        if cs in airport_callsigns:
+            continue
+        if pilot.get('latitude') is None or pilot.get('longitude') is None:
+            continue
+        # Exclude ground-based aircraft at other airports
+        gs = pilot.get('groundspeed', 0) or 0
+        alt = pilot.get('altitude', 0) or 0
+        if gs < 30 and alt < 1000:
+            continue
+        dist = _haversine_km(tlat, tlng, pilot['latitude'], pilot['longitude'])
+        if dist <= RADIUS_KM:
+            nearby.append(pilot)
+    return jsonify({'nearby': nearby})
 
 @app.route('/api/route/<callsign>')
 def api_route(callsign):

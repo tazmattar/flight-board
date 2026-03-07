@@ -2571,6 +2571,15 @@ body.map-page .leaflet-control-attribution a { color: #888; }
 #map.has-tracked .map-plane-icon:not(:has(.tracked-flight)) {
     opacity: 0.4;
 }
+/* When tracked is airborne: un-dim other airborne flights and nearby traffic */
+#map.has-tracked.tracked-airborne .map-plane-icon:not(:has(.tracked-flight)):has(.flight-airborne),
+#map.has-tracked .map-plane-icon.map-nearby-flight {
+    opacity: 1;
+}
+/* When tracked is on ground: un-dim other ground flights */
+#map.has-tracked.tracked-ground .map-plane-icon:not(:has(.tracked-flight)):not(:has(.flight-airborne)) {
+    opacity: 1;
+}
 
 /* ── Tracked flight marker ───────────────────────────────────────────────── */
 .map-plane-label-text {
@@ -2648,6 +2657,28 @@ body.map-page .leaflet-control-attribution a { color: #888; }
 #map.has-tracked .map-plane-icon:not(:has(.tracked-flight)):has(.conflict-red),
 #map.has-tracked .map-plane-icon:not(:has(.tracked-flight)):has(.conflict-orange),
 #map.has-tracked .map-plane-icon:not(:has(.tracked-flight)):has(.conflict-yellow) {
+    opacity: 0.85;
+}
+
+/* ── Nearby traffic hover tooltip ──────────────────────── */
+.map-nearby-tooltip {
+    position: absolute;
+    z-index: 9999;
+    background: rgba(20, 24, 32, 0.92);
+    border: 1px solid rgba(140, 140, 200, 0.5);
+    border-radius: 4px;
+    padding: 3px 7px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    pointer-events: none;
+    white-space: nowrap;
+    font-size: 11px;
+    color: #ccd;
+}
+.map-nearby-tooltip img {
+    height: 14px;
+    width: auto;
     opacity: 0.85;
 }
 
