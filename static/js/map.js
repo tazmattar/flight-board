@@ -38,7 +38,7 @@
             iconAnchor: [30, 15],
         });
     }
-    var airportMarker = L.marker([APT_LAT, APT_LON], { icon: makeAirportIcon(AIRPORT, []), interactive: false }).addTo(map);
+    var airportMarker = L.marker([APT_LAT, APT_LON], { icon: makeAirportIcon(AIRPORT, []), interactive: false, zIndexOffset: 3000 }).addTo(map);
 
     // Shared badge builder — pass icao to filter from a global list, omit to use pre-filtered list
     function buildAirportBadges(controllers, icao) {
@@ -740,7 +740,7 @@
                     var m = L.marker([lat, lon], {
                         icon: makeAirportIcon(icao, []),
                         interactive: false,
-                        zIndexOffset: -100,
+                        zIndexOffset: 3000,
                     }).addTo(map);
                     endpointMarkers[icao] = m;
                 }

@@ -1817,6 +1817,7 @@ body.map-page {
 .map-airport-icon {
     background: none;
     border: none;
+    z-index: 3000 !important; /* always above aircraft markers and stalks */
 }
 .map-airport-dot {
     width: 10px;
