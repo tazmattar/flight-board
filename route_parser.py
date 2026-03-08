@@ -90,7 +90,7 @@ def _parse_fixes(path: str) -> dict:
 
 
 def _parse_navaids(path: str) -> dict:
-    """Parse earth_nav.dat. Only keep types 2 (NDB) and 3 (VOR)."""
+    """Parse earth_nav.dat. Keep types 2 (NDB), 3 (VOR), and 13 (standalone DME/TACAN)."""
     result: dict = {}
     try:
         with open(path, encoding='utf-8', errors='replace') as f:
@@ -105,7 +105,7 @@ def _parse_navaids(path: str) -> dict:
                     nav_type = int(parts[0])
                 except ValueError:
                     continue
-                if nav_type not in (2, 3):
+                if nav_type not in (2, 3, 13):
                     continue
                 try:
                     lat = float(parts[1])
