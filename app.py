@@ -743,9 +743,6 @@ def api_nearby(callsign):
     if not tracked or tracked.get('latitude') is None:
         return jsonify({'nearby': []}), 200
 
-    tlat, tlng = tracked['latitude'], tracked['longitude']
-    RADIUS_KM = 92.6  # 50 nautical miles
-
     # Build set of callsigns already shown as airport flights (full label) — exclude from nearby
     airport_callsigns = set()
     for data in current_data.values():
@@ -760,14 +757,12 @@ def api_nearby(callsign):
             continue
         if pilot.get('latitude') is None or pilot.get('longitude') is None:
             continue
-        # Exclude ground-based aircraft at other airports
+        # Exclude ground-based aircraft
         gs = pilot.get('groundspeed', 0) or 0
         alt = pilot.get('altitude', 0) or 0
         if gs < 30 and alt < 1000:
             continue
-        dist = _haversine_km(tlat, tlng, pilot['latitude'], pilot['longitude'])
-        if dist <= RADIUS_KM:
-            nearby.append(pilot)
+        nearby.append(pilot)
     return jsonify({'nearby': nearby})
 
 @app.route('/api/route/<callsign>')
