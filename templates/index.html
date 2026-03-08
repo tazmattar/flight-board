@@ -218,16 +218,19 @@
             <span class="label" id="securityLabel">Actual waiting time<br>at security control</span>
             <span class="time" id="securityTime">9 <small>minutes</small></span>
         </div>
-        <div class="footer-actions">
-            <a href="{{ bmc_url }}" target="_blank" rel="noopener noreferrer" class="support-footer-btn" title="Support Flightboard">
-                <span class="material-icons" aria-hidden="true">favorite</span>
-                <span>Support</span>
-            </a>
-            <button id="helpBtn" class="support-footer-btn help-footer-btn" title="User Guide">
-                <span class="material-icons" aria-hidden="true">help_outline</span>
-                <span>Guide</span>
-            </button>
-            <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+        <div class="footer-actions-wrap">
+            <div class="footer-actions">
+                <a href="{{ bmc_url }}" target="_blank" rel="noopener noreferrer" class="support-footer-btn" title="Support Flightboard">
+                    <span class="material-icons" aria-hidden="true">favorite</span>
+                    <span>Support</span>
+                </a>
+                <button id="helpBtn" class="support-footer-btn help-footer-btn" title="User Guide">
+                    <span class="material-icons" aria-hidden="true">help_outline</span>
+                    <span>Guide</span>
+                </button>
+                <button id="fullscreenBtn" class="fs-footer-btn" title="Fullscreen">⛶</button>
+            </div>
+            <div class="footer-version">v1.0.0</div>
         </div>
     </div>
 </footer>
