@@ -1609,6 +1609,98 @@
         })
         .catch(function (e) { console.warn('Initial map load failed:', e); });
 
+    /* ── Dev helper: simulate conflicts ──────────────────── */
+    // Open browser devtools and run: _testConflicts()
+    // Spawns three ghost aircraft around the tracked/selected flight at exact
+    // distances to trigger each conflict tier, holds for 12 s then cleans up.
+    window._testConflicts = function () {
+        var tc  = localStorage.getItem('flightboard.tracked_callsign') || selectedCallsign;
+        var ref = tc && markers[tc] ? markers[tc]._flightData : null;
+        if (!ref) {
+            // Fall back to the first visible airborne marker
+            Object.keys(markers).some(function (cs) {
+                var fd = markers[cs]._flightData;
+                if (fd && isAirborne(fd)) { ref = fd; return true; }
+            });
+        }
+        if (!ref || ref.latitude == null) {
+            console.warn('_testConflicts: no suitable reference flight found — track a flight first.');
+            return;
+        }
+
+        // Offset lat/lon by a given distance (NM) on a bearing (degrees)
+        function offset(lat, lon, nm, bearingDeg) {
+            var R   = 3440.065; // Earth radius in NM
+            var br  = bearingDeg * Math.PI / 180;
+            var lat1 = lat * Math.PI / 180;
+            var lon1 = lon * Math.PI / 180;
+            var d   = nm / R;
+            var lat2 = Math.asin(Math.sin(lat1)*Math.cos(d) + Math.cos(lat1)*Math.sin(d)*Math.cos(br));
+            var lon2 = lon1 + Math.atan2(Math.sin(br)*Math.sin(d)*Math.cos(lat1), Math.cos(d)-Math.sin(lat1)*Math.sin(lat2));
+            return [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI];
+        }
+
+        var alt = Math.max(ref.altitude || 0, 5000);
+
+        var ghosts = [
+            // 1 NM north,  same alt → RED  (horizNm < 2, altDiff < 800)
+            { callsign: '_GHOST_RED',    bearing:   0, nm: 1,   altDelta:  200 },
+            // 3 NM east,   +600ft    → ORANGE (horizNm < 5, altDiff < 1000)
+            { callsign: '_GHOST_ORANGE', bearing:  90, nm: 3,   altDelta:  600 },
+            // 7 NM south,  +1500ft   → YELLOW (horizNm < 10, altDiff < 2000)
+            { callsign: '_GHOST_YELLOW', bearing: 180, nm: 7,   altDelta: 1500 },
+        ];
+
+        var ghostData = [];
+        ghosts.forEach(function (g) {
+            var pos = offset(ref.latitude, ref.longitude, g.nm, g.bearing);
+            var fd = {
+                callsign:  g.callsign,
+                latitude:  pos[0],
+                longitude: pos[1],
+                altitude:  alt + g.altDelta,
+                groundspeed: 450,
+                heading:   ref.heading || 90,
+                status:    'En Route',
+                direction: ref.direction || 'DEP',
+                origin:    ref.origin || '',
+                destination: ref.destination || '',
+            };
+            ghostData.push(fd);
+            var m = L.marker([pos[0], pos[1]], {
+                icon: makeIcon(fd, 14, -14, false),
+                zIndexOffset: 2000,
+                interactive: false,
+            }).addTo(map);
+            m._flightData = fd;
+            m._isGhost = true;
+            markers[g.callsign] = m;
+        });
+
+        // Run conflict detection with ghosts + all real flights
+        var allFd = Object.keys(markers)
+            .map(function (cs) { return markers[cs]._flightData; })
+            .filter(Boolean);
+        updateConflicts(allFd, tc);
+
+        console.log('_testConflicts: ghosts spawned — RED 1 NM north, ORANGE 3 NM east, YELLOW 7 NM south. Cleaning up in 12 s.');
+
+        setTimeout(function () {
+            ghosts.forEach(function (g) {
+                if (markers[g.callsign]) {
+                    map.removeLayer(markers[g.callsign]);
+                    delete markers[g.callsign];
+                }
+            });
+            // Re-run conflicts without ghosts to restore normal state
+            var realFd = Object.keys(markers)
+                .map(function (cs) { return markers[cs]._flightData; })
+                .filter(Boolean);
+            updateConflicts(realFd, tc);
+            console.log('_testConflicts: cleaned up.');
+        }, 12000);
+    };
+
     // Re-render route + tracking mode when tracking changes from another tab
     window.addEventListener('storage', function (e) {
         if (e.key === 'flightboard.tracked_callsign') {
