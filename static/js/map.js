@@ -414,7 +414,7 @@
     }
 
     /* ── Breadcrumb trails ───────────────────────────────── */
-    var trails = {};       // callsign → { positions: [[lat,lng], ...], segs: [L.polyline, ...] }
+    var trails = {};       // callsign → { positions: [[lat,lng], ...], dots: [L.circleMarker, ...] }
     var TRAIL_MAX = 80;    // max position points stored per aircraft
     var TRAIL_MIN_DIST = 0.002; // ~200m — skip if barely moved
 
@@ -460,7 +460,7 @@
 
         if (!isAirborne(f)) return; // ground ops — no trail
 
-        if (!trails[cs]) trails[cs] = { positions: [], segs: [], color: color };
+        if (!trails[cs]) trails[cs] = { positions: [], dots: [], color: color };
         var t = trails[cs];
 
         // Skip if hasn't moved enough
@@ -473,40 +473,32 @@
         // Trim oldest
         while (t.positions.length > maxLen) t.positions.shift();
 
-        // Re-render as a Catmull-Rom smooth curve split into opacity-graded segments.
-        // 10 segments fade from near-transparent at the tail to solid at the head.
-        t.segs.forEach(function (s) { map.removeLayer(s); });
-        t.segs = [];
+        // Re-render dots placed along a Catmull-Rom smooth curve through the stored
+        // GPS positions — gives smoothly-curved dot trails without the jagged straight
+        // lines that the old linear interpolation produced between position updates.
+        t.dots.forEach(function (d) { map.removeLayer(d); });
+        t.dots = [];
 
         if (t.positions.length < 2) return;
 
-        var smooth = catmullRomSmooth(t.positions, 4); // 4 interpolated steps between each stored point
-        var N = smooth.length;
-        var NUM_SEGS = 10;
-        var segLen = Math.max(1, Math.floor(N / NUM_SEGS));
-
-        for (var seg = 0; seg < NUM_SEGS; seg++) {
-            var iStart = seg * segLen;
-            var iEnd   = Math.min(N - 1, (seg + 1) * segLen + 1); // +1 overlap so segments join cleanly
-            if (iStart >= N - 1) break;
-            var segPts = smooth.slice(iStart, iEnd + 1);
-            if (segPts.length < 2) continue;
-            var frac    = seg / (NUM_SEGS - 1); // 0 = oldest, 1 = newest
-            var opacity = dimFactor * (0.06 + 0.55 * frac);
-            var weight  = 0.8 + 1.0 * frac;
-            t.segs.push(L.polyline(segPts, {
-                color:        t.color,
-                weight:       weight,
-                opacity:      opacity,
-                smoothFactor: 0,        // don't let Leaflet simplify — we want the spline preserved
-                interactive:  false,
+        var smooth = catmullRomSmooth(t.positions, 4);
+        for (var i = 0; i < smooth.length - 1; i++) {
+            var age     = smooth.length - 1 - i; // 0 = newest
+            var opacity = dimFactor * (0.1 + 0.5 * (1 - age / smooth.length));
+            var radius  = 1 + 0.5  * (1 - age / smooth.length);
+            t.dots.push(L.circleMarker(smooth[i], {
+                radius:      radius,
+                fillColor:   t.color,
+                fillOpacity: opacity,
+                stroke:      false,
+                interactive: false,
             }).addTo(map));
         }
     }
 
     function removeTrail(cs) {
         if (!trails[cs]) return;
-        trails[cs].segs.forEach(function (s) { map.removeLayer(s); });
+        trails[cs].dots.forEach(function (d) { map.removeLayer(d); });
         delete trails[cs];
     }
 
