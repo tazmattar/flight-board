@@ -2671,6 +2671,11 @@ body.map-page .leaflet-control-attribution a { color: #888; }
 }
 
 /* ── Nearby traffic hover tooltip ──────────────────────── */
+/* Enable hover hit area on nearby traffic markers (SVG is pointer-events:none globally) */
+.map-nearby-flight .map-plane-stalk-svg {
+    pointer-events: auto;
+}
+
 .map-nearby-tooltip {
     position: absolute;
     z-index: 9999;

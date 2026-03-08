@@ -127,6 +127,19 @@
 
         isEligibleForAutoSwitch(statusValue) {
             const status = String(statusValue || '').trim();
+            // Only switch to the destination board once the flight is actually near it.
+            // 'Departing' and 'En Route' are intentionally excluded so the origin board
+            // remains visible for the bulk of the journey.
+            return [
+                'Approaching',
+                'Landing',
+                'Landed',
+                'At Gate'
+            ].includes(status);
+        }
+
+        isAirborne(statusValue) {
+            const status = String(statusValue || '').trim();
             return [
                 'Departing',
                 'En Route',
@@ -159,7 +172,9 @@
 
             this.lastKnownTo = toIcao;
             if (!this.isEligibleForAutoSwitch(tracked.status)) {
-                this.lastKnownMessage = 'waiting for departure';
+                this.lastKnownMessage = this.isAirborne(tracked.status)
+                    ? 'en route'
+                    : 'waiting for departure';
                 this.notify();
                 return;
             }

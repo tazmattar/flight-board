@@ -1309,12 +1309,39 @@
         conflictTiers = newTiers;
     }
 
-    function isControllerRelevant(c, flightLat, flightLon) {
+    function isControllerRelevant(c, flightLat, flightLon, originIcao, destIcao) {
         if ((c.callsign || '').toUpperCase().endsWith('_OBS')) return false;
         var freq = (c.frequency || '').trim();
         if (!freq || freq === '199.998') return false;
-        if (c.lat == null || c.lon == null) return false;
-        return haversineKm(flightLat, flightLon, c.lat, c.lon) <= TRACK_RADIUS_KM;
+
+        var cs  = (c.callsign || '').toUpperCase();
+        var pos = (c.position || '').toUpperCase();
+
+        // Always show controllers at the tracked flight's origin/destination airports
+        if (originIcao && cs.startsWith(originIcao + '_')) return true;
+        if (destIcao   && cs.startsWith(destIcao   + '_')) return true;
+
+        // Only sector (CTR) controllers beyond this point — skip APP/GND/TWR etc.
+        // at unrelated airports entirely.
+        if (pos !== 'CTR') return false;
+
+        // CTR with known coordinates: distance filter around the flight's current position
+        if (c.lat != null && c.lon != null) {
+            if (flightLat == null || flightLon == null) return false;
+            return haversineKm(flightLat, flightLon, c.lat, c.lon) <= TRACK_RADIUS_KM;
+        }
+
+        // CTR with unknown coordinates (common — FIR codes like LSAZ, PAR, EGTT
+        // don't appear in the VATSpy airport table).
+        // Use the boundary_id region prefix instead: ICAO first-2-chars identify the
+        // region (EG=UK, LF=France, LS=Switzerland, FA=South Africa, etc.).
+        // PAR_CTR → boundary_id LFFF → starts with LF → matches LFPG dest ✓
+        // EKDK_CTR → boundary_id EKDK → EK ≠ EG/LF → excluded ✓
+        var bid = (c.boundary_id || cs.split('_')[0]).toUpperCase();
+        var originRegion = originIcao ? originIcao.substring(0, 2) : '';
+        var destRegion   = destIcao   ? destIcao.substring(0, 2)   : '';
+        return (originRegion && bid.startsWith(originRegion))
+            || (destRegion   && bid.startsWith(destRegion));
     }
 
     function refreshGlobalATC() {
@@ -1330,16 +1357,18 @@
                 });
                 highlightActiveSectors();
 
-                // Populate ATC list: filter to ~500-mile radius around the tracked flight
+                // Populate ATC list filtered to the tracked flight's route
                 var fd = lastTrackedCallsign && markers[lastTrackedCallsign]
                     ? markers[lastTrackedCallsign]._flightData : null;
-                var flightLat = fd ? fd.latitude  : null;
-                var flightLon = fd ? fd.longitude : null;
+                var flightLat  = fd ? fd.latitude    : null;
+                var flightLon  = fd ? fd.longitude   : null;
+                var originIcao = fd && fd.origin      ? fd.origin.toUpperCase()      : '';
+                var destIcao   = fd && fd.destination ? fd.destination.toUpperCase() : '';
 
                 atcListEl.innerHTML = '';
-                if (flightLat != null && flightLon != null) {
+                if (fd) {
                     var relevant = controllers.filter(function (c) {
-                        return isControllerRelevant(c, flightLat, flightLon);
+                        return isControllerRelevant(c, flightLat, flightLon, originIcao, destIcao);
                     });
                     relevant.sort(function (a, b) { return a.callsign.localeCompare(b.callsign); });
                     relevant.forEach(function (c) {
@@ -1365,7 +1394,7 @@
         if (!f || f.latitude == null) return;
         var cs = f.callsign;
         var pos = [f.latitude, f.longitude];
-        var off = userOffsets[cs] || { dx: 14, dy: -14 };
+        var off = userOffsets[cs] || { dx: 20, dy: -44 }; // longer stalk for airborne en-route
         if (markers[cs]) {
             markers[cs].setLatLng(pos);
             markers[cs].setIcon(makeIcon(f, off.dx, off.dy, true));
@@ -1522,10 +1551,16 @@
         var deps = data.departures || [];
         var arrs = data.arrivals || [];
         var allFlights = deps.concat(arrs).filter(function (f) { return f.latitude != null; });
+
+        // Capture inLocal from the REAL airport data before we augment the list.
+        // If we check after augmenting, the injected en-route entry makes it look like
+        // the flight is in local data, which incorrectly stops the track poller every
+        // other cycle and causes the marker/panel to be torn down and rebuilt.
+        var inLocal = !!(tc && allFlights.some(function (f) { return f.callsign === tc; }));
+
         if (trackedEnRoute && tc && markers[tc] && markers[tc]._flightData) {
             var enRouteFd = markers[tc]._flightData;
-            if (!allFlights.some(function (f) { return f.callsign === tc; }))
-                allFlights = allFlights.concat([enRouteFd]);
+            if (!inLocal) allFlights = allFlights.concat([enRouteFd]);
         }
         updateMarkers(allFlights);
         updateATC(data.controllers || []);
@@ -1533,7 +1568,6 @@
 
         // Manage en-route poller based on whether tracked flight is in local data
         if (tc) {
-            var inLocal = allFlights.some(function (f) { return f.callsign === tc; });
             if (inLocal) stopTrackPoller();
             else ensureTrackPoller(tc);
         }
