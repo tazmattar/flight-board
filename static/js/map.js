@@ -414,9 +414,33 @@
     }
 
     /* ── Breadcrumb trails ───────────────────────────────── */
-    var trails = {};       // callsign → { positions: [[lat,lng], ...], dots: [L.circleMarker, ...] }
-    var TRAIL_MAX = 80;    // max trail points per aircraft (interpolated)
+    var trails = {};       // callsign → { positions: [[lat,lng], ...], segs: [L.polyline, ...] }
+    var TRAIL_MAX = 80;    // max position points stored per aircraft
     var TRAIL_MIN_DIST = 0.002; // ~200m — skip if barely moved
+
+    // Catmull-Rom spline: smooth curve through control points.
+    // stepsPerSegment controls how many interpolated points are inserted
+    // between each consecutive pair of stored positions.
+    function catmullRomSmooth(pts, stepsPerSeg) {
+        if (pts.length < 2) return pts.slice();
+        var out = [];
+        for (var i = 0; i < pts.length - 1; i++) {
+            var p0 = pts[Math.max(0, i - 1)];
+            var p1 = pts[i];
+            var p2 = pts[i + 1];
+            var p3 = pts[Math.min(pts.length - 1, i + 2)];
+            for (var s = 0; s < stepsPerSeg; s++) {
+                var tt = s / stepsPerSeg;
+                var tt2 = tt * tt, tt3 = tt2 * tt;
+                out.push([
+                    0.5 * ((2*p1[0]) + (-p0[0]+p2[0])*tt + (2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*tt2 + (-p0[0]+3*p1[0]-3*p2[0]+p3[0])*tt3),
+                    0.5 * ((2*p1[1]) + (-p0[1]+p2[1])*tt + (2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*tt2 + (-p0[1]+3*p1[1]-3*p2[1]+p3[1])*tt3)
+                ]);
+            }
+        }
+        out.push(pts[pts.length - 1]);
+        return out;
+    }
 
     function isAirborne(f) {
         return (f.groundspeed || 0) >= 50 || (f.altitude || 0) >= 500;
@@ -436,56 +460,53 @@
 
         if (!isAirborne(f)) return; // ground ops — no trail
 
-        if (!trails[cs]) trails[cs] = { positions: [], dots: [], color: color };
+        if (!trails[cs]) trails[cs] = { positions: [], segs: [], color: color };
         var t = trails[cs];
 
         // Skip if hasn't moved enough
         var last = t.positions.length > 0 ? t.positions[t.positions.length - 1] : null;
         if (last && distSq(pos, last) < TRAIL_MIN_DIST * TRAIL_MIN_DIST) return;
 
-        // Interpolate between last known position and current
-        if (last) {
-            var gap = Math.sqrt(distSq(pos, last));
-            var steps = Math.min(Math.floor(gap / TRAIL_MIN_DIST), 3); // up to 3 interpolated points
-            for (var s = 1; s < steps; s++) {
-                var frac = s / steps;
-                t.positions.push([
-                    last[0] + (pos[0] - last[0]) * frac,
-                    last[1] + (pos[1] - last[1]) * frac
-                ]);
-            }
-        }
-
         t.positions.push(pos);
         t.color = color;
 
         // Trim oldest
-        while (t.positions.length > maxLen) {
-            t.positions.shift();
-            if (t.dots.length > 0) { map.removeLayer(t.dots.shift()); }
-        }
+        while (t.positions.length > maxLen) t.positions.shift();
 
-        // Re-render all dots with fading opacity
-        t.dots.forEach(function (d) { map.removeLayer(d); });
-        t.dots = [];
-        for (var i = 0; i < t.positions.length - 1; i++) {
-            var age = t.positions.length - 1 - i; // 0 = newest
-            var opacity = dimFactor * (0.1 + 0.5 * (1 - age / maxLen));
-            var radius = 1 + 0.5 * (1 - age / maxLen);
-            var dot = L.circleMarker(t.positions[i], {
-                radius: radius,
-                fillColor: t.color,
-                fillOpacity: opacity,
-                stroke: false,
-                interactive: false,
-            }).addTo(map);
-            t.dots.push(dot);
+        // Re-render as a Catmull-Rom smooth curve split into opacity-graded segments.
+        // 10 segments fade from near-transparent at the tail to solid at the head.
+        t.segs.forEach(function (s) { map.removeLayer(s); });
+        t.segs = [];
+
+        if (t.positions.length < 2) return;
+
+        var smooth = catmullRomSmooth(t.positions, 4); // 4 interpolated steps between each stored point
+        var N = smooth.length;
+        var NUM_SEGS = 10;
+        var segLen = Math.max(1, Math.floor(N / NUM_SEGS));
+
+        for (var seg = 0; seg < NUM_SEGS; seg++) {
+            var iStart = seg * segLen;
+            var iEnd   = Math.min(N - 1, (seg + 1) * segLen + 1); // +1 overlap so segments join cleanly
+            if (iStart >= N - 1) break;
+            var segPts = smooth.slice(iStart, iEnd + 1);
+            if (segPts.length < 2) continue;
+            var frac    = seg / (NUM_SEGS - 1); // 0 = oldest, 1 = newest
+            var opacity = dimFactor * (0.06 + 0.55 * frac);
+            var weight  = 0.8 + 1.0 * frac;
+            t.segs.push(L.polyline(segPts, {
+                color:        t.color,
+                weight:       weight,
+                opacity:      opacity,
+                smoothFactor: 0,        // don't let Leaflet simplify — we want the spline preserved
+                interactive:  false,
+            }).addTo(map));
         }
     }
 
     function removeTrail(cs) {
         if (!trails[cs]) return;
-        trails[cs].dots.forEach(function (d) { map.removeLayer(d); });
+        trails[cs].segs.forEach(function (s) { map.removeLayer(s); });
         delete trails[cs];
     }
 
