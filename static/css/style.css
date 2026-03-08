@@ -2229,6 +2229,23 @@ body.map-page {
 }
 .map-atc-panel.collapsed .map-atc-list { display: none; }
 
+.map-atc-loading {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+}
+.map-atc-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.12);
+    border-top-color: rgba(255,255,255,0.45);
+    border-radius: 50%;
+    animation: map-atc-spin 0.8s linear infinite;
+}
+@keyframes map-atc-spin {
+    to { transform: rotate(360deg); }
+}
+
 .map-atc-item {
     display: flex;
     align-items: center;
